@@ -33,6 +33,7 @@ packages/ennie_slim_laden.yaml        helpers, price/solar sensors, smart chargi
 packages/ennie_laadkosten.yaml        period helpers for the cost administration
 packages/ennie_handmatig_laden.yaml   manual charging toggle (script + auto-stop automation)
 packages/ere_certificaten.yaml        ERE certificates and revenue estimate
+packages/nord_pool_grafiekprijzen.yaml  today's and tomorrow's quarter-hour prices for the charts
 dashboard/ennie-dashboard.yaml        the dashboard (raw configuration)
 www/ennie/                            dashboard images
 www/ennie-pdf-button.js               dashboard button that creates and opens the PDF claim
@@ -81,7 +82,7 @@ The entity IDs come from the author's installation. Replace them with your own (
 | `sensor.oprit_zaptec_go2_*`, `switch.oprit_zaptec_go2_*`, `binary_sensor.oprit_zaptec_go2_*` | Zaptec charger entities ("oprit" is the charger name) |
 | `sensor.skoda_enyaq_*`, `binary_sensor.skoda_enyaq_*`, `lock.…`, `climate.…`, `device_tracker.skoda_enyaq_skoda_enyaq` | MySkoda entities |
 | `sensor.electricity_meter_energieverbruik` / `…_energieproductie` | P1 meter import/export power |
-| `sensor.nord_pool_nl_huidige_prijs` | Nord Pool current price |
+| `sensor.nord_pool_nl_huidige_prijs` | Nord Pool current price (also used to find the Nord Pool config entry) |
 
 Zaptec actions target the charger with `device_id: "{{ device_id('sensor.oprit_zaptec_go2_opladermodus') }}"`, so renaming that sensor is enough.
 

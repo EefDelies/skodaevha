@@ -1,0 +1,61 @@
+# ============================================================
+# Nord Pool: kwartierprijzen vandaag en morgen voor ApexCharts
+# Gebruikt door de prijsgrafieken en het package voor slim laden.
+# De Nord Pool-integratie wordt gevonden via de huidige-prijssensor;
+# pas die entity aan als jouw sensor anders heet.
+# ============================================================
+
+template:
+  - triggers:
+      - trigger: homeassistant
+        event: start
+      - trigger: time_pattern
+        minutes: "/15"
+    actions:
+      - action: nordpool.get_prices_for_date
+        data:
+          config_entry: "{{ config_entry_id('sensor.nord_pool_nl_huidige_prijs') }}"
+          date: "{{ now().date() }}"
+          areas:
+            - NL
+          currency: EUR
+        response_variable: today_price
+      # Voor publicatie kan morgen nog niet beschikbaar zijn.
+      - action: nordpool.get_prices_for_date
+        continue_on_error: true
+        data:
+          config_entry: "{{ config_entry_id('sensor.nord_pool_nl_huidige_prijs') }}"
+          date: "{{ (now() + timedelta(days=1)).date() }}"
+          areas:
+            - NL
+          currency: EUR
+        response_variable: tomorrow_price
+    sensor:
+      - name: Nord Pool Grafiekprijzen
+        unique_id: nord_pool_grafiekprijzen
+        unit_of_measurement: EUR/kWh
+        state: >
+          {{ states('sensor.nord_pool_nl_huidige_prijs') }}
+        attributes:
+          prices: >
+            {% set ns = namespace(prices=[]) %}
+            {% if today_price is defined and today_price is mapping
+                  and 'NL' in today_price %}
+              {% for p in today_price['NL'] %}
+                {% set ns.prices = ns.prices + [{
+                  'time': p.start,
+                  'price': (p.price / 1000) | round(5)
+                }] %}
+              {% endfor %}
+            {% endif %}
+            {% if tomorrow_price is defined and tomorrow_price is mapping
+                  and 'NL' in tomorrow_price %}
+              {% for p in tomorrow_price['NL'] %}
+                {% set ns.prices = ns.prices + [{
+                  'time': p.start,
+                  'price': (p.price / 1000) | round(5)
+                }] %}
+              {% endfor %}
+            {% endif %}
+            {{ ns.prices if ns.prices | count > 0
+               else this.attributes.get('prices', []) }}
