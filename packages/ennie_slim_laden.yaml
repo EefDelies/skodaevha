@@ -1,0 +1,583 @@
+# ============================================================
+# ENNIE - DYNAMISCH LADEN V7.5
+# Nord Pool uurgemiddelde + NextEnergy + Zaptec Go 2 + MySkoda
+# V7: zonne-overschot telt mee in de laadprijs (overschot = gratis)
+# V7.1: geen spookoverschot bij insteken; stoppen zonder wachten op Skoda-laadkabel
+# V7.2: zonne-laadenergie (kWh) voor de laadkostenadministratie
+# V7.3: tarief-sensoren zodat de laadkosten historisch het juiste tarief gebruiken
+# V7.4: vergoeding werkgever als instelbaar veld (met historie)
+# V7.5: laadlocatie (thuis/extern) en teller voor extern geladen kWh
+# ============================================================
+
+input_boolean:
+  ennie_automatisch_laden:
+    name: Ennie automatisch laden
+    icon: mdi:car-electric
+
+input_number:
+  ennie_max_laadpercentage:
+    name: Ennie maximaal laadpercentage
+    min: 0
+    max: 100
+    step: 10
+    mode: slider
+    unit_of_measurement: "%"
+    icon: mdi:battery-charging-80
+
+  ennie_max_stroomprijs:
+    name: Ennie maximale all-in stroomprijs
+    min: 0
+    max: 1
+    step: 0.01
+    mode: box
+    unit_of_measurement: "EUR/kWh"
+    icon: mdi:currency-eur
+
+  ennie_inkoopvergoeding:
+    name: Ennie NextEnergy inkoopvergoeding
+    min: 0
+    max: 0.20
+    step: 0.0001
+    mode: box
+    unit_of_measurement: "EUR/kWh"
+
+  ennie_energiebelasting:
+    name: Ennie energiebelasting
+    min: 0
+    max: 0.30
+    step: 0.0001
+    mode: box
+    unit_of_measurement: "EUR/kWh"
+
+  # V7.4: vergoeding van de werkgever per geladen kWh (thuisladen)
+  ennie_vergoeding_werkgever:
+    name: Ennie vergoeding werkgever
+    min: 0
+    max: 1
+    step: 0.01
+    mode: box
+    unit_of_measurement: "EUR/kWh"
+    icon: mdi:briefcase-variant
+
+template:
+  - sensor:
+      - name: Ennie beursprijs uurgemiddelde
+        unique_id: ennie_beursprijs_uurgemiddelde
+        icon: mdi:clock-outline
+        unit_of_measurement: "EUR/kWh"
+        state_class: measurement
+        availability: >
+          {% set records = state_attr('sensor.nord_pool_grafiekprijzen', 'prices') or [] %}
+          {% set uur = now().strftime('%Y-%m-%dT%H:') %}
+          {% set ns = namespace(aantal=0) %}
+          {% for p in records %}
+            {% set lokaal = as_local(as_datetime(p['time'])) %}
+            {% if lokaal.strftime('%Y-%m-%dT%H:') == uur and is_number(p['price']) %}
+              {% set ns.aantal = ns.aantal + 1 %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.aantal == 4 }}
+        state: >
+          {% set records = state_attr('sensor.nord_pool_grafiekprijzen', 'prices') or [] %}
+          {% set uur = now().strftime('%Y-%m-%dT%H:') %}
+          {% set ns = namespace(waarden=[]) %}
+          {% for p in records %}
+            {% set lokaal = as_local(as_datetime(p['time'])) %}
+            {% if lokaal.strftime('%Y-%m-%dT%H:') == uur and is_number(p['price']) %}
+              {% set ns.waarden = ns.waarden + [p['price'] | float] %}
+            {% endif %}
+          {% endfor %}
+          {{ (ns.waarden | sum / 4) | round(6) if ns.waarden | count == 4 else none }}
+
+      - name: Ennie stroomprijs all-in
+        unique_id: ennie_stroomprijs_all_in
+        icon: mdi:currency-eur
+        unit_of_measurement: "EUR/kWh"
+        state_class: measurement
+        availability: >
+          {{ is_number(states('sensor.ennie_beursprijs_uurgemiddelde'))
+             and is_number(states('input_number.ennie_inkoopvergoeding'))
+             and is_number(states('input_number.ennie_energiebelasting')) }}
+        state: >
+          {% set beurs = states('sensor.ennie_beursprijs_uurgemiddelde') | float(0) %}
+          {% set opslag = states('input_number.ennie_inkoopvergoeding') | float(0) %}
+          {% set belasting = states('input_number.ennie_energiebelasting') | float(0) %}
+          {{ ((beurs + opslag + belasting) * 1.21) | round(4) }}
+
+      - name: Ennie maximale beursprijs
+        unique_id: ennie_maximale_beursprijs
+        icon: mdi:chart-line
+        unit_of_measurement: "EUR/kWh"
+        state_class: measurement
+        state: >
+          {% set maximum = states('input_number.ennie_max_stroomprijs') | float(0) %}
+          {% set opslag = states('input_number.ennie_inkoopvergoeding') | float(0) %}
+          {% set belasting = states('input_number.ennie_energiebelasting') | float(0) %}
+          {{ ((maximum / 1.21) - opslag - belasting) | round(4) }}
+
+      - name: Ennie accupercentage
+        unique_id: ennie_accupercentage
+        icon: mdi:battery
+        unit_of_measurement: "%"
+        device_class: battery
+        state_class: measurement
+        availability: >
+          {{ is_number(states('sensor.skoda_enyaq_accupercentage')) }}
+        state: >
+          {{ states('sensor.skoda_enyaq_accupercentage') | float(0) | round(0) }}
+
+      # ---------- V7.1: zonne-overschot ----------
+      # Overschot = wat er nu teruggeleverd zou worden als de auto niet laadde.
+      # Niet laden: teruglevering - afname (P1).
+      # Wel laden: teruglevering - afname + GEMETEN laadvermogen (Zaptec).
+      # Startfase: het Zaptec-vermogen komt uit de cloud en de P1 loopt ~30 s
+      # achter. Zolang het laden korter dan 2 minuten loopt of er nog geen
+      # gemeten laadvermogen is, houden we de vorige waarde vast (this.state).
+      # Zo ontstaat er bij het insteken geen "spookoverschot".
+      # Het attribuut netto_afname verandert bij elke P1-update, zodat de
+      # statistics-sensor ook bij een constant overschot regelmatig samples krijgt.
+      - name: Ennie zonne-overschot
+        unique_id: ennie_zonne_overschot
+        icon: mdi:solar-power-variant
+        unit_of_measurement: kW
+        device_class: power
+        state_class: measurement
+        availability: >
+          {{ is_number(states('sensor.electricity_meter_energieproductie'))
+             and is_number(states('sensor.electricity_meter_energieverbruik')) }}
+        state: >
+          {% set export = states('sensor.electricity_meter_energieproductie') | float(0) %}
+          {% set import = states('sensor.electricity_meter_energieverbruik') | float(0) %}
+          {% set modus = states.sensor.oprit_zaptec_go2_opladermodus %}
+          {% set laden = modus is not none and modus.state == 'connected_charging' %}
+          {% set laadduur = (now() - modus.last_changed).total_seconds() if laden else 0 %}
+          {% set gemeten = states('sensor.oprit_zaptec_go2_laadvermogen') | float(0) / 1000 %}
+          {% set vorige = this.state | float(0) if is_number(this.state) else 0 %}
+          {% if laden and (gemeten <= 1 or laadduur < 120) %}
+            {{ vorige }}
+          {% else %}
+            {{ [export - import + (gemeten if laden else 0), 0] | max | round(3) }}
+          {% endif %}
+        attributes:
+          netto_afname: >
+            {{ (states('sensor.electricity_meter_energieverbruik') | float(0)
+                - states('sensor.electricity_meter_energieproductie') | float(0)) | round(3) }}
+
+      # V7.2: deel van het laadvermogen dat uit zonne-overschot komt.
+      # Alleen tijdens laden en met een gemeten Zaptec-vermogen; anders 0.
+      # Wordt hieronder (platform: integration) opgeteld tot kWh, zodat
+      # ennie_laadkosten zonne-kWh ook na maanden nog kan terugvinden.
+      # V7.3: spiegels van de tarief-helpers. Door state_class: measurement
+      # bewaart HA per uur blijvend welk tarief er gold, zodat
+      # ennie_laadkosten oude uren met het toen geldende tarief rekent.
+      # Op 1 januari alleen de helper aanpassen; de historie volgt vanzelf.
+      - name: Ennie tarief energiebelasting
+        unique_id: ennie_tarief_energiebelasting
+        icon: mdi:bank
+        unit_of_measurement: "EUR/kWh"
+        state_class: measurement
+        availability: "{{ is_number(states('input_number.ennie_energiebelasting')) }}"
+        state: "{{ states('input_number.ennie_energiebelasting') | float }}"
+
+      - name: Ennie tarief inkoopvergoeding
+        unique_id: ennie_tarief_inkoopvergoeding
+        icon: mdi:cash-plus
+        unit_of_measurement: "EUR/kWh"
+        state_class: measurement
+        availability: "{{ is_number(states('input_number.ennie_inkoopvergoeding')) }}"
+        state: "{{ states('input_number.ennie_inkoopvergoeding') | float }}"
+
+      - name: Ennie tarief vergoeding werkgever
+        unique_id: ennie_tarief_vergoeding_werkgever
+        icon: mdi:briefcase-variant
+        unit_of_measurement: "EUR/kWh"
+        state_class: measurement
+        availability: "{{ is_number(states('input_number.ennie_vergoeding_werkgever')) }}"
+        state: "{{ states('input_number.ennie_vergoeding_werkgever') | float }}"
+
+      # V7.5: waar laadt Ennie? thuis = Zaptec laadt (of de auto laadt en staat
+      # thuis / aan de Zaptec); extern = de auto laadt ergens anders.
+      # Extern laden telt nergens mee (kosten, vergoeding, ERE, prijs- en
+      # limietsturing); het wordt alleen getoond en apart in kWh geteld.
+      - name: Ennie laadlocatie
+        unique_id: ennie_laadlocatie
+        icon: mdi:map-marker-radius
+        state: >
+          {% set skoda = states('sensor.skoda_enyaq_laadstatus') %}
+          {% set zaptec = states('sensor.oprit_zaptec_go2_opladermodus') %}
+          {% set plek = states('device_tracker.skoda_enyaq_skoda_enyaq') %}
+          {% if zaptec == 'connected_charging'
+                or (skoda == 'charging' and (zaptec.startswith('connected') or plek == 'home')) %}
+            thuis
+          {% elif skoda == 'charging' %}
+            extern
+          {% else %}
+            geen
+          {% endif %}
+        attributes:
+          plaats: >
+            {% set plek = states('device_tracker.skoda_enyaq_skoda_enyaq') %}
+            {% if plek == 'home' %}Thuis{% elif plek in ['not_home', 'unknown', 'unavailable'] %}Onderweg{% else %}{{ plek }}{% endif %}
+          laadmethode: "{{ states('sensor.skoda_enyaq_laadmethode') | upper }}"
+          vermogen_kw: "{{ states('sensor.skoda_enyaq_laadvermogen') | float(0) }}"
+
+      - name: Ennie extern laadvermogen
+        unique_id: ennie_extern_laadvermogen
+        icon: mdi:ev-station
+        unit_of_measurement: kW
+        device_class: power
+        state_class: measurement
+        state: >
+          {{ states('sensor.skoda_enyaq_laadvermogen') | float(0)
+             if is_state('sensor.ennie_laadlocatie', 'extern') else 0 }}
+
+      - name: Ennie zonne-laadvermogen
+        unique_id: ennie_zonne_laadvermogen
+        icon: mdi:solar-power-variant-outline
+        unit_of_measurement: kW
+        device_class: power
+        state_class: measurement
+        state: >
+          {% set laden = is_state('sensor.oprit_zaptec_go2_opladermodus', 'connected_charging') %}
+          {% set gemeten = states('sensor.oprit_zaptec_go2_laadvermogen') | float(0) / 1000 %}
+          {% set overschot = states('sensor.ennie_zonne_overschot') | float(0) %}
+          {{ ([gemeten, overschot] | min | round(3)) if (laden and gemeten > 1) else 0 }}
+
+      - name: Ennie laadvermogen aanname
+        unique_id: ennie_laadvermogen_aanname
+        icon: mdi:ev-station
+        unit_of_measurement: kW
+        device_class: power
+        state_class: measurement
+        state: >
+          {% set laden = is_state('sensor.oprit_zaptec_go2_opladermodus', 'connected_charging') %}
+          {% set gemeten = states('sensor.oprit_zaptec_go2_laadvermogen') | float(0) / 1000 %}
+          {% set nominaal = 3 * 230 * states('number.oprit_zaptec_go2_max_stroom') | float(16) / 1000 %}
+          {{ (gemeten if (laden and gemeten > 1) else nominaal) | round(2) }}
+
+      - name: Ennie benodigd zonne-overschot
+        unique_id: ennie_benodigd_zonne_overschot
+        icon: mdi:solar-power
+        unit_of_measurement: kW
+        device_class: power
+        state_class: measurement
+        availability: >
+          {{ is_number(states('sensor.ennie_stroomprijs_all_in'))
+             and states('sensor.ennie_stroomprijs_all_in') | float(0) > 0
+             and is_number(states('input_number.ennie_max_stroomprijs'))
+             and is_number(states('sensor.ennie_laadvermogen_aanname')) }}
+        state: >
+          {% set p = states('sensor.ennie_laadvermogen_aanname') | float(0) %}
+          {% set prijs = states('sensor.ennie_stroomprijs_all_in') | float(0) %}
+          {% set max = states('input_number.ennie_max_stroomprijs') | float(0) %}
+          {{ (p * (1 - max / prijs)) | round(2) if prijs > max else 0 }}
+
+      - name: Ennie effectieve laadprijs
+        unique_id: ennie_effectieve_laadprijs
+        icon: mdi:cash-fast
+        unit_of_measurement: "EUR/kWh"
+        state_class: measurement
+        availability: >
+          {{ is_number(states('sensor.ennie_stroomprijs_all_in'))
+             and is_number(states('sensor.ennie_zonne_overschot_gemiddeld'))
+             and states('sensor.ennie_laadvermogen_aanname') | float(0) > 0 }}
+        state: >
+          {% set p = states('sensor.ennie_laadvermogen_aanname') | float(0) %}
+          {% set prijs = states('sensor.ennie_stroomprijs_all_in') | float(0) %}
+          {% set s = [states('sensor.ennie_zonne_overschot_gemiddeld') | float(0), p] | min %}
+          {{ (prijs * (p - s) / p) | round(4) }}
+
+  - binary_sensor:
+      - name: Ennie prijsgegevens actueel
+        unique_id: ennie_prijsgegevens_actueel
+        icon: mdi:cloud-check
+        state: >
+          {{ is_number(states('sensor.ennie_beursprijs_uurgemiddelde')) }}
+
+      - name: Ennie prijs gunstig
+        unique_id: ennie_prijs_gunstig
+        icon: mdi:cash-check
+        availability: >
+          {{ is_state('binary_sensor.ennie_prijsgegevens_actueel', 'on')
+             and is_number(states('sensor.ennie_stroomprijs_all_in'))
+             and is_number(states('input_number.ennie_max_stroomprijs')) }}
+        state: >
+          {{ states('sensor.ennie_stroomprijs_all_in') | float(999)
+             <= states('input_number.ennie_max_stroomprijs') | float(0) }}
+
+      - name: Ennie aangesloten op thuislader
+        unique_id: ennie_aangesloten_op_thuislader
+        icon: mdi:ev-plug-type2
+        availability: >
+          {{ states('binary_sensor.skoda_enyaq_laadkabel') in ['on', 'off']
+             and states('sensor.oprit_zaptec_go2_opladermodus')
+               not in ['unknown', 'unavailable'] }}
+        state: >
+          {{ is_state('binary_sensor.skoda_enyaq_laadkabel', 'on')
+             and states('sensor.oprit_zaptec_go2_opladermodus') in
+               ['connected_requesting', 'connected_charging', 'connected_finished'] }}
+
+      - name: Ennie Skoda gegevens actueel
+        unique_id: ennie_skoda_gegevens_actueel
+        icon: mdi:cloud-check-outline
+        state: >
+          {# Gebruik de laatste HA-rapportage van het accupercentage (maximaal 30 minuten oud).
+             Let op: last_reported bewijst niet dat de auto zelf opnieuw is uitgelezen. #}
+          {% set accu = states.sensor.skoda_enyaq_accupercentage %}
+          {% set percentage = states('sensor.skoda_enyaq_accupercentage') %}
+          {% set rapportage = as_timestamp(accu.last_reported, 0) if accu is not none else 0 %}
+          {% set leeftijd = as_timestamp(now()) - rapportage %}
+          {{ is_number(percentage)
+             and 0 <= percentage | float <= 100
+             and rapportage > 0
+             and -60 <= leeftijd <= 1800 }}
+
+      - name: Ennie accu volledig geladen
+        unique_id: ennie_accu_volledig_geladen
+        icon: mdi:battery-check
+        availability: >
+          {{ is_number(states('sensor.ennie_accupercentage')) and is_number(states('input_number.ennie_max_laadpercentage')) }}
+        state: >
+          {{ states('sensor.ennie_accupercentage') | float(0) >= states('input_number.ennie_max_laadpercentage') | float(80) }}
+
+      # ---------- V7: laden met zon ----------
+      # Aan zodra de effectieve laadprijs (10-min gemiddeld overschot) <= maximum.
+      # Hysterese: blijft aan tot de effectieve prijs 3% boven het maximum komt.
+      # Bewust geen delay_on/delay_off: HA herstart die timer bij elke
+      # herberekening, en het gemiddelde werkt elke ~30 s bij. Het
+      # 10-minutengemiddelde + hysterese doen het dempen.
+      - name: Ennie zon maakt laden gunstig
+        unique_id: ennie_zon_maakt_laden_gunstig
+        icon: mdi:solar-power
+        availability: >
+          {{ is_state('binary_sensor.ennie_prijsgegevens_actueel', 'on')
+             and is_number(states('sensor.ennie_effectieve_laadprijs'))
+             and is_number(states('input_number.ennie_max_stroomprijs')) }}
+        state: >
+          {% set eff = states('sensor.ennie_effectieve_laadprijs') | float(999) %}
+          {% set max = states('input_number.ennie_max_stroomprijs') | float(0) %}
+          {% set s = states('sensor.ennie_zonne_overschot_gemiddeld') | float(0) %}
+          {% if this.state == 'on' %}
+            {{ eff <= max * 1.03 }}
+          {% else %}
+            {{ s >= 0.3 and eff <= max
+               and states('sensor.ennie_zonne_overschot') | float(0) >= 0.3 }}
+          {% endif %}
+
+      - name: Ennie laden toegestaan
+        unique_id: ennie_laden_toegestaan
+        icon: mdi:ev-plug-type2
+        availability: >
+          {{ states('binary_sensor.ennie_prijs_gunstig') in ['on', 'off'] }}
+        state: >
+          {{ is_state('binary_sensor.ennie_prijs_gunstig', 'on')
+             or is_state('binary_sensor.ennie_zon_maakt_laden_gunstig', 'on') }}
+
+sensor:
+  # V7.1: tijdgewogen gemiddelde zonne-overschot over 10 minuten (dempt wolken).
+  # average_step: elke waarde telt zolang hij gold. keep_last_sample: na een
+  # lange constante periode blijft de laatste waarde in de buffer, zodat een
+  # eerste nieuwe (piek)meting niet ineens het hele gemiddelde wordt.
+  - platform: statistics
+    name: Ennie zonne-overschot gemiddeld
+    unique_id: ennie_zonne_overschot_gemiddeld
+    entity_id: sensor.ennie_zonne_overschot
+    state_characteristic: average_step
+    max_age:
+      minutes: 10
+    keep_last_sample: true
+    sampling_size: 200
+    precision: 3
+
+  # V7.2: totale zonne-energie die in de auto is geladen (kWh, oplopend).
+  # V7.5: totale energie die extern (niet thuis) is geladen, alleen ter info.
+  # Schatting op basis van het Skoda-laadvermogen (cloud, vertraagd).
+  - platform: integration
+    name: Ennie extern geladen energie
+    unique_id: ennie_extern_geladen_energie
+    source: sensor.ennie_extern_laadvermogen
+    method: left
+    round: 3
+    max_sub_interval:
+      minutes: 1
+
+  - platform: integration
+    name: Ennie zonne-laadenergie
+    unique_id: ennie_zonne_laadenergie
+    source: sensor.ennie_zonne_laadvermogen
+    method: left
+    round: 3
+    max_sub_interval:
+      minutes: 1
+
+automation:
+  - id: ennie_dynamisch_laden_v2
+    alias: Ennie - Dynamisch laden op NextEnergy uurprijs
+    description: >
+      V4: laadt als de uurprijs gunstig is, of als het zonne-overschot de effectieve
+      laadprijs onder het maximum brengt (binary_sensor.ennie_laden_toegestaan).
+      Beëindigt de Zaptec-sessie zodra geen van beide geldt. Verifieert de laadstatus en probeert beperkt te herstellen.
+      Onbekende prijsgegevens leiden niet tot een laadactie.
+    mode: single
+    max_exceeded: silent
+
+    triggers:
+      - trigger: time_pattern
+        minutes: "/5"
+      - trigger: state
+        entity_id:
+          - binary_sensor.ennie_laden_toegestaan
+          - binary_sensor.ennie_prijsgegevens_actueel
+          - binary_sensor.ennie_aangesloten_op_thuislader
+          - input_boolean.ennie_automatisch_laden
+          - input_number.ennie_max_stroomprijs
+          - input_number.ennie_max_laadpercentage
+          - sensor.ennie_accupercentage
+      - trigger: state
+        entity_id: sensor.oprit_zaptec_go2_opladermodus
+        to: connected_charging
+      - trigger: homeassistant
+        event: start
+
+    actions:
+      - delay: "00:00:05"
+      - condition: state
+        entity_id: input_boolean.ennie_automatisch_laden
+        state: "on"
+      # V4.1: de laadkabel-check van Skoda komt soms minuten te laat binnen.
+      # Stoppen mag daarom op basis van de Zaptec-status alleen; alleen het
+      # (her)starten vereist dat de auto aan de thuislader hangt (zie tak 2).
+      - condition: state
+        entity_id: binary_sensor.ennie_prijsgegevens_actueel
+        state: "on"
+      - condition: template
+        value_template: >
+          {{ is_number(states('sensor.ennie_beursprijs_uurgemiddelde'))
+             and is_number(states('sensor.ennie_stroomprijs_all_in'))
+             and states('binary_sensor.ennie_laden_toegestaan') in ['on', 'off'] }}
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.ennie_laden_toegestaan
+                state: "off"
+              - condition: state
+                entity_id: sensor.oprit_zaptec_go2_opladermodus
+                state: connected_charging
+            sequence:
+              - action: zaptec.stop_charging
+                target:
+                  device_id: "{{ device_id('sensor.oprit_zaptec_go2_opladermodus') }}"
+              - wait_template: >
+                  {{ is_state('sensor.oprit_zaptec_go2_opladermodus', 'connected_finished')
+                     or is_state('sensor.oprit_zaptec_go2_opladermodus', 'connected_requesting') }}
+                timeout: "00:01:00"
+                continue_on_timeout: true
+              - if:
+                  - condition: template
+                    value_template: "{{ not wait.completed }}"
+                then:
+                  - action: persistent_notification.create
+                    data:
+                      title: "Ennie: stoppen niet bevestigd"
+                      message: "Zaptec heeft na stop_charging geen bevestigde stopstatus gemeld. Controleer de lader."
+
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.ennie_laden_toegestaan
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.ennie_aangesloten_op_thuislader
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.ennie_skoda_gegevens_actueel
+                state: "on"
+              - condition: template
+                value_template: >
+                  {{ is_number(states('sensor.ennie_accupercentage'))
+                     and is_number(states('input_number.ennie_max_laadpercentage'))
+                     and states('input_number.ennie_max_laadpercentage') | float(0) > 0
+                     and states('sensor.ennie_accupercentage') | float(101)
+                         < states('input_number.ennie_max_laadpercentage') | float(0) }}
+              - condition: template
+                value_template: >
+                  {{ states('sensor.oprit_zaptec_go2_opladermodus') in
+                     ['connected_finished', 'connected_requesting'] }}
+            sequence:
+              - repeat:
+                  count: 3
+                  sequence:
+                    - if:
+                        - condition: template
+                          value_template: >
+                            {{ is_state('sensor.oprit_zaptec_go2_opladermodus', 'connected_charging')
+                               or not is_state('input_boolean.ennie_automatisch_laden', 'on')
+                               or not is_state('binary_sensor.ennie_laden_toegestaan', 'on')
+                               or not is_state('binary_sensor.ennie_aangesloten_op_thuislader', 'on')
+                               or not is_state('binary_sensor.ennie_skoda_gegevens_actueel', 'on')
+                               or not is_number(states('sensor.ennie_accupercentage'))
+                               or states('input_number.ennie_max_laadpercentage') | float(0) == 0
+                               or states('sensor.ennie_accupercentage') | float(101)
+                                  >= states('input_number.ennie_max_laadpercentage') | float(0) }}
+                      then:
+                        - stop: "Laden actief of voorwaarden gewijzigd"
+                    - action: zaptec.resume_charging
+                      target:
+                        device_id: "{{ device_id('sensor.oprit_zaptec_go2_opladermodus') }}"
+                    - wait_template: >
+                        {{ is_state('sensor.oprit_zaptec_go2_opladermodus', 'connected_charging') }}
+                      timeout: "00:01:00"
+                      continue_on_timeout: true
+                    - if:
+                        - condition: template
+                          value_template: "{{ wait.completed }}"
+                      then:
+                        - stop: "Laden hervat"
+                    - delay: "00:00:20"
+              - if:
+                  - condition: template
+                    value_template: >
+                      {{ not is_state('sensor.oprit_zaptec_go2_opladermodus', 'connected_charging')
+                         and is_state('input_boolean.ennie_automatisch_laden', 'on')
+                         and is_state('binary_sensor.ennie_laden_toegestaan', 'on') }}
+                then:
+                  - action: persistent_notification.create
+                    data:
+                      title: "Ennie: laden start niet"
+                      message: >
+                        Zaptec is na drie resume_charging-pogingen niet naar
+                        connected_charging gegaan. Controleer MySkoda en Zaptec.
+
+  - id: ennie_laadlimiet_bewaken_v4
+    alias: Ennie - Laadlimiet bewaken (v4)
+    description: Stop laden ongeacht handmatige of automatische modus bij ingestelde limiet.
+    mode: restart
+    triggers:
+      - trigger: state
+        entity_id:
+          - sensor.ennie_accupercentage
+          - input_number.ennie_max_laadpercentage
+          - sensor.oprit_zaptec_go2_opladermodus
+      - trigger: time_pattern
+        minutes: "/1"
+      - trigger: homeassistant
+        event: start
+    conditions:
+      - condition: state
+        entity_id: sensor.oprit_zaptec_go2_opladermodus
+        state: connected_charging
+      - condition: template
+        value_template: >
+          {{ is_number(states('input_number.ennie_max_laadpercentage'))
+             and (
+               states('input_number.ennie_max_laadpercentage') | float(80) == 0
+               or (
+                 is_state('binary_sensor.ennie_skoda_gegevens_actueel', 'on')
+                 and is_number(states('sensor.ennie_accupercentage'))
+                 and states('sensor.ennie_accupercentage') | float(0)
+                     >= states('input_number.ennie_max_laadpercentage') | float(80)
+               )
+             ) }}
+    actions:
+      - action: zaptec.stop_charging
+        target:
+          device_id: "{{ device_id('sensor.oprit_zaptec_go2_opladermodus') }}"

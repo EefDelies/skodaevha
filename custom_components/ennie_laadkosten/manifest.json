@@ -1,0 +1,15 @@
+{
+  "domain": "ennie_laadkosten",
+  "name": "Ennie Laadkosten",
+  "version": "2.1.0",
+  "dependencies": [
+    "recorder",
+    "input_datetime",
+    "input_number"
+  ],
+  "requirements": [],
+  "codeowners": [],
+  "iot_class": "calculated",
+  "documentation": "https://github.com/EefDelies/skodaevha",
+  "issue_tracker": "https://github.com/EefDelies/skodaevha/issues"
+}

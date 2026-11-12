@@ -1,0 +1,11 @@
+ververs:
+  name: Ververs laadkosten
+  description: >
+    Herberekent de historische laadkosten van Ennie
+    voor de geselecteerde periode.
+
+maak_declaratie:
+  name: Maak declaratie PDF
+  description: >
+    Maakt een PDF voor de geselecteerde periode en toont
+    een downloadlink in Home Assistant-meldingen.

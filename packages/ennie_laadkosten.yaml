@@ -1,0 +1,38 @@
+# ============================================================
+# ENNIE - LAADKOSTENADMINISTRATIE
+# Helpers en automatisering voor de custom component ennie_laadkosten.
+#
+# Let op: had je deze helpers al via de UI aangemaakt
+# (Instellingen > Apparaten & diensten > Helpers), verwijder die dan
+# eerst of laat dit blok weg. Dubbele entity-ID's laden niet.
+# ============================================================
+
+input_datetime:
+  ennie_kosten_van:
+    name: Ennie kosten vanaf
+    has_date: true
+    has_time: false
+    icon: mdi:calendar
+
+  ennie_kosten_tot:
+    name: Ennie kosten tot
+    has_date: true
+    has_time: false
+    icon: mdi:calendar
+
+automation:
+  - id: ennie_laadkosten_verversen_bij_periodewijziging
+    alias: Ennie - Laadkosten verversen bij periodewijziging
+    description: Herberekent de laadkosten wanneer de geselecteerde periode verandert.
+    mode: restart
+    triggers:
+      - trigger: state
+        entity_id:
+          - input_datetime.ennie_kosten_van
+          - input_datetime.ennie_kosten_tot
+    actions:
+      - delay:
+          seconds: 1
+      - action: homeassistant.update_entity
+        target:
+          entity_id: sensor.ennie_laadkosten_periode
