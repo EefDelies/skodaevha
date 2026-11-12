@@ -1,4 +1,4 @@
-# Ennie – smart EV charging for Home Assistant
+# Smart EV charging for Home Assistant
 
 A complete Home Assistant setup for a **Škoda Enyaq** charged by a **Zaptec Go 2** home charger on a **dynamic (hourly) electricity contract** in the Netherlands. It includes:
 
