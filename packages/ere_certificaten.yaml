@@ -1,0 +1,216 @@
+# =============================================================================
+# ERE-certificaten (groen-laden.nl)
+# Bestand: config/packages/ere_certificaten.yaml
+#
+# Berekening zoals groen-laden.nl / NEa:
+#   ERE    = kWh x hernieuwbaar aandeel x 183 g/MJ x 3,6 MJ/kWh / 1000
+#   Bruto  = ERE x ERE-prijs
+#   Fee    = 15% van bruto, minimaal 34,99 en maximaal 79,99 per laadpaal per jaar
+#   Netto  = bruto - fee
+# Bron kWh: MID-meter Zaptec Go2 (sensor.oprit_zaptec_go2_meterwaarde)
+#
+# Eenmalig instellen na herstart (waarden blijven bewaard):
+#   input_number.ere_prijs                    -> wordt dagelijks automatisch gevuld
+#                                                vanaf groen-laden.nl (scrape)
+#   input_number.ere_hernieuwbaar_aandeel     -> 50.5   (NEa 2026, jaarlijks checken)
+#   input_number.ere_meterstand_begin_periode -> 0      (meterstand bij start periode)
+#   input_datetime.ere_begin_periode          -> 2026-10-08
+# =============================================================================
+
+input_number:
+  ere_prijs:
+    name: ERE prijs
+    icon: mdi:currency-eur
+    min: 0
+    max: 2
+    step: 0.001
+    unit_of_measurement: "€/ERE"
+    mode: box
+
+  ere_hernieuwbaar_aandeel:
+    name: ERE hernieuwbaar aandeel
+    icon: mdi:leaf
+    min: 0
+    max: 100
+    step: 0.1
+    unit_of_measurement: "%"
+    mode: box
+
+  ere_meterstand_begin_periode:
+    name: ERE meterstand begin periode
+    icon: mdi:counter
+    min: 0
+    max: 1000000
+    step: 0.001
+    unit_of_measurement: kWh
+    mode: box
+
+input_datetime:
+  ere_begin_periode:
+    name: ERE begin periode
+    icon: mdi:calendar-start
+    has_date: true
+    has_time: false
+
+template:
+  - sensor:
+      # ---------------------------------------------------------------------
+      # Geladen kWh in deze periode
+      # ---------------------------------------------------------------------
+      - name: "ERE geladen kWh periode"
+        unique_id: ere_geladen_kwh_periode
+        icon: mdi:ev-station
+        unit_of_measurement: kWh
+        device_class: energy
+        availability: "{{ has_value('sensor.oprit_zaptec_go2_meterwaarde') }}"
+        state: >
+          {% set kwh = states('sensor.oprit_zaptec_go2_meterwaarde') | float
+                       - states('input_number.ere_meterstand_begin_periode') | float(0) %}
+          {{ [kwh, 0] | max | round(3) }}
+
+      # ---------------------------------------------------------------------
+      # Aantal ERE's tot nu toe
+      # ---------------------------------------------------------------------
+      - name: "ERE certificaten periode"
+        unique_id: ere_certificaten_periode
+        icon: mdi:certificate
+        unit_of_measurement: ERE
+        availability: "{{ has_value('sensor.ere_geladen_kwh_periode') }}"
+        state: >
+          {% set kwh = states('sensor.ere_geladen_kwh_periode') | float %}
+          {% set aandeel = states('input_number.ere_hernieuwbaar_aandeel') | float(0) / 100 %}
+          {{ (kwh * aandeel * 183 * 3.6 / 1000) | round(1) }}
+
+      # ---------------------------------------------------------------------
+      # Opbrengst tot nu toe (netto), bruto en fee als attribuut
+      # ---------------------------------------------------------------------
+      - name: "ERE opbrengst tot nu toe"
+        unique_id: ere_opbrengst_tot_nu_toe
+        icon: mdi:cash-check
+        unit_of_measurement: "€"
+        device_class: monetary
+        availability: "{{ has_value('sensor.ere_certificaten_periode') }}"
+        state: >
+          {% set bruto = states('sensor.ere_certificaten_periode') | float
+                         * states('input_number.ere_prijs') | float(0) %}
+          {% set fee = [[bruto * 0.15, 34.99] | max, 79.99] | min %}
+          {{ [bruto - fee, 0] | max | round(2) }}
+        attributes:
+          bruto: >
+            {{ (states('sensor.ere_certificaten_periode') | float(0)
+                * states('input_number.ere_prijs') | float(0)) | round(2) }}
+          fee: >
+            {% set bruto = states('sensor.ere_certificaten_periode') | float(0)
+                           * states('input_number.ere_prijs') | float(0) %}
+            {{ ([[bruto * 0.15, 34.99] | max, 79.99] | min) | round(2) }}
+
+      # ---------------------------------------------------------------------
+      # Verwachte opbrengst t/m 31 december (op basis van gemiddeld
+      # laadverbruik per dag sinds begin periode)
+      # ---------------------------------------------------------------------
+      - name: "ERE verwachte opbrengst dit jaar"
+        unique_id: ere_verwachte_opbrengst_dit_jaar
+        icon: mdi:cash-clock
+        unit_of_measurement: "€"
+        device_class: monetary
+        availability: >
+          {{ has_value('sensor.ere_geladen_kwh_periode')
+             and has_value('input_datetime.ere_begin_periode') }}
+        state: >
+          {% set kwh = states('sensor.ere_geladen_kwh_periode') | float %}
+          {% set start = states('input_datetime.ere_begin_periode') | as_datetime | as_local %}
+          {% set dagen = [(now() - start).total_seconds() / 86400, 1] | max %}
+          {% set eind = now().replace(month=12, day=31, hour=23, minute=59, second=59) %}
+          {% set rest = (eind - now()).total_seconds() / 86400 %}
+          {% set kwh_jaar = kwh + kwh / dagen * rest %}
+          {% set ere = kwh_jaar * states('input_number.ere_hernieuwbaar_aandeel') | float(0) / 100 * 183 * 3.6 / 1000 %}
+          {% set bruto = ere * states('input_number.ere_prijs') | float(0) %}
+          {% set fee = [[bruto * 0.15, 34.99] | max, 79.99] | min %}
+          {{ [bruto - fee, 0] | max | round(2) }}
+        attributes:
+          kwh_per_dag: >
+            {% set kwh = states('sensor.ere_geladen_kwh_periode') | float(0) %}
+            {% set start = states('input_datetime.ere_begin_periode') | as_datetime | as_local %}
+            {% set dagen = [(now() - start).total_seconds() / 86400, 1] | max %}
+            {{ (kwh / dagen) | round(1) }}
+          verwacht_kwh_dit_jaar: >
+            {% set kwh = states('sensor.ere_geladen_kwh_periode') | float(0) %}
+            {% set start = states('input_datetime.ere_begin_periode') | as_datetime | as_local %}
+            {% set dagen = [(now() - start).total_seconds() / 86400, 1] | max %}
+            {% set eind = now().replace(month=12, day=31, hour=23, minute=59, second=59) %}
+            {% set rest = (eind - now()).total_seconds() / 86400 %}
+            {{ (kwh + kwh / dagen * rest) | round(0) }}
+          verwacht_netto_per_12_maanden: >
+            {% set kwh = states('sensor.ere_geladen_kwh_periode') | float(0) %}
+            {% set start = states('input_datetime.ere_begin_periode') | as_datetime | as_local %}
+            {% set dagen = [(now() - start).total_seconds() / 86400, 1] | max %}
+            {% set ere = kwh / dagen * 365 * states('input_number.ere_hernieuwbaar_aandeel') | float(0) / 100 * 183 * 3.6 / 1000 %}
+            {% set bruto = ere * states('input_number.ere_prijs') | float(0) %}
+            {% set fee = [[bruto * 0.15, 34.99] | max, 79.99] | min %}
+            {{ [bruto - fee, 0] | max | round(2) }}
+
+scrape:
+  # Actuele ERE-prijs van de publieke homepage (geen login nodig), 1x per dag
+  - resource: https://www.groen-laden.nl/
+    scan_interval: 86400
+    timeout: 30
+    headers:
+      User-Agent: "Mozilla/5.0 (Home Assistant scrape)"
+    sensor:
+      - name: "ERE prijs groen-laden"
+        unique_id: ere_prijs_groen_laden
+        icon: mdi:web
+        select: "body"
+        unit_of_measurement: "€/ERE"
+        value_template: >
+          {% set m = value | regex_findall('actuele ERE-prijs van\s*€\s*([0-9]+[,.][0-9]+)') %}
+          {{ m[0] | replace(',', '.') | float if m else none }}
+
+automation:
+  # Gescrapete prijs overnemen in input_number.ere_prijs.
+  # Als de scrape faalt (site gewijzigd/offline) blijft de laatste goede prijs staan.
+  - id: ere_prijs_bijwerken_van_groen_laden
+    alias: "ERE - Prijs bijwerken van groen-laden.nl"
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: sensor.ere_prijs_groen_laden
+      - trigger: homeassistant
+        event: start
+    conditions:
+      - condition: template
+        value_template: >
+          {{ has_value('sensor.ere_prijs_groen_laden')
+             and 0 < states('sensor.ere_prijs_groen_laden') | float(0) < 2
+             and states('sensor.ere_prijs_groen_laden') | float(0)
+                 != states('input_number.ere_prijs') | float(0) }}
+    actions:
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.ere_prijs
+        data:
+          value: "{{ states('sensor.ere_prijs_groen_laden') | float }}"
+
+  # Op 1 januari nieuwe ERE-periode starten
+  - id: ere_nieuwe_periode_1_januari
+    alias: "ERE - Nieuwe periode op 1 januari"
+    mode: single
+    triggers:
+      - trigger: time
+        at: "00:00:05"
+    conditions:
+      - condition: template
+        value_template: "{{ now().month == 1 and now().day == 1 }}"
+      - condition: template
+        value_template: "{{ has_value('sensor.oprit_zaptec_go2_meterwaarde') }}"
+    actions:
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.ere_meterstand_begin_periode
+        data:
+          value: "{{ states('sensor.oprit_zaptec_go2_meterwaarde') | float }}"
+      - action: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.ere_begin_periode
+        data:
+          date: "{{ now().date() }}"

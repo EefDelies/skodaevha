@@ -6,6 +6,7 @@ A complete Home Assistant setup for a **Škoda Enyaq** charged by a **Zaptec Go 
 - **Charge limit** – stops at your chosen state of charge (home charging only).
 - **Manual charging** – a one-tap override that ends by itself when the session is finished.
 - **Charging cost administration** – a custom integration (`ennie_laadkosten`) that calculates the cost of every home-charged kWh for any period, with historical tariffs, free solar energy, and a PDF expense claim for your employer.
+- **ERE certificates** – tracks the kWh charged at home, the number of ERE certificates and the expected net revenue (groen-laden.nl price, scraped daily).
 - **External charging** – detects charging away from home (office, public charger). External kWh are shown but never counted in costs, reimbursement or ERE.
 - **Dashboard** – a dark-green dashboard with separate desktop and mobile layouts.
 
@@ -30,8 +31,11 @@ The dashboard and the entity names are in **Dutch**. The logic is specific to th
 custom_components/ennie_laadkosten/   charging cost integration (+ PDF claim)
 packages/ennie_slim_laden.yaml        helpers, price/solar sensors, smart charging automations
 packages/ennie_laadkosten.yaml        period helpers for the cost administration
+packages/ennie_handmatig_laden.yaml   manual charging toggle (script + auto-stop automation)
+packages/ere_certificaten.yaml        ERE certificates and revenue estimate
 dashboard/ennie-dashboard.yaml        the dashboard (raw configuration)
 www/ennie/                            dashboard images
+www/ennie-pdf-button.js               dashboard button that creates and opens the PDF claim
 tests/test_calc.py                    tests for the cost calculation and the PDF
 ```
 
@@ -62,7 +66,7 @@ tests/test_calc.py                    tests for the cost calculation and the PDF
 
    Every `declaratie` field is optional. Fields you leave empty are left out of the PDF. Keep personal data in `secrets.yaml`, never in the repository.
 
-3. **Images** – copy `www/ennie/` to `/config/www/ennie/`.
+3. **Frontend files** – copy `www/ennie/` to `/config/www/ennie/` and `www/ennie-pdf-button.js` to `/config/www/`. Register the button as a dashboard resource (Settings → Dashboards → ⋮ → Resources): URL `/local/ennie-pdf-button.js?v=3`, type *JavaScript module*. Raise the `?v=` number whenever you update the file, otherwise browsers keep the old version.
 
 4. **Dashboard** – create a new dashboard, open the raw configuration editor and paste the contents of `dashboard/ennie-dashboard.yaml`.
 
@@ -81,6 +85,16 @@ The entity IDs come from the author's installation. Replace them with your own (
 
 Zaptec actions target the charger with `device_id: "{{ device_id('sensor.oprit_zaptec_go2_opladermodus') }}"`, so renaming that sensor is enough.
 
+## ERE certificates
+
+After the first start, set these helpers once (they keep their value):
+
+- `input_number.ere_hernieuwbaar_aandeel` – renewable share published by the NEa (50.5 % for 2026; check every year)
+- `input_number.ere_meterstand_begin_periode` – charger meter reading at the start of the period
+- `input_datetime.ere_begin_periode` – start date of the period
+
+`input_number.ere_prijs` is filled daily from groen-laden.nl. A new period starts automatically on 1 January.
+
 ## Settings
 
 All tariffs are set on the dashboard (section *Instellingen*) and kept as history, so a change only affects the hours after it:
@@ -94,6 +108,7 @@ All tariffs are set on the dashboard (section *Instellingen*) and kept as histor
 ## Privacy and security
 
 - Files in `/config/www/` are served under `/local/` **without authentication**. The PDF claims are stored in `/config/www/declaraties/` with a random suffix in the file name, so the URL cannot be guessed. Remove old claims you no longer need.
+- The PDF button gets the file URL from the `ennie_laadkosten.maak_declaratie` service response, so it keeps working with the random file names.
 - Personal data for the claim (name, address, IBAN) belongs in `secrets.yaml`.
 
 ## Tests

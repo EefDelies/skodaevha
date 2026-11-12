@@ -1,0 +1,172 @@
+# Voeg deze configuratie toe aan een eigen Home Assistant-package
+# (Home Assistant > packages), of voeg de blokken samen met bestaande
+# input_boolean- en script-configuratie. Niet direct als dashboard-YAML plakken.
+# Deze wijziging is onafhankelijk van de bestaande automatische laadregeling.
+input_boolean:
+  ennie_handmatig_laden:
+    name: Ennie handmatig laden
+    icon: mdi:ev-station
+  ennie_auto_was_actief:
+    name: Ennie automatisch laden was actief
+    icon: mdi:content-save-check
+
+script:
+  ennie_handmatig_laden_wisselen:
+    alias: Ennie - Handmatig laden omschakelen (v163)
+    description: >-
+      Bewaart de oorspronkelijke stand van automatisch laden, bedient Zaptec en
+      herstelt na handmatig laden precies de eerdere automatische modus.
+      De status 'handmatig' is een modus, niet een indicatie van laadvermogen.
+    mode: single
+    sequence:
+      - choose:
+          # Handmatig laden uitschakelen.
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.ennie_handmatig_laden
+                state: 'on'
+            sequence:
+              - action: switch.turn_off
+                target:
+                  entity_id: switch.oprit_zaptec_go2_opladen
+                continue_on_error: true
+              # De modus uitschakelen mag niet afhangen van Zaptec-terugmelding.
+              - action: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.ennie_handmatig_laden
+              - choose:
+                  - conditions:
+                      - condition: state
+                        entity_id: input_boolean.ennie_auto_was_actief
+                        state: 'on'
+                    sequence:
+                      - action: input_boolean.turn_on
+                        target:
+                          entity_id: input_boolean.ennie_automatisch_laden
+                default:
+                  - action: input_boolean.turn_off
+                    target:
+                      entity_id: input_boolean.ennie_automatisch_laden
+        default:
+          # Handmatig starten alleen onder de limiet en bij actuele accustatus.
+          - if:
+              - condition: template
+                value_template: >
+                  {{ not is_state('binary_sensor.ennie_skoda_gegevens_actueel', 'on')
+                     or not is_number(states('sensor.ennie_accupercentage'))
+                     or not is_number(states('input_number.ennie_max_laadpercentage'))
+                     or states('input_number.ennie_max_laadpercentage') | float(0) == 0
+                     or states('sensor.ennie_accupercentage') | float(101)
+                        >= states('input_number.ennie_max_laadpercentage') | float(0) }}
+            then:
+              - action: persistent_notification.create
+                data:
+                  title: "Ennie: handmatig laden geblokkeerd"
+                  message: "Laadlimiet bereikt, laden uitgeschakeld of accugegevens niet actueel."
+              - stop: "Handmatig laden niet toegestaan"
+          # Handmatig laden inschakelen: leg vorige automatische modus vast.
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.ennie_automatisch_laden
+                    state: 'on'
+                sequence:
+                  - action: input_boolean.turn_on
+                    target:
+                      entity_id: input_boolean.ennie_auto_was_actief
+            default:
+              - action: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.ennie_auto_was_actief
+          - action: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.ennie_automatisch_laden
+          - action: switch.turn_on
+            target:
+              entity_id: switch.oprit_zaptec_go2_opladen
+            continue_on_error: true
+          - wait_template: "{{ is_state('switch.oprit_zaptec_go2_opladen', 'on') }}"
+            timeout: '00:00:30'
+            continue_on_timeout: true
+          - if:
+              - condition: state
+                entity_id: switch.oprit_zaptec_go2_opladen
+                state: 'on'
+            then:
+              - action: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.ennie_handmatig_laden
+            else:
+              - action: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.ennie_handmatig_laden
+              - choose:
+                  - conditions:
+                      - condition: state
+                        entity_id: input_boolean.ennie_auto_was_actief
+                        state: 'on'
+                    sequence:
+                      - action: input_boolean.turn_on
+                        target:
+                          entity_id: input_boolean.ennie_automatisch_laden
+                default:
+                  - action: input_boolean.turn_off
+                    target:
+                      entity_id: input_boolean.ennie_automatisch_laden
+              - action: system_log.write
+                data:
+                  level: warning
+                  message: >-
+                    Ennie v163: Zaptec bevestigde starten binnen 30 seconden niet.
+                    De eerdere automatische modus is hersteld.
+automation:
+  - id: ennie_handmatig_laden_automatisch_beeindigen
+    alias: Ennie - Handmatig laden automatisch beëindigen
+    description: >-
+      Beëindigt de handmatige laadmodus zodra de sessie voorbij is (stekker eruit,
+      of de Zaptec staat 5 minuten op 'klaar', bijv. na de laadlimiet). Roept het
+      bestaande script aan, dat de eerdere stand van automatisch laden herstelt.
+      Start- en kwartiertrigger vangen gemiste overgangen op.
+    mode: single
+    max_exceeded: silent
+    triggers:
+      - trigger: state
+        entity_id: sensor.oprit_zaptec_go2_opladermodus
+        to: disconnected
+        for: "00:01:00"
+        id: losgekoppeld
+      - trigger: state
+        entity_id: sensor.oprit_zaptec_go2_opladermodus
+        to: connected_finished
+        for: "00:05:00"
+        id: klaar
+      - trigger: homeassistant
+        event: start
+        id: start
+      - trigger: time_pattern
+        minutes: "/15"
+        id: vangnet
+    conditions:
+      - condition: state
+        entity_id: input_boolean.ennie_handmatig_laden
+        state: "on"
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: sensor.oprit_zaptec_go2_opladermodus
+            state: disconnected
+            for: "00:01:00"
+          - condition: state
+            entity_id: sensor.oprit_zaptec_go2_opladermodus
+            state: connected_finished
+            for: "00:05:00"
+    actions:
+      - action: logbook.log
+        data:
+          name: Ennie
+          message: >-
+            Handmatig laden beëindigd (Zaptec-status:
+            {{ states('sensor.oprit_zaptec_go2_opladermodus') }}); eerdere stand
+            van automatisch laden wordt hersteld.
+          entity_id: input_boolean.ennie_handmatig_laden
+      - action: script.ennie_handmatig_laden_wisselen
