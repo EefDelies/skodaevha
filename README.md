@@ -14,6 +14,12 @@ The dashboard and the entity names are in **Dutch**. The logic is specific to th
 
 > Ennie is the name of the car. You will see it throughout the entity IDs (`ennie_*`).
 
+> **Note on the Škoda integration**
+>
+> Ennie is built on the custom [MySkoda](https://github.com/skodaconnect/homeassistant-myskoda) integration. That integration will be phased out soon. After that, this repository will be reworked to use the official Škoda integration in Home Assistant.
+>
+> For now that is not possible: the official integration is very limited and **read-only**. Ennie needs to control the car (lock, climate control, timers, flashing lights), and the official integration does not support that.
+
 ## Requirements
 
 | Component | Used for |
