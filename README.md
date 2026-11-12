@@ -92,6 +92,60 @@ The entity IDs come from the author's installation. Replace them with your own (
 
 Zaptec actions target the charger with `device_id: "{{ device_id('sensor.oprit_zaptec_go2_opladermodus') }}"`, so renaming that sensor is enough.
 
+## How smart charging works
+
+Smart charging only acts when **Automatisch laden** is on, and only on the home charger. It never charges more than the charge limit.
+
+### 1. The all-in price
+
+Nord Pool publishes day-ahead prices per quarter hour. `sensor.ennie_beursprijs_uurgemiddelde` takes the average of the four quarters of the current hour (the price NextEnergy bills). If one of the four is missing, the sensor is unavailable and nothing happens.
+
+The all-in price adds the supplier surcharge and energy tax, then VAT:
+
+```
+all-in = (market price + inkoopvergoeding + energiebelasting) × 1.21
+```
+
+`binary_sensor.ennie_prijs_gunstig` is on when the all-in price is at or below **Maximale all-in prijs**.
+
+### 2. Solar surplus
+
+When the price is too high, solar power can still make charging worthwhile: surplus that would otherwise be exported is treated as free.
+
+- **Surplus** (`sensor.ennie_zonne_overschot`) = export − import from the P1 meter, plus the measured charging power while charging. That is the power that would be exported if the car were not charging.
+- When charging starts, the Zaptec power arrives through the cloud and the P1 meter lags by about 30 seconds. For the first 2 minutes, or until the charger reports more than 1 kW, the sensor keeps its previous value. This prevents a "phantom surplus" at plug-in.
+- The surplus is averaged over 10 minutes (time-weighted) to smooth out passing clouds.
+
+The **effective charging price** is the all-in price for the part that does not come from the sun:
+
+```
+effective price = all-in × (charging power − surplus) / charging power
+```
+
+Charging power is the measured Zaptec power while charging, otherwise the nominal 3 × 230 V × max current (11 kW at 16 A). The dashboard also shows the **required surplus**: how much solar power is needed to bring the effective price down to your maximum.
+
+`binary_sensor.ennie_zon_maakt_laden_gunstig` turns on when the effective price is at or below the maximum and both the current and the average surplus are at least 0.3 kW. It stays on until the effective price rises more than 3% above the maximum (hysteresis), so a single cloud does not stop the session.
+
+### 3. The decision
+
+`binary_sensor.ennie_laden_toegestaan` is on when the price is favourable **or** the sun makes charging favourable. The automation *Ennie - Dynamisch laden* runs every 5 minutes and whenever one of its inputs changes:
+
+- **Stop** – charging is no longer allowed and the Zaptec is charging → stop the session. Stopping only needs the Zaptec status, because the car reports its cable state minutes late.
+- **Start** – charging is allowed, the car is plugged into the home charger, the car data is less than 30 minutes old, the battery is below the charge limit and the Zaptec is waiting → resume charging. Up to 3 attempts; if the Zaptec still does not start, you get a notification.
+- Without valid price data nothing happens: unknown prices never start or stop a session.
+
+### 4. Charge limit
+
+*Ennie - Laadlimiet bewaken* checks every minute and on every change. When the battery reaches **Maximaal laadpercentage** it stops the session, in automatic and manual mode alike. A limit of 0% means: do not charge at all.
+
+### 5. Manual charging
+
+**Handmatig laden** charges right away, regardless of price, but still up to the charge limit. It switches automatic charging off for the duration and restores the previous mode afterwards. The manual mode ends by itself when the cable is unplugged (after 1 minute) or the Zaptec reports *finished* for 5 minutes.
+
+### 6. Charging away from home
+
+`sensor.ennie_laadlocatie` is `thuis` when the Zaptec charges (or the car charges at home), `extern` when the car charges anywhere else. External charging is shown on the dashboard and counted in kWh, but price control, the charge limit, costs, reimbursement and ERE ignore it.
+
 ## ERE certificates
 
 After the first start, set these helpers once (they keep their value):
