@@ -829,6 +829,7 @@ views:
                   triggers_update:
                   - sensor.ennie_effectieve_laadprijs
                   - input_number.ennie_max_stroomprijs
+                  - binary_sensor.ennie_zon_maakt_laden_gunstig
                   styles:
                     card:
                     - 'height: 112px'
@@ -2441,6 +2442,7 @@ views:
                     triggers_update:
                     - sensor.ennie_effectieve_laadprijs
                     - input_number.ennie_max_stroomprijs
+                    - binary_sensor.ennie_zon_maakt_laden_gunstig
                     styles:
                       card:
                       - 'height: 112px'
