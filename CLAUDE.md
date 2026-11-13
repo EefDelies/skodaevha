@@ -23,14 +23,18 @@ Whenever the Ennie dashboard (`dashboard-ennie2-2`), an Ennie package, the
 
 ## Releases
 
-When the author asks for a release: move the `[Unreleased]` entries to a new
-version heading with today's date, bump `version` in
-`custom_components/ennie_laadkosten/manifest.json`, update the compare links at
-the bottom of `CHANGELOG.md`, tag `vX.Y.Z` and create a GitHub release with the
-changelog section as release notes.
+Releases are automatic: `.github/workflows/weekly-release.yml` runs every Sunday
+at 19:00 (Amsterdam) and, only when `[Unreleased]` has entries, runs the tests,
+moves the entries to a new version heading, bumps the version in
+`custom_components/ennie_laadkosten/manifest.json`, tags `vX.Y.Z` and publishes a
+GitHub release with the changelog section as notes. It can also be started by
+hand from the Actions tab ("Run workflow").
 
-- Patch (x.y.Z): fixes
-- Minor (x.Y.0): new features or dashboard sections
-- Major (X.0.0): changes that need users to adapt their config
+- Only "Fixed" entries -> patch (x.y.Z); anything else -> minor (x.Y.0)
+- Major (X.0.0) is never automatic: for changes that need users to adapt their
+  config, make that release by hand.
+
+So: never edit version numbers or release headings yourself — just add entries
+under `[Unreleased]`.
 
 README is in English; dashboard texts stay in Dutch.
