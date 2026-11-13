@@ -180,6 +180,10 @@ python3 tests/test_calc.py
 
 The tests cover the cost calculation (compared with the previous implementation over 200 random periods), solar energy, tariff history, employer reimbursement, external charging and the PDF output. They do not need Home Assistant.
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for all changes per version.
+
 ## License
 
 MIT – see [LICENSE](LICENSE).

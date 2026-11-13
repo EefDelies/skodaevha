@@ -515,6 +515,7 @@ views:
                   triggers_update:
                   - sensor.ennie_stroomprijs_all_in
                   - input_number.ennie_max_stroomprijs
+                  - binary_sensor.ennie_zon_maakt_laden_gunstig
                   styles:
                     card:
                     - 'height: 112px'
@@ -553,7 +554,7 @@ views:
                   custom_fields:
                     content: |-
                       [[[
-                      const raw=entity?.state;const p=Number(raw);const rawMax=states['input_number.ennie_max_stroomprijs']?.state;const m=Number(rawMax);const ok=raw!==undefined && rawMax!==undefined && !['unknown','unavailable'].includes(raw) && !['unknown','unavailable'].includes(rawMax) && Number.isFinite(p) && Number.isFinite(m);const val=!ok?'Prijs onbekend':p<=m?'Prijs gunstig':'Wachten op lagere prijs';const color=!ok?'#a6c5b9':p<=m?'#50df90':'#ffc857';
+                      const raw=entity?.state;const p=Number(raw);const rawMax=states['input_number.ennie_max_stroomprijs']?.state;const m=Number(rawMax);const ok=raw!==undefined && rawMax!==undefined && !['unknown','unavailable'].includes(raw) && !['unknown','unavailable'].includes(rawMax) && Number.isFinite(p) && Number.isFinite(m);const zon=states['binary_sensor.ennie_zon_maakt_laden_gunstig']?.state==='on';const val=zon?'Laden met zon gunstig':!ok?'Prijs onbekend':p<=m?'Prijs gunstig':'Wachten op lagere prijs';const color=zon?'#50df90':!ok?'#a6c5b9':p<=m?'#50df90':'#ffc857';
                       return `<div style="width:100%;height:100%;box-sizing:border-box;padding:10px 12px;display:flex;align-items:center;justify-content:center;text-align:center;gap:12px;overflow:hidden;"><ha-icon icon="mdi:lightbulb-on-outline" style="width:30px;height:30px;color:${color};flex:0 0 30px;"></ha-icon><div style="min-width:0;display:flex;flex-direction:column;gap:4px;"><div style="font-size:14px;font-weight:600;color:#eafff2;text-align:center;line-height:1.2;width:100%;">Laadadvies</div><div style="font-size:12px;font-weight:600;color:${color};text-align:center;line-height:1.25;width:100%;white-space:normal;">${val}</div></div></div>`;
                       ]]]
                   extra_styles: 'ha-card {background:linear-gradient(145deg,#071e19,#061310)!important;border:1px solid #174c3f!important;border-radius:17px!important;box-shadow:0 3px 14px #0004!important;color:#eafff2!important;} #container {width:100%!important;height:112px!important;min-height:112px!important;display:grid!important;grid-template-areas:"content"!important;grid-template-rows:112px!important;align-items:center!important;justify-items:center!important;} #custom_fields {grid-area:content!important;width:100%!important;height:112px!important;display:flex!important;align-items:center!important;justify-content:center!important;} ha-card {height:112px!important;min-height:112px!important;max-height:112px!important;box-sizing:border-box!important;}'
@@ -2125,6 +2126,7 @@ views:
                     triggers_update:
                     - sensor.ennie_stroomprijs_all_in
                     - input_number.ennie_max_stroomprijs
+                    - binary_sensor.ennie_zon_maakt_laden_gunstig
                     styles:
                       card:
                       - 'height: 112px'
@@ -2163,7 +2165,7 @@ views:
                     custom_fields:
                       content: |-
                         [[[
-                        const raw=entity?.state;const p=Number(raw);const rawMax=states['input_number.ennie_max_stroomprijs']?.state;const m=Number(rawMax);const ok=raw!==undefined && rawMax!==undefined && !['unknown','unavailable'].includes(raw) && !['unknown','unavailable'].includes(rawMax) && Number.isFinite(p) && Number.isFinite(m);const val=!ok?'Prijs onbekend':p<=m?'Prijs gunstig':'Wachten op lagere prijs';const color=!ok?'#a6c5b9':p<=m?'#50df90':'#ffc857';
+                        const raw=entity?.state;const p=Number(raw);const rawMax=states['input_number.ennie_max_stroomprijs']?.state;const m=Number(rawMax);const ok=raw!==undefined && rawMax!==undefined && !['unknown','unavailable'].includes(raw) && !['unknown','unavailable'].includes(rawMax) && Number.isFinite(p) && Number.isFinite(m);const zon=states['binary_sensor.ennie_zon_maakt_laden_gunstig']?.state==='on';const val=zon?'Laden met zon gunstig':!ok?'Prijs onbekend':p<=m?'Prijs gunstig':'Wachten op lagere prijs';const color=zon?'#50df90':!ok?'#a6c5b9':p<=m?'#50df90':'#ffc857';
                         return `<div style="width:100%;height:100%;box-sizing:border-box;padding:10px 12px;display:flex;align-items:center;justify-content:center;text-align:center;gap:12px;overflow:hidden;"><ha-icon icon="mdi:lightbulb-on-outline" style="width:30px;height:30px;color:${color};flex:0 0 30px;"></ha-icon><div style="min-width:0;display:flex;flex-direction:column;gap:4px;"><div style="font-size:14px;font-weight:600;color:#eafff2;text-align:center;line-height:1.2;width:100%;">Laadadvies</div><div style="font-size:12px;font-weight:600;color:${color};text-align:center;line-height:1.25;width:100%;white-space:normal;">${val}</div></div></div>`;
                         ]]]
                     extra_styles: 'ha-card {background:linear-gradient(145deg,#071e19,#061310)!important;border:1px solid #174c3f!important;border-radius:17px!important;box-shadow:0 3px 14px #0004!important;color:#eafff2!important;} #container {width:100%!important;height:112px!important;min-height:112px!important;display:grid!important;grid-template-areas:"content"!important;grid-template-rows:112px!important;align-items:center!important;justify-items:center!important;} #custom_fields {grid-area:content!important;width:100%!important;height:112px!important;display:flex!important;align-items:center!important;justify-content:center!important;} ha-card {height:112px!important;min-height:112px!important;max-height:112px!important;box-sizing:border-box!important;}'
