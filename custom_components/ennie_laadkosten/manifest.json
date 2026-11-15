@@ -1,7 +1,7 @@
 {
   "domain": "ennie_laadkosten",
   "name": "Ennie Laadkosten",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "dependencies": [
     "recorder",
     "input_datetime",

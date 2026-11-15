@@ -8,6 +8,8 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-11-15
+
 ### Changed
 - Dashboard: the *Effectieve laadprijs* tile now turns orange and shows "binnen marge" when the effective price is just above the maximum while `binary_sensor.ennie_zon_maakt_laden_gunstig` is still on (the 3% hysteresis band), instead of showing red while Ennie keeps charging on solar. The tile now also refreshes when that sensor changes.
 
@@ -19,5 +21,6 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 ### Added
 - First public release: Ennie dashboard, smart-charging and manual-charging packages, Nord Pool chart prices, ERE certificates and the `ennie_laadkosten` custom component with PDF expense claims.
 
-[Unreleased]: https://github.com/EefDelies/skodaevha/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/EefDelies/skodaevha/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/EefDelies/skodaevha/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/EefDelies/skodaevha/releases/tag/v2.1.0
