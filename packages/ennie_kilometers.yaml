@@ -1,0 +1,226 @@
+# ============================================================
+# ENNIE - KILOMETERS LEASEJAAR V1.0
+# Houdt per kalenderjaar de gereden kilometers bij, verdeeld in
+# zakelijk (kantoordagen x retourafstand + extra zakelijke km) en
+# privé (totaal - zakelijk), en vergelijkt ze met de leaselimieten.
+#
+# Leasejaar = kalenderjaar. Begint het contract midden in een jaar,
+# dan tellen de limieten naar rato: limiet / 365 x aantal dagen
+# vanaf de contractdatum t/m 31 december.
+#
+# Kantoordag: de eerste keer per dag dat de auto de kantoorzone
+# binnenrijdt. Pas de zone aan naar jouw kantoorzone.
+# ============================================================
+
+input_number:
+  ennie_km_limiet_prive:
+    name: Ennie km-limiet privé per jaar
+    min: 0
+    max: 100000
+    step: 500
+    mode: box
+    unit_of_measurement: km
+    icon: mdi:car-side
+
+  ennie_km_limiet_zakelijk:
+    name: Ennie km-limiet zakelijk per jaar
+    min: 0
+    max: 100000
+    step: 500
+    mode: box
+    unit_of_measurement: km
+    icon: mdi:briefcase-variant
+
+  ennie_km_kantoor_retour:
+    name: Ennie km kantoor retour
+    min: 0
+    max: 1000
+    step: 1
+    mode: box
+    unit_of_measurement: km
+    icon: mdi:office-building-marker
+
+  ennie_km_extra_zakelijk:
+    name: Ennie extra zakelijke km dit jaar
+    min: 0
+    max: 100000
+    step: 1
+    mode: box
+    unit_of_measurement: km
+    icon: mdi:briefcase-plus
+
+  # Automatisch: kilometerstand op 1 januari. Voor het eerste jaar 0.
+  ennie_km_stand_jaarstart:
+    name: Ennie kilometerstand begin jaar
+    min: 0
+    max: 2000000
+    step: 1
+    mode: box
+    unit_of_measurement: km
+    icon: mdi:counter
+
+input_datetime:
+  ennie_lease_start:
+    name: Ennie startdatum leasecontract
+    has_date: true
+    has_time: false
+    icon: mdi:calendar-start
+
+  # Automatisch: datum van de laatst getelde kantoordag.
+  ennie_laatste_kantoordag:
+    name: Ennie laatste kantoordag
+    has_date: true
+    has_time: false
+    icon: mdi:calendar-check
+
+counter:
+  ennie_kantoordagen:
+    name: Ennie kantoordagen dit jaar
+    icon: mdi:office-building
+    minimum: 0
+    step: 1
+
+template:
+  - triggers:
+      - trigger: homeassistant
+        event: start
+      - trigger: time_pattern
+        minutes: "/15"
+      - trigger: state
+        entity_id:
+          - sensor.skoda_enyaq_kilometerstand
+          - counter.ennie_kantoordagen
+          - input_number.ennie_km_limiet_prive
+          - input_number.ennie_km_limiet_zakelijk
+          - input_number.ennie_km_kantoor_retour
+          - input_number.ennie_km_extra_zakelijk
+          - input_number.ennie_km_stand_jaarstart
+          - input_datetime.ennie_lease_start
+    variables:
+      stand: "{{ states('sensor.skoda_enyaq_kilometerstand') | float(0) }}"
+      jaarstart: "{{ states('input_number.ennie_km_stand_jaarstart') | float(0) }}"
+      km_jaar: "{{ [stand - jaarstart, 0] | max }}"
+      zakelijk: >
+        {{ (states('counter.ennie_kantoordagen') | int(0)
+            * states('input_number.ennie_km_kantoor_retour') | float(0)
+            + states('input_number.ennie_km_extra_zakelijk') | float(0)) | round(0) }}
+      prive: "{{ [km_jaar - zakelijk, 0] | max }}"
+      # Begin van de periode: 1 januari, of de contractdatum als die later is.
+      startdatum: >
+        {% set jan1 = now().strftime('%Y') ~ '-01-01' %}
+        {% set lease = states('input_datetime.ennie_lease_start')[:10] %}
+        {{ [jan1, lease] | max if lease is match('\d{4}-\d{2}-\d{2}$') else jan1 }}
+      dagen_periode: >
+        {% set start = as_datetime(startdatum).date() %}
+        {% set eind = now().replace(month=12, day=31).date() %}
+        {{ [(eind - start).days + 1, 1] | max }}
+      dagen_verstreken: >
+        {% set start = as_datetime(startdatum).replace(tzinfo=now().tzinfo) %}
+        {{ [[(now() - start).total_seconds() / 86400, 1] | max, dagen_periode] | min }}
+      factor: "{{ dagen_periode / 365 }}"
+      toegestaan_prive: "{{ (states('input_number.ennie_km_limiet_prive') | float(0) * factor) | round(0) }}"
+      toegestaan_zakelijk: "{{ (states('input_number.ennie_km_limiet_zakelijk') | float(0) * factor) | round(0) }}"
+      voortgang: "{{ dagen_verstreken / dagen_periode }}"
+      resterende_weken: "{{ [(dagen_periode - dagen_verstreken) / 7, 1 / 7] | max }}"
+    sensor:
+      - name: Ennie km dit jaar
+        unique_id: ennie_km_dit_jaar
+        icon: mdi:counter
+        unit_of_measurement: km
+        state_class: measurement
+        availability: "{{ is_number(states('sensor.skoda_enyaq_kilometerstand')) }}"
+        state: "{{ km_jaar | round(0) }}"
+        attributes:
+          startdatum: "{{ startdatum }}"
+          dagen_periode: "{{ dagen_periode }}"
+          dagen_verstreken: "{{ dagen_verstreken | round(1) }}"
+          prognose: "{{ (km_jaar / dagen_verstreken * dagen_periode) | round(0) }}"
+          prognose_per_jaar: "{{ (km_jaar / dagen_verstreken * 365) | round(0) }}"
+
+      - name: Ennie km privé
+        unique_id: ennie_km_prive
+        icon: mdi:car-side
+        unit_of_measurement: km
+        state_class: measurement
+        availability: "{{ is_number(states('sensor.skoda_enyaq_kilometerstand')) }}"
+        state: "{{ prive | round(0) }}"
+        attributes:
+          toegestaan: "{{ toegestaan_prive }}"
+          op_schema: "{{ (toegestaan_prive * voortgang) | round(0) }}"
+          prognose: "{{ (prive / dagen_verstreken * dagen_periode) | round(0) }}"
+          ruimte_per_week: "{{ ((toegestaan_prive - prive) / resterende_weken) | round(0) }}"
+
+      - name: Ennie km zakelijk
+        unique_id: ennie_km_zakelijk
+        icon: mdi:briefcase-variant
+        unit_of_measurement: km
+        state_class: measurement
+        state: "{{ zakelijk }}"
+        attributes:
+          kantoordagen: "{{ states('counter.ennie_kantoordagen') | int(0) }}"
+          toegestaan: "{{ toegestaan_zakelijk }}"
+          op_schema: "{{ (toegestaan_zakelijk * voortgang) | round(0) }}"
+          prognose: "{{ (zakelijk / dagen_verstreken * dagen_periode) | round(0) }}"
+          ruimte_per_week: "{{ ((toegestaan_zakelijk - zakelijk) / resterende_weken) | round(0) }}"
+
+automation:
+  - id: ennie_kantoordag_tellen
+    alias: Ennie - Kantoordag tellen
+    description: Telt één kantoordag per dag zodra Ennie de kantoorzone binnenrijdt.
+    mode: queued
+    triggers:
+      - trigger: zone
+        entity_id: device_tracker.skoda_enyaq_skoda_enyaq
+        zone: zone.kantoor
+        event: enter
+    conditions:
+      - condition: template
+        value_template: >
+          {{ states('input_datetime.ennie_laatste_kantoordag')[:10] != now().strftime('%Y-%m-%d') }}
+    actions:
+      - action: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.ennie_laatste_kantoordag
+        data:
+          date: "{{ now().strftime('%Y-%m-%d') }}"
+      - action: counter.increment
+        target:
+          entity_id: counter.ennie_kantoordagen
+
+  - id: ennie_km_nieuw_jaar
+    alias: Ennie - Kilometers nieuw leasejaar
+    description: >-
+      Legt op 1 januari de kilometerstand vast als beginstand van het nieuwe
+      jaar en zet de kantoordagen en extra zakelijke km op nul.
+    mode: single
+    triggers:
+      - trigger: time
+        at: "00:05:00"
+    conditions:
+      - condition: template
+        value_template: "{{ now().month == 1 and now().day == 1 }}"
+    actions:
+      - if:
+          - condition: template
+            value_template: "{{ is_number(states('sensor.skoda_enyaq_kilometerstand')) }}"
+        then:
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.ennie_km_stand_jaarstart
+            data:
+              value: "{{ states('sensor.skoda_enyaq_kilometerstand') | float }}"
+        else:
+          - action: persistent_notification.create
+            data:
+              title: "Ennie: kilometerstand nieuw jaar"
+              message: >-
+                De kilometerstand was op 1 januari niet beschikbaar. Vul
+                'Ennie kilometerstand begin jaar' zelf in.
+      - action: counter.reset
+        target:
+          entity_id: counter.ennie_kantoordagen
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.ennie_km_extra_zakelijk
+        data:
+          value: 0
