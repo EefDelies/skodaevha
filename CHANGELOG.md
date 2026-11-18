@@ -14,7 +14,7 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 - `packages/ennie_kilometers.yaml`: helpers for limits, office round-trip distance, extra business km and lease start date; office-day counter driven by entering `zone.kantoor`; automatic reset on 1 January.
 - Settings tiles for the kilometer limits, office round trip, extra business km, office-day counter and lease start date.
 - Excess-kilometre charge: private kilometres above the prorated private limit (business kilometres are not charged) multiplied by an adjustable rate per km (`input_number.ennie_km_tarief_meerkm`), shown on the Kilometers card for now and for the year-end forecast (`sensor.ennie_km_bijbetalen`), with a settings tile for the rate.
-- "Zakelijke rit toevoegen" input: enter the kilometres of a single business trip and an automation adds them to the yearly extra business total and resets the field; the total stays editable for corrections.
+- "Zakelijke rit toevoegen" input: enter the kilometres of a single business trip and an automation adds them to the yearly extra business total and resets the field; the tile shows when a trip was last added; the total stays editable for corrections.
 
 ### Changed
 

@@ -5308,7 +5308,7 @@ views:
                   action: more-info
                 triggers_update:
                 - input_number.ennie_km_zakelijk_toevoegen
-                - input_number.ennie_km_extra_zakelijk
+                - automation.ennie_zakelijke_rit_toevoegen
                 styles:
                   card:
                   - 'height: 112px'
@@ -5353,7 +5353,11 @@ views:
                     const p=Number(entity?.state);
                     const tot=Number(states['input_number.ennie_km_extra_zakelijk']?.state);
                     const ok=entity && Number.isFinite(p);
-                    const value=Number.isFinite(tot)?`Totaal: ${Math.round(tot).toLocaleString('nl-NL')} km`:'Onbekend';
+                    const lt=states['automation.ennie_zakelijke_rit_toevoegen']?.attributes?.last_triggered;
+                    const ld=lt?new Date(lt):null;
+                    const nu=new Date();
+                    const dag=ld?(ld.toDateString()===nu.toDateString()?'vandaag':ld.toDateString()===new Date(nu.getTime()-864e5).toDateString()?'gisteren':ld.toLocaleDateString('nl-NL',{day:'numeric',month:'short'})):'';
+                    const value=ld?`Laatst: ${dag}, ${ld.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'})}`:'Nog niets toegevoegd';
                     const color=ok?'#50df90':'#a6c5b9';
                     return `<div style="flex:1 1 100%;align-self:stretch;width:100%;box-sizing:border-box;padding:4px 16px;display:flex;flex-direction:column;justify-content:center;gap:8px;"><div style="display:flex;align-items:center;width:100%;"><ha-icon icon="mdi:plus-circle-outline" style="position:absolute;top:14px;left:16px;width:30px;height:30px;color:${color};"></ha-icon><div style="flex:1;min-width:0;padding:0 34px;font-size:14px;font-weight:600;color:#eafff2;text-align:center;line-height:1.2;">Zakelijke rit toevoegen</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;"><div style="font-size:14px;font-weight:600;color:${color};text-align:center;line-height:1.25;">${value}</div><div style="font-size:10px;color:#a6c5b9;text-align:center;line-height:1.2;">Tik en vul de km van de rit in</div></div></div>`;
                     ]]]
@@ -7289,7 +7293,7 @@ views:
                 action: more-info
               triggers_update:
               - input_number.ennie_km_zakelijk_toevoegen
-              - input_number.ennie_km_extra_zakelijk
+              - automation.ennie_zakelijke_rit_toevoegen
               styles:
                 card:
                 - 'height: 112px'
@@ -7334,7 +7338,11 @@ views:
                   const p=Number(entity?.state);
                   const tot=Number(states['input_number.ennie_km_extra_zakelijk']?.state);
                   const ok=entity && Number.isFinite(p);
-                  const value=Number.isFinite(tot)?`Totaal: ${Math.round(tot).toLocaleString('nl-NL')} km`:'Onbekend';
+                  const lt=states['automation.ennie_zakelijke_rit_toevoegen']?.attributes?.last_triggered;
+                  const ld=lt?new Date(lt):null;
+                  const nu=new Date();
+                  const dag=ld?(ld.toDateString()===nu.toDateString()?'vandaag':ld.toDateString()===new Date(nu.getTime()-864e5).toDateString()?'gisteren':ld.toLocaleDateString('nl-NL',{day:'numeric',month:'short'})):'';
+                  const value=ld?`Laatst: ${dag}, ${ld.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'})}`:'Nog niets toegevoegd';
                   const color=ok?'#50df90':'#a6c5b9';
                   return `<div style="flex:1 1 100%;align-self:stretch;width:100%;box-sizing:border-box;padding:4px 16px;display:flex;flex-direction:column;justify-content:center;gap:8px;"><div style="display:flex;align-items:center;width:100%;"><ha-icon icon="mdi:plus-circle-outline" style="position:absolute;top:14px;left:16px;width:30px;height:30px;color:${color};"></ha-icon><div style="flex:1;min-width:0;padding:0 34px;font-size:14px;font-weight:600;color:#eafff2;text-align:center;line-height:1.2;">Zakelijke rit toevoegen</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;"><div style="font-size:14px;font-weight:600;color:${color};text-align:center;line-height:1.25;">${value}</div><div style="font-size:10px;color:#a6c5b9;text-align:center;line-height:1.2;">Tik en vul de km van de rit in</div></div></div>`;
                   ]]]
