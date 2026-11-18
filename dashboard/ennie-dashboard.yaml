@@ -3537,8 +3537,8 @@ views:
                   const row=(key,label,icon)=>{
                     const e=S('sensor.ennie_km_'+key);const a=e?.attributes||{};
                     const km=num(e?.state)??0,max=num(a.toegestaan)??0,sch=num(a.op_schema)??0,prog=num(a.prognose)??0,ruimte=num(a.ruimte_per_week)??0;
-                    const ratio=sch>0?km/sch:0;
-                    const kleur=ratio<=1?'#50df90':ratio<=1.1?'#ffbf47':'#ff6975';
+                    const ratio=max>0?km/max:0;
+                    const kleur=ratio<0.9?'#50df90':ratio<=1?'#ffbf47':'#ff6975';
                     const vul=max>0?Math.min(km/max*100,100):0, mark=max>0?Math.min(sch/max*100,100):0;
                     const extra=key==='zakelijk'&&a.kantoordagen!==undefined?` <span class="km-sub">· ${a.kantoordagen} kantoordagen</span>`:'';
                     return `<div class="km-row">
@@ -5429,8 +5429,8 @@ views:
                 const row=(key,label,icon)=>{
                   const e=S('sensor.ennie_km_'+key);const a=e?.attributes||{};
                   const km=num(e?.state)??0,max=num(a.toegestaan)??0,sch=num(a.op_schema)??0,prog=num(a.prognose)??0,ruimte=num(a.ruimte_per_week)??0;
-                  const ratio=sch>0?km/sch:0;
-                  const kleur=ratio<=1?'#50df90':ratio<=1.1?'#ffbf47':'#ff6975';
+                  const ratio=max>0?km/max:0;
+                  const kleur=ratio<0.9?'#50df90':ratio<=1?'#ffbf47':'#ff6975';
                   const vul=max>0?Math.min(km/max*100,100):0, mark=max>0?Math.min(sch/max*100,100):0;
                   const extra=key==='zakelijk'&&a.kantoordagen!==undefined?` <span class="km-sub">· ${a.kantoordagen} kantoordagen</span>`:'';
                   return `<div class="km-row">
