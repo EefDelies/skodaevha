@@ -16,6 +16,10 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 - Excess-kilometre charge: private kilometres above the prorated private limit (business kilometres are not charged) multiplied by an adjustable rate per km (`input_number.ennie_km_tarief_meerkm`), shown on the Kilometers card for now and for the year-end forecast (`sensor.ennie_km_bijbetalen`), with a settings tile for the rate.
 - "Zakelijke rit toevoegen" input: enter the kilometres of a single business trip and an automation adds them to the yearly extra business total and resets the field; the total stays editable for corrections.
 
+### Changed
+
+- Settings: the employer compensation ("Vergoeding werkgever") tile now matches the other settings tiles instead of using a tile card with +/- buttons.
+
 ## [2.2.0] - 2026-11-15
 
 ### Changed
