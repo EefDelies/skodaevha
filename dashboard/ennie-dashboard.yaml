@@ -5267,6 +5267,66 @@ views:
                     ]]]
                 extra_styles: 'ha-card {background:linear-gradient(145deg,#071e19,#061310)!important;border:1px solid #174c3f!important;border-radius:17px!important;box-shadow:0 3px 14px #0004!important;color:#eafff2!important;} #container {width:100%!important;height:112px!important;min-height:112px!important;display:grid!important;grid-template-areas:"content"!important;grid-template-rows:112px!important;align-items:center!important;justify-items:center!important;} #custom_fields {grid-area:content!important;width:100%!important;height:112px!important;display:flex!important;align-items:center!important;justify-content:center!important;} ha-card {height:112px!important;min-height:112px!important;max-height:112px!important;box-sizing:border-box!important;}'
               - type: custom:button-card
+                entity: input_number.ennie_km_zakelijk_toevoegen
+                show_icon: false
+                show_name: false
+                show_label: false
+                show_state: false
+                tap_action:
+                  action: more-info
+                triggers_update:
+                - input_number.ennie_km_zakelijk_toevoegen
+                - input_number.ennie_km_extra_zakelijk
+                styles:
+                  card:
+                  - 'height: 112px'
+                  - 'padding: 0'
+                  - 'background: linear-gradient(145deg,#071e19,#061310)'
+                  - 'border: 1px solid #174c3f'
+                  - 'border-radius: 17px'
+                  - 'box-shadow: 0 3px 14px #0004'
+                  - 'color: #eafff2'
+                  - 'overflow: hidden'
+                  - 'display: block'
+                  - 'position: relative'
+                  grid:
+                  - 'grid-template-areas: "content"'
+                  - 'grid-template-columns: minmax(0, 1fr)'
+                  - 'grid-template-rows: 112px'
+                  - 'align-items: center'
+                  - 'justify-items: center'
+                  custom_fields:
+                    content:
+                    - 'grid-area: content'
+                    - 'justify-self: stretch'
+                    - 'align-self: stretch'
+                    - 'width: 100%'
+                    - 'min-width: 0'
+                    - 'text-align: left'
+                    - 'pointer-events: none'
+                    - 'box-sizing: border-box'
+                    - 'margin: 0'
+                    - 'padding: 0'
+                    - 'position: static'
+                    - 'display: flex'
+                    - 'align-items: center'
+                    - 'justify-content: center'
+                    - 'height: 112px'
+                    - 'width: 100%'
+                    - 'justify-content: stretch'
+                    - 'align-items: stretch'
+                custom_fields:
+                  content: |-
+                    [[[
+                    const p=Number(entity?.state);
+                    const tot=Number(states['input_number.ennie_km_extra_zakelijk']?.state);
+                    const ok=entity && Number.isFinite(p);
+                    const value=Number.isFinite(tot)?`Totaal: ${Math.round(tot).toLocaleString('nl-NL')} km`:'Onbekend';
+                    const color=ok?'#50df90':'#a6c5b9';
+                    return `<div style="flex:1 1 100%;align-self:stretch;width:100%;box-sizing:border-box;padding:4px 16px;display:flex;flex-direction:column;justify-content:center;gap:8px;"><div style="display:flex;align-items:center;width:100%;"><ha-icon icon="mdi:plus-circle-outline" style="position:absolute;top:14px;left:16px;width:30px;height:30px;color:${color};"></ha-icon><div style="flex:1;min-width:0;padding:0 34px;font-size:14px;font-weight:600;color:#eafff2;text-align:center;line-height:1.2;">Zakelijke rit toevoegen</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;"><div style="font-size:14px;font-weight:600;color:${color};text-align:center;line-height:1.25;">${value}</div><div style="font-size:10px;color:#a6c5b9;text-align:center;line-height:1.2;">Tik en vul de km van de rit in</div></div></div>`;
+                    ]]]
+                extra_styles: 'ha-card {background:linear-gradient(145deg,#071e19,#061310)!important;border:1px solid #174c3f!important;border-radius:17px!important;box-shadow:0 3px 14px #0004!important;color:#eafff2!important;} #container {width:100%!important;height:112px!important;min-height:112px!important;display:grid!important;grid-template-areas:"content"!important;grid-template-rows:112px!important;align-items:center!important;justify-items:center!important;} #custom_fields {grid-area:content!important;width:100%!important;height:112px!important;display:flex!important;align-items:center!important;justify-content:center!important;} ha-card {height:112px!important;min-height:112px!important;max-height:112px!important;box-sizing:border-box!important;}'
+              - type: custom:button-card
                 entity: input_number.ennie_km_extra_zakelijk
                 show_icon: false
                 show_name: false
@@ -5321,7 +5381,7 @@ views:
                     const ok=entity && Number.isFinite(p);
                     const value=ok?`${Math.round(p).toLocaleString('nl-NL')} km`:'Onbekend';
                     const color=ok?'#50df90':'#a6c5b9';
-                    return `<div style="flex:1 1 100%;align-self:stretch;width:100%;box-sizing:border-box;padding:4px 16px;display:flex;flex-direction:column;justify-content:center;gap:8px;"><div style="display:flex;align-items:center;width:100%;"><ha-icon icon="mdi:briefcase-plus" style="position:absolute;top:14px;left:16px;width:30px;height:30px;color:${color};"></ha-icon><div style="flex:1;min-width:0;padding:0 34px;font-size:14px;font-weight:600;color:#eafff2;text-align:center;line-height:1.2;">Extra zakelijke km</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;"><div style="font-size:14px;font-weight:600;color:${color};text-align:center;line-height:1.25;">${value}</div><div style="font-size:10px;color:#a6c5b9;text-align:center;line-height:1.2;">Tik om te wijzigen</div></div></div>`;
+                    return `<div style="flex:1 1 100%;align-self:stretch;width:100%;box-sizing:border-box;padding:4px 16px;display:flex;flex-direction:column;justify-content:center;gap:8px;"><div style="display:flex;align-items:center;width:100%;"><ha-icon icon="mdi:briefcase-plus" style="position:absolute;top:14px;left:16px;width:30px;height:30px;color:${color};"></ha-icon><div style="flex:1;min-width:0;padding:0 34px;font-size:14px;font-weight:600;color:#eafff2;text-align:center;line-height:1.2;">Extra zakelijke km (totaal)</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;"><div style="font-size:14px;font-weight:600;color:${color};text-align:center;line-height:1.25;">${value}</div><div style="font-size:10px;color:#a6c5b9;text-align:center;line-height:1.2;">Tik om te corrigeren</div></div></div>`;
                     ]]]
                 extra_styles: 'ha-card {background:linear-gradient(145deg,#071e19,#061310)!important;border:1px solid #174c3f!important;border-radius:17px!important;box-shadow:0 3px 14px #0004!important;color:#eafff2!important;} #container {width:100%!important;height:112px!important;min-height:112px!important;display:grid!important;grid-template-areas:"content"!important;grid-template-rows:112px!important;align-items:center!important;justify-items:center!important;} #custom_fields {grid-area:content!important;width:100%!important;height:112px!important;display:flex!important;align-items:center!important;justify-content:center!important;} ha-card {height:112px!important;min-height:112px!important;max-height:112px!important;box-sizing:border-box!important;}'
               - type: custom:button-card
@@ -7156,6 +7216,66 @@ views:
                   ]]]
               extra_styles: 'ha-card {background:linear-gradient(145deg,#071e19,#061310)!important;border:1px solid #174c3f!important;border-radius:17px!important;box-shadow:0 3px 14px #0004!important;color:#eafff2!important;} #container {width:100%!important;height:112px!important;min-height:112px!important;display:grid!important;grid-template-areas:"content"!important;grid-template-rows:112px!important;align-items:center!important;justify-items:center!important;} #custom_fields {grid-area:content!important;width:100%!important;height:112px!important;display:flex!important;align-items:center!important;justify-content:center!important;} ha-card {height:112px!important;min-height:112px!important;max-height:112px!important;box-sizing:border-box!important;}'
             - type: custom:button-card
+              entity: input_number.ennie_km_zakelijk_toevoegen
+              show_icon: false
+              show_name: false
+              show_label: false
+              show_state: false
+              tap_action:
+                action: more-info
+              triggers_update:
+              - input_number.ennie_km_zakelijk_toevoegen
+              - input_number.ennie_km_extra_zakelijk
+              styles:
+                card:
+                - 'height: 112px'
+                - 'padding: 0'
+                - 'background: linear-gradient(145deg,#071e19,#061310)'
+                - 'border: 1px solid #174c3f'
+                - 'border-radius: 17px'
+                - 'box-shadow: 0 3px 14px #0004'
+                - 'color: #eafff2'
+                - 'overflow: hidden'
+                - 'display: block'
+                - 'position: relative'
+                grid:
+                - 'grid-template-areas: "content"'
+                - 'grid-template-columns: minmax(0, 1fr)'
+                - 'grid-template-rows: 112px'
+                - 'align-items: center'
+                - 'justify-items: center'
+                custom_fields:
+                  content:
+                  - 'grid-area: content'
+                  - 'justify-self: stretch'
+                  - 'align-self: stretch'
+                  - 'width: 100%'
+                  - 'min-width: 0'
+                  - 'text-align: left'
+                  - 'pointer-events: none'
+                  - 'box-sizing: border-box'
+                  - 'margin: 0'
+                  - 'padding: 0'
+                  - 'position: static'
+                  - 'display: flex'
+                  - 'align-items: center'
+                  - 'justify-content: center'
+                  - 'height: 112px'
+                  - 'width: 100%'
+                  - 'justify-content: stretch'
+                  - 'align-items: stretch'
+              custom_fields:
+                content: |-
+                  [[[
+                  const p=Number(entity?.state);
+                  const tot=Number(states['input_number.ennie_km_extra_zakelijk']?.state);
+                  const ok=entity && Number.isFinite(p);
+                  const value=Number.isFinite(tot)?`Totaal: ${Math.round(tot).toLocaleString('nl-NL')} km`:'Onbekend';
+                  const color=ok?'#50df90':'#a6c5b9';
+                  return `<div style="flex:1 1 100%;align-self:stretch;width:100%;box-sizing:border-box;padding:4px 16px;display:flex;flex-direction:column;justify-content:center;gap:8px;"><div style="display:flex;align-items:center;width:100%;"><ha-icon icon="mdi:plus-circle-outline" style="position:absolute;top:14px;left:16px;width:30px;height:30px;color:${color};"></ha-icon><div style="flex:1;min-width:0;padding:0 34px;font-size:14px;font-weight:600;color:#eafff2;text-align:center;line-height:1.2;">Zakelijke rit toevoegen</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;"><div style="font-size:14px;font-weight:600;color:${color};text-align:center;line-height:1.25;">${value}</div><div style="font-size:10px;color:#a6c5b9;text-align:center;line-height:1.2;">Tik en vul de km van de rit in</div></div></div>`;
+                  ]]]
+              extra_styles: 'ha-card {background:linear-gradient(145deg,#071e19,#061310)!important;border:1px solid #174c3f!important;border-radius:17px!important;box-shadow:0 3px 14px #0004!important;color:#eafff2!important;} #container {width:100%!important;height:112px!important;min-height:112px!important;display:grid!important;grid-template-areas:"content"!important;grid-template-rows:112px!important;align-items:center!important;justify-items:center!important;} #custom_fields {grid-area:content!important;width:100%!important;height:112px!important;display:flex!important;align-items:center!important;justify-content:center!important;} ha-card {height:112px!important;min-height:112px!important;max-height:112px!important;box-sizing:border-box!important;}'
+            - type: custom:button-card
               entity: input_number.ennie_km_extra_zakelijk
               show_icon: false
               show_name: false
@@ -7210,7 +7330,7 @@ views:
                   const ok=entity && Number.isFinite(p);
                   const value=ok?`${Math.round(p).toLocaleString('nl-NL')} km`:'Onbekend';
                   const color=ok?'#50df90':'#a6c5b9';
-                  return `<div style="flex:1 1 100%;align-self:stretch;width:100%;box-sizing:border-box;padding:4px 16px;display:flex;flex-direction:column;justify-content:center;gap:8px;"><div style="display:flex;align-items:center;width:100%;"><ha-icon icon="mdi:briefcase-plus" style="position:absolute;top:14px;left:16px;width:30px;height:30px;color:${color};"></ha-icon><div style="flex:1;min-width:0;padding:0 34px;font-size:14px;font-weight:600;color:#eafff2;text-align:center;line-height:1.2;">Extra zakelijke km</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;"><div style="font-size:14px;font-weight:600;color:${color};text-align:center;line-height:1.25;">${value}</div><div style="font-size:10px;color:#a6c5b9;text-align:center;line-height:1.2;">Tik om te wijzigen</div></div></div>`;
+                  return `<div style="flex:1 1 100%;align-self:stretch;width:100%;box-sizing:border-box;padding:4px 16px;display:flex;flex-direction:column;justify-content:center;gap:8px;"><div style="display:flex;align-items:center;width:100%;"><ha-icon icon="mdi:briefcase-plus" style="position:absolute;top:14px;left:16px;width:30px;height:30px;color:${color};"></ha-icon><div style="flex:1;min-width:0;padding:0 34px;font-size:14px;font-weight:600;color:#eafff2;text-align:center;line-height:1.2;">Extra zakelijke km (totaal)</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;"><div style="font-size:14px;font-weight:600;color:${color};text-align:center;line-height:1.25;">${value}</div><div style="font-size:10px;color:#a6c5b9;text-align:center;line-height:1.2;">Tik om te corrigeren</div></div></div>`;
                   ]]]
               extra_styles: 'ha-card {background:linear-gradient(145deg,#071e19,#061310)!important;border:1px solid #174c3f!important;border-radius:17px!important;box-shadow:0 3px 14px #0004!important;color:#eafff2!important;} #container {width:100%!important;height:112px!important;min-height:112px!important;display:grid!important;grid-template-areas:"content"!important;grid-template-rows:112px!important;align-items:center!important;justify-items:center!important;} #custom_fields {grid-area:content!important;width:100%!important;height:112px!important;display:flex!important;align-items:center!important;justify-content:center!important;} ha-card {height:112px!important;min-height:112px!important;max-height:112px!important;box-sizing:border-box!important;}'
             - type: custom:button-card

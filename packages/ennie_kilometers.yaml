@@ -1,5 +1,5 @@
 # ============================================================
-# ENNIE - KILOMETERS LEASEJAAR V1.1
+# ENNIE - KILOMETERS LEASEJAAR V1.2
 # Houdt per kalenderjaar de gereden kilometers bij, verdeeld in
 # zakelijk (kantoordagen x retourafstand + extra zakelijke km) en
 # privé (totaal - zakelijk), en vergelijkt ze met de leaselimieten.
@@ -45,6 +45,20 @@ input_number:
     unit_of_measurement: km
     icon: mdi:office-building-marker
 
+  # Invoerveld per rit: vul de km van één zakelijke rit in (niet naar
+  # kantoor). De automatisering telt dit op bij het jaartotaal
+  # hieronder en zet het veld weer op 0.
+  ennie_km_zakelijk_toevoegen:
+    name: Ennie zakelijke rit toevoegen
+    min: 0
+    max: 5000
+    step: 1
+    mode: box
+    unit_of_measurement: km
+    icon: mdi:plus-circle-outline
+
+  # Jaartotaal extra zakelijke km (gevuld via 'zakelijke rit toevoegen';
+  # alleen zelf aanpassen om te corrigeren).
   ennie_km_extra_zakelijk:
     name: Ennie extra zakelijke km dit jaar
     min: 0
@@ -200,6 +214,30 @@ template:
           prognose: "{{ (meer_prive_prog * tarief) | round(2) }}"
 
 automation:
+  - id: ennie_zakelijke_rit_toevoegen
+    alias: Ennie - Zakelijke rit toevoegen
+    description: >-
+      Telt de ingevulde km van een zakelijke rit op bij het jaartotaal extra
+      zakelijke km en zet het invoerveld terug op 0.
+    mode: queued
+    triggers:
+      - trigger: numeric_state
+        entity_id: input_number.ennie_km_zakelijk_toevoegen
+        above: 0
+    actions:
+      - variables:
+          rit: "{{ states('input_number.ennie_km_zakelijk_toevoegen') | float(0) }}"
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.ennie_km_extra_zakelijk
+        data:
+          value: "{{ [states('input_number.ennie_km_extra_zakelijk') | float(0) + rit, 100000] | min }}"
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.ennie_km_zakelijk_toevoegen
+        data:
+          value: 0
+
   - id: ennie_kantoordag_tellen
     alias: Ennie - Kantoordag tellen
     description: Telt één kantoordag per dag zodra Ennie de kantoorzone binnenrijdt.
