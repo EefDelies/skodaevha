@@ -3508,56 +3508,56 @@ views:
             cards:
             - type: markdown
               content: |-
-                {% set tot = states('sensor.ennie_km_dit_jaar') %}
-                {% set ready = is_number(tot) and is_number(states('sensor.ennie_km_prive')) %}
-                {% macro n(v) %}{{ '{:,}'.format(v | float(0) | round(0) | int) | replace(',', '.') }}{% endmacro %}
-                {% if not ready %}
+                {%- set tot = states('sensor.ennie_km_dit_jaar') -%}
+                {%- set ready = is_number(tot) and is_number(states('sensor.ennie_km_prive')) -%}
+                {%- macro n(v) -%}{{ '{:,}'.format(v | float(0) | round(0) | int) | replace(',', '.') }}{%- endmacro -%}
+                {%- if not ready -%}
                 <div style="color:#a6c5b9;text-align:center;width:100%">Kilometergegevens nog niet beschikbaar…</div>
-                {% else %}
-                {% set start = state_attr('sensor.ennie_km_dit_jaar', 'startdatum') %}
-                {% set maanden = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'] %}
-                {% set sd = as_datetime(start) %}
+                {%- else -%}
+                {%- set start = state_attr('sensor.ennie_km_dit_jaar', 'startdatum') -%}
+                {%- set maanden = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'] -%}
+                {%- set sd = as_datetime(start) -%}
                 <div style="width:100%;display:flex;flex-direction:column;gap:14px;text-align:left">
-                  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap">
-                    <div>
-                      <div style="font-size:13px;color:#a6e2c7;display:flex;align-items:center;gap:6px"><ha-icon icon="mdi:road-variant" style="--mdc-icon-size:18px;color:#50df90"></ha-icon> Gereden in {{ sd.year }}{{ ' (vanaf ' ~ sd.day ~ ' ' ~ maanden[sd.month - 1] ~ ')' if sd.month > 1 or sd.day > 1 else '' }}</div>
-                      <div style="font-size:clamp(22px,2.2vw,28px);font-weight:750;color:#fff;line-height:1.2">{{ n(tot) }} km</div>
-                    </div>
-                    <div style="text-align:right">
-                      <div style="font-size:12px;color:#a6c5b9">Prognose 31 december</div>
-                      <div style="font-size:16px;font-weight:650;color:#eafff2">~{{ n(state_attr('sensor.ennie_km_dit_jaar', 'prognose')) }} km</div>
-                      <div style="font-size:11px;color:#a6c5b9">≈ {{ n(state_attr('sensor.ennie_km_dit_jaar', 'prognose_per_jaar')) }} km per jaar</div>
-                    </div>
-                  </div>
-                  {% for key, label, icon in [('prive', 'Privé', 'mdi:car-side'), ('zakelijk', 'Zakelijk', 'mdi:briefcase-variant')] %}
-                    {% set e = 'sensor.ennie_km_' ~ key %}
-                    {% set km = states(e) | float(0) %}
-                    {% set max = state_attr(e, 'toegestaan') | float(0) %}
-                    {% set schema = state_attr(e, 'op_schema') | float(0) %}
-                    {% set prog = state_attr(e, 'prognose') | float(0) %}
-                    {% set ruimte = state_attr(e, 'ruimte_per_week') | float(0) %}
-                    {% set ratio = (km / schema) if schema > 0 else 0 %}
-                    {% set kleur = '#50df90' if ratio <= 1 else ('#ffbf47' if ratio <= 1.1 else '#ff6975') %}
-                    {% set vul = [km / max * 100, 100] | min if max > 0 else 0 %}
-                    {% set mark = [schema / max * 100, 100] | min if max > 0 else 0 %}
-                    <div style="display:flex;flex-direction:column;gap:6px">
-                      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
-                        <div style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:#eafff2"><ha-icon icon="{{ icon }}" style="--mdc-icon-size:19px;color:{{ kleur }}"></ha-icon> {{ label }}{% if key == 'zakelijk' %} <span style="font-size:11px;font-weight:400;color:#a6c5b9">· {{ state_attr(e, 'kantoordagen') }} kantoordagen</span>{% endif %}</div>
-                        <div style="font-size:14px;font-weight:650;color:{{ kleur }};white-space:nowrap">{{ n(km) }} <span style="color:#a6c5b9;font-weight:400">/ {{ n(max) }} km</span></div>
-                      </div>
-                      <div style="position:relative;height:10px;border-radius:6px;background:#173c31;overflow:visible">
-                        <div style="width:{{ vul | round(1) }}%;height:100%;border-radius:6px;background:{{ kleur }}"></div>
-                        <div title="Op schema" style="position:absolute;top:-4px;left:calc({{ mark | round(1) }}% - 1px);width:2px;height:18px;background:#eafff2;border-radius:1px"></div>
-                      </div>
-                      <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:11px;color:#a6c5b9">
-                        <span>Op schema: {{ n(schema) }} km · prognose ~{{ n(prog) }} km</span>
-                        <span style="color:{{ kleur }}">{% if ruimte >= 0 %}Nog ~{{ n(ruimte) }} km per week{% else %}Limiet overschreden{% endif %}</span>
-                      </div>
-                    </div>
-                  {% endfor %}
-                  <div style="font-size:11px;color:#a6c5b9;text-align:center">Limieten naar rato: limiet ÷ 365 × {{ state_attr('sensor.ennie_km_dit_jaar', 'dagen_periode') }} dagen · zakelijk = kantoordagen × {{ states('input_number.ennie_km_kantoor_retour') | float(0) | int }} km{{ ' + ' ~ n(states('input_number.ennie_km_extra_zakelijk')) ~ ' km extra' if states('input_number.ennie_km_extra_zakelijk') | float(0) > 0 else '' }}</div>
+                <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap">
+                <div>
+                <div style="font-size:13px;color:#a6e2c7;display:flex;align-items:center;gap:6px"><ha-icon icon="mdi:road-variant" style="--mdc-icon-size:18px;color:#50df90"></ha-icon> Gereden in {{ sd.year }}{{ ' (vanaf ' ~ sd.day ~ ' ' ~ maanden[sd.month - 1] ~ ')' if sd.month > 1 or sd.day > 1 else '' }}</div>
+                <div style="font-size:clamp(22px,2.2vw,28px);font-weight:750;color:#fff;line-height:1.2">{{ n(tot) }} km</div>
                 </div>
-                {% endif %}
+                <div style="text-align:right">
+                <div style="font-size:12px;color:#a6c5b9">Prognose 31 december</div>
+                <div style="font-size:16px;font-weight:650;color:#eafff2">~{{ n(state_attr('sensor.ennie_km_dit_jaar', 'prognose')) }} km</div>
+                <div style="font-size:11px;color:#a6c5b9">≈ {{ n(state_attr('sensor.ennie_km_dit_jaar', 'prognose_per_jaar')) }} km per jaar</div>
+                </div>
+                </div>
+                {%- for key, label, icon in [('prive', 'Privé', 'mdi:car-side'), ('zakelijk', 'Zakelijk', 'mdi:briefcase-variant')] -%}
+                {%- set e = 'sensor.ennie_km_' ~ key -%}
+                {%- set km = states(e) | float(0) -%}
+                {%- set max = state_attr(e, 'toegestaan') | float(0) -%}
+                {%- set schema = state_attr(e, 'op_schema') | float(0) -%}
+                {%- set prog = state_attr(e, 'prognose') | float(0) -%}
+                {%- set ruimte = state_attr(e, 'ruimte_per_week') | float(0) -%}
+                {%- set ratio = (km / schema) if schema > 0 else 0 -%}
+                {%- set kleur = '#50df90' if ratio <= 1 else ('#ffbf47' if ratio <= 1.1 else '#ff6975') -%}
+                {%- set vul = [km / max * 100, 100] | min if max > 0 else 0 -%}
+                {%- set mark = [schema / max * 100, 100] | min if max > 0 else 0 -%}
+                <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+                <div style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:#eafff2"><ha-icon icon="{{ icon }}" style="--mdc-icon-size:19px;color:{{ kleur }}"></ha-icon> {{ label }}{% if key == 'zakelijk' %} <span style="font-size:11px;font-weight:400;color:#a6c5b9">· {{ state_attr(e, 'kantoordagen') }} kantoordagen</span>{% endif %}</div>
+                <div style="font-size:14px;font-weight:650;color:{{ kleur }};white-space:nowrap">{{ n(km) }} <span style="color:#a6c5b9;font-weight:400">/ {{ n(max) }} km</span></div>
+                </div>
+                <div style="position:relative;height:10px;border-radius:6px;background:#173c31;overflow:visible">
+                <div style="width:{{ vul | round(1) }}%;height:100%;border-radius:6px;background:{{ kleur }}"></div>
+                <div title="Op schema" style="position:absolute;top:-4px;left:calc({{ mark | round(1) }}% - 1px);width:2px;height:18px;background:#eafff2;border-radius:1px"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:11px;color:#a6c5b9">
+                <span>Op schema: {{ n(schema) }} km · prognose ~{{ n(prog) }} km</span>
+                <span style="color:{{ kleur }}">{% if ruimte >= 0 %}Nog ~{{ n(ruimte) }} km per week{% else %}Limiet overschreden{% endif %}</span>
+                </div>
+                </div>
+                {%- endfor -%}
+                <div style="font-size:11px;color:#a6c5b9;text-align:center">Limieten naar rato: limiet ÷ 365 × {{ state_attr('sensor.ennie_km_dit_jaar', 'dagen_periode') }} dagen · zakelijk = kantoordagen × {{ states('input_number.ennie_km_kantoor_retour') | float(0) | int }} km{{ ' + ' ~ n(states('input_number.ennie_km_extra_zakelijk')) ~ ' km extra' if states('input_number.ennie_km_extra_zakelijk') | float(0) > 0 else '' }}</div>
+                </div>
+                {%- endif -%}
               card_mod:
                 style:
                   .: |
@@ -3578,21 +3578,13 @@ views:
                       width: 100% !important;
                       box-sizing: border-box !important;
                       padding: 15px !important;
-                      display: flex !important;
-                      align-items: center !important;
-                      justify-content: center !important;
-                      text-align: center !important;
+                      display: block !important;
+                      text-align: left !important;
                     }
-                    ha-card ha-markdown { width: 100% !important; text-align: center !important; }
+                    ha-card ha-markdown { width: 100% !important; text-align: left !important; }
                   ha-markdown$: |
-                    .markdown { text-align:center !important; width:100% !important; }
-                    .markdown > div { width:100% !important; text-align:center !important; }
-                    .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
-                    .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:#40e697 !important; font-size:14px !important; }
-                    .ennie-metric-label ha-icon { color:#40e697 !important; --mdc-icon-size:19px; }
-                    .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
-
-                    .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:#a6e2c7 !important; }
+                    .markdown { width:100% !important; text-align:left !important; }
+                    .markdown > div { width:100% !important; }
           - type: custom:expander-card
             expanded: false
             clear: true
@@ -5394,56 +5386,56 @@ views:
             heading_style: title
           - type: markdown
             content: |-
-              {% set tot = states('sensor.ennie_km_dit_jaar') %}
-              {% set ready = is_number(tot) and is_number(states('sensor.ennie_km_prive')) %}
-              {% macro n(v) %}{{ '{:,}'.format(v | float(0) | round(0) | int) | replace(',', '.') }}{% endmacro %}
-              {% if not ready %}
+              {%- set tot = states('sensor.ennie_km_dit_jaar') -%}
+              {%- set ready = is_number(tot) and is_number(states('sensor.ennie_km_prive')) -%}
+              {%- macro n(v) -%}{{ '{:,}'.format(v | float(0) | round(0) | int) | replace(',', '.') }}{%- endmacro -%}
+              {%- if not ready -%}
               <div style="color:#a6c5b9;text-align:center;width:100%">Kilometergegevens nog niet beschikbaar…</div>
-              {% else %}
-              {% set start = state_attr('sensor.ennie_km_dit_jaar', 'startdatum') %}
-              {% set maanden = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'] %}
-              {% set sd = as_datetime(start) %}
+              {%- else -%}
+              {%- set start = state_attr('sensor.ennie_km_dit_jaar', 'startdatum') -%}
+              {%- set maanden = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'] -%}
+              {%- set sd = as_datetime(start) -%}
               <div style="width:100%;display:flex;flex-direction:column;gap:14px;text-align:left">
-                <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap">
-                  <div>
-                    <div style="font-size:13px;color:#a6e2c7;display:flex;align-items:center;gap:6px"><ha-icon icon="mdi:road-variant" style="--mdc-icon-size:18px;color:#50df90"></ha-icon> Gereden in {{ sd.year }}{{ ' (vanaf ' ~ sd.day ~ ' ' ~ maanden[sd.month - 1] ~ ')' if sd.month > 1 or sd.day > 1 else '' }}</div>
-                    <div style="font-size:clamp(22px,2.2vw,28px);font-weight:750;color:#fff;line-height:1.2">{{ n(tot) }} km</div>
-                  </div>
-                  <div style="text-align:right">
-                    <div style="font-size:12px;color:#a6c5b9">Prognose 31 december</div>
-                    <div style="font-size:16px;font-weight:650;color:#eafff2">~{{ n(state_attr('sensor.ennie_km_dit_jaar', 'prognose')) }} km</div>
-                    <div style="font-size:11px;color:#a6c5b9">≈ {{ n(state_attr('sensor.ennie_km_dit_jaar', 'prognose_per_jaar')) }} km per jaar</div>
-                  </div>
-                </div>
-                {% for key, label, icon in [('prive', 'Privé', 'mdi:car-side'), ('zakelijk', 'Zakelijk', 'mdi:briefcase-variant')] %}
-                  {% set e = 'sensor.ennie_km_' ~ key %}
-                  {% set km = states(e) | float(0) %}
-                  {% set max = state_attr(e, 'toegestaan') | float(0) %}
-                  {% set schema = state_attr(e, 'op_schema') | float(0) %}
-                  {% set prog = state_attr(e, 'prognose') | float(0) %}
-                  {% set ruimte = state_attr(e, 'ruimte_per_week') | float(0) %}
-                  {% set ratio = (km / schema) if schema > 0 else 0 %}
-                  {% set kleur = '#50df90' if ratio <= 1 else ('#ffbf47' if ratio <= 1.1 else '#ff6975') %}
-                  {% set vul = [km / max * 100, 100] | min if max > 0 else 0 %}
-                  {% set mark = [schema / max * 100, 100] | min if max > 0 else 0 %}
-                  <div style="display:flex;flex-direction:column;gap:6px">
-                    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
-                      <div style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:#eafff2"><ha-icon icon="{{ icon }}" style="--mdc-icon-size:19px;color:{{ kleur }}"></ha-icon> {{ label }}{% if key == 'zakelijk' %} <span style="font-size:11px;font-weight:400;color:#a6c5b9">· {{ state_attr(e, 'kantoordagen') }} kantoordagen</span>{% endif %}</div>
-                      <div style="font-size:14px;font-weight:650;color:{{ kleur }};white-space:nowrap">{{ n(km) }} <span style="color:#a6c5b9;font-weight:400">/ {{ n(max) }} km</span></div>
-                    </div>
-                    <div style="position:relative;height:10px;border-radius:6px;background:#173c31;overflow:visible">
-                      <div style="width:{{ vul | round(1) }}%;height:100%;border-radius:6px;background:{{ kleur }}"></div>
-                      <div title="Op schema" style="position:absolute;top:-4px;left:calc({{ mark | round(1) }}% - 1px);width:2px;height:18px;background:#eafff2;border-radius:1px"></div>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:11px;color:#a6c5b9">
-                      <span>Op schema: {{ n(schema) }} km · prognose ~{{ n(prog) }} km</span>
-                      <span style="color:{{ kleur }}">{% if ruimte >= 0 %}Nog ~{{ n(ruimte) }} km per week{% else %}Limiet overschreden{% endif %}</span>
-                    </div>
-                  </div>
-                {% endfor %}
-                <div style="font-size:11px;color:#a6c5b9;text-align:center">Limieten naar rato: limiet ÷ 365 × {{ state_attr('sensor.ennie_km_dit_jaar', 'dagen_periode') }} dagen · zakelijk = kantoordagen × {{ states('input_number.ennie_km_kantoor_retour') | float(0) | int }} km{{ ' + ' ~ n(states('input_number.ennie_km_extra_zakelijk')) ~ ' km extra' if states('input_number.ennie_km_extra_zakelijk') | float(0) > 0 else '' }}</div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap">
+              <div>
+              <div style="font-size:13px;color:#a6e2c7;display:flex;align-items:center;gap:6px"><ha-icon icon="mdi:road-variant" style="--mdc-icon-size:18px;color:#50df90"></ha-icon> Gereden in {{ sd.year }}{{ ' (vanaf ' ~ sd.day ~ ' ' ~ maanden[sd.month - 1] ~ ')' if sd.month > 1 or sd.day > 1 else '' }}</div>
+              <div style="font-size:clamp(22px,2.2vw,28px);font-weight:750;color:#fff;line-height:1.2">{{ n(tot) }} km</div>
               </div>
-              {% endif %}
+              <div style="text-align:right">
+              <div style="font-size:12px;color:#a6c5b9">Prognose 31 december</div>
+              <div style="font-size:16px;font-weight:650;color:#eafff2">~{{ n(state_attr('sensor.ennie_km_dit_jaar', 'prognose')) }} km</div>
+              <div style="font-size:11px;color:#a6c5b9">≈ {{ n(state_attr('sensor.ennie_km_dit_jaar', 'prognose_per_jaar')) }} km per jaar</div>
+              </div>
+              </div>
+              {%- for key, label, icon in [('prive', 'Privé', 'mdi:car-side'), ('zakelijk', 'Zakelijk', 'mdi:briefcase-variant')] -%}
+              {%- set e = 'sensor.ennie_km_' ~ key -%}
+              {%- set km = states(e) | float(0) -%}
+              {%- set max = state_attr(e, 'toegestaan') | float(0) -%}
+              {%- set schema = state_attr(e, 'op_schema') | float(0) -%}
+              {%- set prog = state_attr(e, 'prognose') | float(0) -%}
+              {%- set ruimte = state_attr(e, 'ruimte_per_week') | float(0) -%}
+              {%- set ratio = (km / schema) if schema > 0 else 0 -%}
+              {%- set kleur = '#50df90' if ratio <= 1 else ('#ffbf47' if ratio <= 1.1 else '#ff6975') -%}
+              {%- set vul = [km / max * 100, 100] | min if max > 0 else 0 -%}
+              {%- set mark = [schema / max * 100, 100] | min if max > 0 else 0 -%}
+              <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+              <div style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:#eafff2"><ha-icon icon="{{ icon }}" style="--mdc-icon-size:19px;color:{{ kleur }}"></ha-icon> {{ label }}{% if key == 'zakelijk' %} <span style="font-size:11px;font-weight:400;color:#a6c5b9">· {{ state_attr(e, 'kantoordagen') }} kantoordagen</span>{% endif %}</div>
+              <div style="font-size:14px;font-weight:650;color:{{ kleur }};white-space:nowrap">{{ n(km) }} <span style="color:#a6c5b9;font-weight:400">/ {{ n(max) }} km</span></div>
+              </div>
+              <div style="position:relative;height:10px;border-radius:6px;background:#173c31;overflow:visible">
+              <div style="width:{{ vul | round(1) }}%;height:100%;border-radius:6px;background:{{ kleur }}"></div>
+              <div title="Op schema" style="position:absolute;top:-4px;left:calc({{ mark | round(1) }}% - 1px);width:2px;height:18px;background:#eafff2;border-radius:1px"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:11px;color:#a6c5b9">
+              <span>Op schema: {{ n(schema) }} km · prognose ~{{ n(prog) }} km</span>
+              <span style="color:{{ kleur }}">{% if ruimte >= 0 %}Nog ~{{ n(ruimte) }} km per week{% else %}Limiet overschreden{% endif %}</span>
+              </div>
+              </div>
+              {%- endfor -%}
+              <div style="font-size:11px;color:#a6c5b9;text-align:center">Limieten naar rato: limiet ÷ 365 × {{ state_attr('sensor.ennie_km_dit_jaar', 'dagen_periode') }} dagen · zakelijk = kantoordagen × {{ states('input_number.ennie_km_kantoor_retour') | float(0) | int }} km{{ ' + ' ~ n(states('input_number.ennie_km_extra_zakelijk')) ~ ' km extra' if states('input_number.ennie_km_extra_zakelijk') | float(0) > 0 else '' }}</div>
+              </div>
+              {%- endif -%}
             card_mod:
               style:
                 .: |
@@ -5464,21 +5456,13 @@ views:
                     width: 100% !important;
                     box-sizing: border-box !important;
                     padding: 15px !important;
-                    display: flex !important;
-                    align-items: center !important;
-                    justify-content: center !important;
-                    text-align: center !important;
+                    display: block !important;
+                    text-align: left !important;
                   }
-                  ha-card ha-markdown { width: 100% !important; text-align: center !important; }
+                  ha-card ha-markdown { width: 100% !important; text-align: left !important; }
                 ha-markdown$: |
-                  .markdown { text-align:center !important; width:100% !important; }
-                  .markdown > div { width:100% !important; text-align:center !important; }
-                  .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
-                  .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:#40e697 !important; font-size:14px !important; }
-                  .ennie-metric-label ha-icon { color:#40e697 !important; --mdc-icon-size:19px; }
-                  .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
-
-                  .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:#a6e2c7 !important; }
+                  .markdown { width:100% !important; text-align:left !important; }
+                  .markdown > div { width:100% !important; }
       - type: custom:mod-card
         card_mod:
           style: 'ha-card { display:block !important; background:transparent !important; border:0 !important; box-shadow:none !important; padding:0 !important; width:100% !important; } @media (max-width: 700px) { ha-card { display:none !important; } }'
