@@ -3556,8 +3556,8 @@ views:
                     const col=v=>v>0?'#ff6975':'#50df90';
                     const split=(k)=>`Privé ${eur(pa[k])} · zakelijk ${eur(za[k])}`;
                     return `<div class="km-pay">
-                  <div class="km-paybox"><div class="km-sub">Bijbetalen nu</div><div class="km-payv" style="color:${col(nu)}">${eur(nu)}</div><div class="km-sub">${fmt(num(B.attributes?.meerkm_nu)??0)} meer-km · ${split('bijbetalen_nu')}</div></div>
-                  <div class="km-paybox"><div class="km-sub">Bijbetalen o.b.v. prognose 31 december</div><div class="km-payv" style="color:${col(pr)}">${eur(pr)}</div><div class="km-sub">${fmt(num(B.attributes?.meerkm_prognose)??0)} meer-km · ${split('bijbetalen_prognose')}</div></div>
+                  <div class="km-paybox"><div class="km-sub">Bijbetalen privé nu</div><div class="km-payv" style="color:${col(nu)}">${eur(nu)}</div><div class="km-sub">${fmt(num(B.attributes?.meerkm_nu)??0)} privé-km boven limiet</div></div>
+                  <div class="km-paybox"><div class="km-sub">Bijbetalen privé o.b.v. prognose 31 dec</div><div class="km-payv" style="color:${col(pr)}">${eur(pr)}</div><div class="km-sub">${fmt(num(B.attributes?.meerkm_prognose)??0)} privé-km boven limiet</div></div>
                   </div>`;
                   })();
                   const retour=num(S('input_number.ennie_km_kantoor_retour')?.state)??0;
@@ -3568,7 +3568,7 @@ views:
                   ${row('prive','Privé','mdi:car-side')}
                   ${row('zakelijk','Zakelijk','mdi:briefcase-variant')}
                   ${pay}
-                  <div class="km-note">Limieten naar rato: limiet ÷ 365 × ${A.dagen_periode??'?'} dagen · zakelijk = kantoordagen × ${Math.round(retour)} km${extraZ>0?` + ${fmt(extraZ)} km extra`:''}${B?` · meer-km × ${eur(B.attributes?.tarief).replace('€ ','€ ')} per km`:''}</div>
+                  <div class="km-note">Limieten naar rato: limiet ÷ 365 × ${A.dagen_periode??'?'} dagen · zakelijk = kantoordagen × ${Math.round(retour)} km${extraZ>0?` + ${fmt(extraZ)} km extra`:''}${B?` · privé meer-km × ${eur(B.attributes?.tarief).replace('€ ','€ ')} per km (zakelijk niet verrekend)`:''}</div>
                   </div>`;
                   ]]]
               styles:
@@ -5524,8 +5524,8 @@ views:
                   const col=v=>v>0?'#ff6975':'#50df90';
                   const split=(k)=>`Privé ${eur(pa[k])} · zakelijk ${eur(za[k])}`;
                   return `<div class="km-pay">
-                <div class="km-paybox"><div class="km-sub">Bijbetalen nu</div><div class="km-payv" style="color:${col(nu)}">${eur(nu)}</div><div class="km-sub">${fmt(num(B.attributes?.meerkm_nu)??0)} meer-km · ${split('bijbetalen_nu')}</div></div>
-                <div class="km-paybox"><div class="km-sub">Bijbetalen o.b.v. prognose 31 december</div><div class="km-payv" style="color:${col(pr)}">${eur(pr)}</div><div class="km-sub">${fmt(num(B.attributes?.meerkm_prognose)??0)} meer-km · ${split('bijbetalen_prognose')}</div></div>
+                <div class="km-paybox"><div class="km-sub">Bijbetalen privé nu</div><div class="km-payv" style="color:${col(nu)}">${eur(nu)}</div><div class="km-sub">${fmt(num(B.attributes?.meerkm_nu)??0)} privé-km boven limiet</div></div>
+                <div class="km-paybox"><div class="km-sub">Bijbetalen privé o.b.v. prognose 31 dec</div><div class="km-payv" style="color:${col(pr)}">${eur(pr)}</div><div class="km-sub">${fmt(num(B.attributes?.meerkm_prognose)??0)} privé-km boven limiet</div></div>
                 </div>`;
                 })();
                 const retour=num(S('input_number.ennie_km_kantoor_retour')?.state)??0;
@@ -5536,7 +5536,7 @@ views:
                 ${row('prive','Privé','mdi:car-side')}
                 ${row('zakelijk','Zakelijk','mdi:briefcase-variant')}
                 ${pay}
-                <div class="km-note">Limieten naar rato: limiet ÷ 365 × ${A.dagen_periode??'?'} dagen · zakelijk = kantoordagen × ${Math.round(retour)} km${extraZ>0?` + ${fmt(extraZ)} km extra`:''}${B?` · meer-km × ${eur(B.attributes?.tarief).replace('€ ','€ ')} per km`:''}</div>
+                <div class="km-note">Limieten naar rato: limiet ÷ 365 × ${A.dagen_periode??'?'} dagen · zakelijk = kantoordagen × ${Math.round(retour)} km${extraZ>0?` + ${fmt(extraZ)} km extra`:''}${B?` · privé meer-km × ${eur(B.attributes?.tarief).replace('€ ','€ ')} per km (zakelijk niet verrekend)`:''}</div>
                 </div>`;
                 ]]]
             styles:

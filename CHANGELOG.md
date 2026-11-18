@@ -13,7 +13,7 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 - Kilometers card (desktop and mobile): kilometres driven this lease year split into private and business, each against the limit prorated over the days since the lease start, with schedule marker, year-end forecast and remaining km per week.
 - `packages/ennie_kilometers.yaml`: helpers for limits, office round-trip distance, extra business km and lease start date; office-day counter driven by entering `zone.kantoor`; automatic reset on 1 January.
 - Settings tiles for the kilometer limits, office round trip, extra business km, office-day counter and lease start date.
-- Excess-kilometre charge: kilometres above the prorated private and business limits multiplied by an adjustable rate per km (`input_number.ennie_km_tarief_meerkm`), shown on the Kilometers card for now and for the year-end forecast (`sensor.ennie_km_bijbetalen`), with a settings tile for the rate.
+- Excess-kilometre charge: private kilometres above the prorated private limit (business kilometres are not charged) multiplied by an adjustable rate per km (`input_number.ennie_km_tarief_meerkm`), shown on the Kilometers card for now and for the year-end forecast (`sensor.ennie_km_bijbetalen`), with a settings tile for the rate.
 
 ## [2.2.0] - 2026-11-15
 

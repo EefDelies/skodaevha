@@ -11,9 +11,9 @@
 # Kantoordag: de eerste keer per dag dat de auto de kantoorzone
 # binnenrijdt. Pas de zone aan naar jouw kantoorzone.
 #
-# Meerkilometers: km boven het (naar rato) toegestane aantal worden
-# per categorie (privé en zakelijk apart) verrekend tegen het tarief
-# per km. Bijbetalen = (gereden - toegestaan) x tarief, nu en op
+# Meerkilometers: alleen privé-km boven het (naar rato) toegestane
+# aantal worden verrekend tegen het tarief per km; zakelijke km niet.
+# Bijbetalen = (privé gereden - privé toegestaan) x tarief, nu en op
 # basis van de prognose voor 31 december.
 # ============================================================
 
@@ -141,9 +141,7 @@ template:
       prog_prive: "{{ (prive / dagen_verstreken * dagen_periode) | round(0) }}"
       prog_zakelijk: "{{ (zakelijk / dagen_verstreken * dagen_periode) | round(0) }}"
       meer_prive_nu: "{{ [prive - toegestaan_prive, 0] | max | round(0) }}"
-      meer_zakelijk_nu: "{{ [zakelijk - toegestaan_zakelijk, 0] | max | round(0) }}"
       meer_prive_prog: "{{ [prog_prive - toegestaan_prive, 0] | max | round(0) }}"
-      meer_zakelijk_prog: "{{ [prog_zakelijk - toegestaan_zakelijk, 0] | max | round(0) }}"
     sensor:
       - name: Ennie km dit jaar
         unique_id: ennie_km_dit_jaar
@@ -188,22 +186,18 @@ template:
           op_schema: "{{ (toegestaan_zakelijk * voortgang) | round(0) }}"
           prognose: "{{ prog_zakelijk }}"
           ruimte_per_week: "{{ ((toegestaan_zakelijk - zakelijk) / resterende_weken) | round(0) }}"
-          meerkm_nu: "{{ meer_zakelijk_nu }}"
-          meerkm_prognose: "{{ meer_zakelijk_prog }}"
-          bijbetalen_nu: "{{ (meer_zakelijk_nu * tarief) | round(2) }}"
-          bijbetalen_prognose: "{{ (meer_zakelijk_prog * tarief) | round(2) }}"
 
       - name: Ennie km bijbetalen
         unique_id: ennie_km_bijbetalen
         icon: mdi:cash-plus
         unit_of_measurement: EUR
         availability: "{{ is_number(states('sensor.skoda_enyaq_kilometerstand')) }}"
-        state: "{{ ((meer_prive_nu + meer_zakelijk_nu) * tarief) | round(2) }}"
+        state: "{{ (meer_prive_nu * tarief) | round(2) }}"
         attributes:
           tarief: "{{ tarief }}"
-          meerkm_nu: "{{ meer_prive_nu + meer_zakelijk_nu }}"
-          meerkm_prognose: "{{ meer_prive_prog + meer_zakelijk_prog }}"
-          prognose: "{{ ((meer_prive_prog + meer_zakelijk_prog) * tarief) | round(2) }}"
+          meerkm_nu: "{{ meer_prive_nu }}"
+          meerkm_prognose: "{{ meer_prive_prog }}"
+          prognose: "{{ (meer_prive_prog * tarief) | round(2) }}"
 
 automation:
   - id: ennie_kantoordag_tellen
