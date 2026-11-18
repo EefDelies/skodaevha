@@ -1,5 +1,5 @@
 # ============================================================
-# ENNIE - KILOMETERS LEASEJAAR V1.0
+# ENNIE - KILOMETERS LEASEJAAR V1.1
 # Houdt per kalenderjaar de gereden kilometers bij, verdeeld in
 # zakelijk (kantoordagen x retourafstand + extra zakelijke km) en
 # privé (totaal - zakelijk), en vergelijkt ze met de leaselimieten.
@@ -10,6 +10,11 @@
 #
 # Kantoordag: de eerste keer per dag dat de auto de kantoorzone
 # binnenrijdt. Pas de zone aan naar jouw kantoorzone.
+#
+# Meerkilometers: km boven het (naar rato) toegestane aantal worden
+# per categorie (privé en zakelijk apart) verrekend tegen het tarief
+# per km. Bijbetalen = (gereden - toegestaan) x tarief, nu en op
+# basis van de prognose voor 31 december.
 # ============================================================
 
 input_number:
@@ -48,6 +53,15 @@ input_number:
     mode: box
     unit_of_measurement: km
     icon: mdi:briefcase-plus
+
+  ennie_km_tarief_meerkm:
+    name: Ennie tarief meerkilometers
+    min: 0
+    max: 2
+    step: 0.01
+    mode: box
+    unit_of_measurement: €/km
+    icon: mdi:cash-plus
 
   # Automatisch: kilometerstand op 1 januari. Voor het eerste jaar 0.
   ennie_km_stand_jaarstart:
@@ -95,6 +109,7 @@ template:
           - input_number.ennie_km_kantoor_retour
           - input_number.ennie_km_extra_zakelijk
           - input_number.ennie_km_stand_jaarstart
+          - input_number.ennie_km_tarief_meerkm
           - input_datetime.ennie_lease_start
     variables:
       stand: "{{ states('sensor.skoda_enyaq_kilometerstand') | float(0) }}"
@@ -122,6 +137,13 @@ template:
       toegestaan_zakelijk: "{{ (states('input_number.ennie_km_limiet_zakelijk') | float(0) * factor) | round(0) }}"
       voortgang: "{{ dagen_verstreken / dagen_periode }}"
       resterende_weken: "{{ [(dagen_periode - dagen_verstreken) / 7, 1 / 7] | max }}"
+      tarief: "{{ states('input_number.ennie_km_tarief_meerkm') | float(0) }}"
+      prog_prive: "{{ (prive / dagen_verstreken * dagen_periode) | round(0) }}"
+      prog_zakelijk: "{{ (zakelijk / dagen_verstreken * dagen_periode) | round(0) }}"
+      meer_prive_nu: "{{ [prive - toegestaan_prive, 0] | max | round(0) }}"
+      meer_zakelijk_nu: "{{ [zakelijk - toegestaan_zakelijk, 0] | max | round(0) }}"
+      meer_prive_prog: "{{ [prog_prive - toegestaan_prive, 0] | max | round(0) }}"
+      meer_zakelijk_prog: "{{ [prog_zakelijk - toegestaan_zakelijk, 0] | max | round(0) }}"
     sensor:
       - name: Ennie km dit jaar
         unique_id: ennie_km_dit_jaar
@@ -147,8 +169,12 @@ template:
         attributes:
           toegestaan: "{{ toegestaan_prive }}"
           op_schema: "{{ (toegestaan_prive * voortgang) | round(0) }}"
-          prognose: "{{ (prive / dagen_verstreken * dagen_periode) | round(0) }}"
+          prognose: "{{ prog_prive }}"
           ruimte_per_week: "{{ ((toegestaan_prive - prive) / resterende_weken) | round(0) }}"
+          meerkm_nu: "{{ meer_prive_nu }}"
+          meerkm_prognose: "{{ meer_prive_prog }}"
+          bijbetalen_nu: "{{ (meer_prive_nu * tarief) | round(2) }}"
+          bijbetalen_prognose: "{{ (meer_prive_prog * tarief) | round(2) }}"
 
       - name: Ennie km zakelijk
         unique_id: ennie_km_zakelijk
@@ -160,8 +186,24 @@ template:
           kantoordagen: "{{ states('counter.ennie_kantoordagen') | int(0) }}"
           toegestaan: "{{ toegestaan_zakelijk }}"
           op_schema: "{{ (toegestaan_zakelijk * voortgang) | round(0) }}"
-          prognose: "{{ (zakelijk / dagen_verstreken * dagen_periode) | round(0) }}"
+          prognose: "{{ prog_zakelijk }}"
           ruimte_per_week: "{{ ((toegestaan_zakelijk - zakelijk) / resterende_weken) | round(0) }}"
+          meerkm_nu: "{{ meer_zakelijk_nu }}"
+          meerkm_prognose: "{{ meer_zakelijk_prog }}"
+          bijbetalen_nu: "{{ (meer_zakelijk_nu * tarief) | round(2) }}"
+          bijbetalen_prognose: "{{ (meer_zakelijk_prog * tarief) | round(2) }}"
+
+      - name: Ennie km bijbetalen
+        unique_id: ennie_km_bijbetalen
+        icon: mdi:cash-plus
+        unit_of_measurement: EUR
+        availability: "{{ is_number(states('sensor.skoda_enyaq_kilometerstand')) }}"
+        state: "{{ ((meer_prive_nu + meer_zakelijk_nu) * tarief) | round(2) }}"
+        attributes:
+          tarief: "{{ tarief }}"
+          meerkm_nu: "{{ meer_prive_nu + meer_zakelijk_nu }}"
+          meerkm_prognose: "{{ meer_prive_prog + meer_zakelijk_prog }}"
+          prognose: "{{ ((meer_prive_prog + meer_zakelijk_prog) * tarief) | round(2) }}"
 
 automation:
   - id: ennie_kantoordag_tellen

@@ -3521,6 +3521,7 @@ views:
               - sensor.ennie_km_zakelijk
               - input_number.ennie_km_kantoor_retour
               - input_number.ennie_km_extra_zakelijk
+              - sensor.ennie_km_bijbetalen
               custom_fields:
                 content: |-
                   [[[
@@ -3547,6 +3548,18 @@ views:
                   <div class="km-foot"><span>Op schema: ${fmt(sch)} km · prognose ~${fmt(prog)} km</span><span style="color:${kleur}">${ruimte>=0?`Nog ~${fmt(ruimte)} km per week`:'Limiet overschreden'}</span></div>
                   </div>`;
                   };
+                  const B=S('sensor.ennie_km_bijbetalen');
+                  const eur=v=>'€ '+(num(v)??0).toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2});
+                  const pa=S('sensor.ennie_km_prive')?.attributes||{}, za=S('sensor.ennie_km_zakelijk')?.attributes||{};
+                  const pay=(!B||num(B.state)===null)?'':(()=>{
+                    const nu=num(B.state)??0, pr=num(B.attributes?.prognose)??0;
+                    const col=v=>v>0?'#ff6975':'#50df90';
+                    const split=(k)=>`Privé ${eur(pa[k])} · zakelijk ${eur(za[k])}`;
+                    return `<div class="km-pay">
+                  <div class="km-paybox"><div class="km-sub">Bijbetalen nu</div><div class="km-payv" style="color:${col(nu)}">${eur(nu)}</div><div class="km-sub">${fmt(num(B.attributes?.meerkm_nu)??0)} meer-km · ${split('bijbetalen_nu')}</div></div>
+                  <div class="km-paybox"><div class="km-sub">Bijbetalen o.b.v. prognose 31 december</div><div class="km-payv" style="color:${col(pr)}">${eur(pr)}</div><div class="km-sub">${fmt(num(B.attributes?.meerkm_prognose)??0)} meer-km · ${split('bijbetalen_prognose')}</div></div>
+                  </div>`;
+                  })();
                   const retour=num(S('input_number.ennie_km_kantoor_retour')?.state)??0;
                   const extraZ=num(S('input_number.ennie_km_extra_zakelijk')?.state)??0;
                   return `<div class="km-wrap">
@@ -3554,7 +3567,8 @@ views:
                   <div class="km-prog"><div class="km-sub">Prognose 31 december</div><div class="km-progv">~${fmt(num(A.prognose)??0)} km</div><div class="km-sub">≈ ${fmt(num(A.prognose_per_jaar)??0)} km per jaar</div></div></div>
                   ${row('prive','Privé','mdi:car-side')}
                   ${row('zakelijk','Zakelijk','mdi:briefcase-variant')}
-                  <div class="km-note">Limieten naar rato: limiet ÷ 365 × ${A.dagen_periode??'?'} dagen · zakelijk = kantoordagen × ${Math.round(retour)} km${extraZ>0?` + ${fmt(extraZ)} km extra`:''}</div>
+                  ${pay}
+                  <div class="km-note">Limieten naar rato: limiet ÷ 365 × ${A.dagen_periode??'?'} dagen · zakelijk = kantoordagen × ${Math.round(retour)} km${extraZ>0?` + ${fmt(extraZ)} km extra`:''}${B?` · meer-km × ${eur(B.attributes?.tarief).replace('€ ','€ ')} per km`:''}</div>
                   </div>`;
                   ]]]
               styles:
@@ -3599,6 +3613,10 @@ views:
                 .km-note{font-size:11px;color:#a6c5b9;text-align:center;}
                 .km-empty{color:#a6c5b9;text-align:center;width:100%;}
                 @media (max-width:600px){.km-prog{text-align:left;}}
+                .km-pay{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+                .km-paybox{border:1px solid #174c3f;border-radius:12px;background:#061914;padding:10px 12px;display:flex;flex-direction:column;gap:3px;}
+                .km-payv{font-size:18px;font-weight:700;}
+                @media (max-width:600px){.km-pay{grid-template-columns:1fr;}}
           - type: custom:expander-card
             expanded: false
             clear: true
@@ -5191,6 +5209,64 @@ views:
                     ]]]
                 extra_styles: 'ha-card {background:linear-gradient(145deg,#071e19,#061310)!important;border:1px solid #174c3f!important;border-radius:17px!important;box-shadow:0 3px 14px #0004!important;color:#eafff2!important;} #container {width:100%!important;height:112px!important;min-height:112px!important;display:grid!important;grid-template-areas:"content"!important;grid-template-rows:112px!important;align-items:center!important;justify-items:center!important;} #custom_fields {grid-area:content!important;width:100%!important;height:112px!important;display:flex!important;align-items:center!important;justify-content:center!important;} ha-card {height:112px!important;min-height:112px!important;max-height:112px!important;box-sizing:border-box!important;}'
               - type: custom:button-card
+                entity: input_number.ennie_km_tarief_meerkm
+                show_icon: false
+                show_name: false
+                show_label: false
+                show_state: false
+                tap_action:
+                  action: more-info
+                triggers_update:
+                - input_number.ennie_km_tarief_meerkm
+                styles:
+                  card:
+                  - 'height: 112px'
+                  - 'padding: 0'
+                  - 'background: linear-gradient(145deg,#071e19,#061310)'
+                  - 'border: 1px solid #174c3f'
+                  - 'border-radius: 17px'
+                  - 'box-shadow: 0 3px 14px #0004'
+                  - 'color: #eafff2'
+                  - 'overflow: hidden'
+                  - 'display: block'
+                  - 'position: relative'
+                  grid:
+                  - 'grid-template-areas: "content"'
+                  - 'grid-template-columns: minmax(0, 1fr)'
+                  - 'grid-template-rows: 112px'
+                  - 'align-items: center'
+                  - 'justify-items: center'
+                  custom_fields:
+                    content:
+                    - 'grid-area: content'
+                    - 'justify-self: stretch'
+                    - 'align-self: stretch'
+                    - 'width: 100%'
+                    - 'min-width: 0'
+                    - 'text-align: left'
+                    - 'pointer-events: none'
+                    - 'box-sizing: border-box'
+                    - 'margin: 0'
+                    - 'padding: 0'
+                    - 'position: static'
+                    - 'display: flex'
+                    - 'align-items: center'
+                    - 'justify-content: center'
+                    - 'height: 112px'
+                    - 'width: 100%'
+                    - 'justify-content: stretch'
+                    - 'align-items: stretch'
+                custom_fields:
+                  content: |-
+                    [[[
+                    const p=Number(entity?.state);
+                    const ok=entity && Number.isFinite(p);
+                    const value=ok?`€ ${p.toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2})} per km`:'Onbekend';
+                    const color=ok?'#50df90':'#a6c5b9';
+                    return `<div style="flex:1 1 100%;align-self:stretch;width:100%;box-sizing:border-box;padding:4px 16px;display:flex;flex-direction:column;justify-content:center;gap:8px;"><div style="display:flex;align-items:center;width:100%;"><ha-icon icon="mdi:cash-plus" style="position:absolute;top:14px;left:16px;width:30px;height:30px;color:${color};"></ha-icon><div style="flex:1;min-width:0;padding:0 34px;font-size:14px;font-weight:600;color:#eafff2;text-align:center;line-height:1.2;">Tarief meerkilometers</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;"><div style="font-size:14px;font-weight:600;color:${color};text-align:center;line-height:1.25;">${value}</div><div style="font-size:10px;color:#a6c5b9;text-align:center;line-height:1.2;">Tik om te wijzigen</div></div></div>`;
+                    ]]]
+                extra_styles: 'ha-card {background:linear-gradient(145deg,#071e19,#061310)!important;border:1px solid #174c3f!important;border-radius:17px!important;box-shadow:0 3px 14px #0004!important;color:#eafff2!important;} #container {width:100%!important;height:112px!important;min-height:112px!important;display:grid!important;grid-template-areas:"content"!important;grid-template-rows:112px!important;align-items:center!important;justify-items:center!important;} #custom_fields {grid-area:content!important;width:100%!important;height:112px!important;display:flex!important;align-items:center!important;justify-content:center!important;} ha-card {height:112px!important;min-height:112px!important;max-height:112px!important;box-sizing:border-box!important;}'
+              - type: custom:button-card
                 entity: input_number.ennie_km_extra_zakelijk
                 show_icon: false
                 show_name: false
@@ -5413,6 +5489,7 @@ views:
             - sensor.ennie_km_zakelijk
             - input_number.ennie_km_kantoor_retour
             - input_number.ennie_km_extra_zakelijk
+            - sensor.ennie_km_bijbetalen
             custom_fields:
               content: |-
                 [[[
@@ -5439,6 +5516,18 @@ views:
                 <div class="km-foot"><span>Op schema: ${fmt(sch)} km · prognose ~${fmt(prog)} km</span><span style="color:${kleur}">${ruimte>=0?`Nog ~${fmt(ruimte)} km per week`:'Limiet overschreden'}</span></div>
                 </div>`;
                 };
+                const B=S('sensor.ennie_km_bijbetalen');
+                const eur=v=>'€ '+(num(v)??0).toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2});
+                const pa=S('sensor.ennie_km_prive')?.attributes||{}, za=S('sensor.ennie_km_zakelijk')?.attributes||{};
+                const pay=(!B||num(B.state)===null)?'':(()=>{
+                  const nu=num(B.state)??0, pr=num(B.attributes?.prognose)??0;
+                  const col=v=>v>0?'#ff6975':'#50df90';
+                  const split=(k)=>`Privé ${eur(pa[k])} · zakelijk ${eur(za[k])}`;
+                  return `<div class="km-pay">
+                <div class="km-paybox"><div class="km-sub">Bijbetalen nu</div><div class="km-payv" style="color:${col(nu)}">${eur(nu)}</div><div class="km-sub">${fmt(num(B.attributes?.meerkm_nu)??0)} meer-km · ${split('bijbetalen_nu')}</div></div>
+                <div class="km-paybox"><div class="km-sub">Bijbetalen o.b.v. prognose 31 december</div><div class="km-payv" style="color:${col(pr)}">${eur(pr)}</div><div class="km-sub">${fmt(num(B.attributes?.meerkm_prognose)??0)} meer-km · ${split('bijbetalen_prognose')}</div></div>
+                </div>`;
+                })();
                 const retour=num(S('input_number.ennie_km_kantoor_retour')?.state)??0;
                 const extraZ=num(S('input_number.ennie_km_extra_zakelijk')?.state)??0;
                 return `<div class="km-wrap">
@@ -5446,7 +5535,8 @@ views:
                 <div class="km-prog"><div class="km-sub">Prognose 31 december</div><div class="km-progv">~${fmt(num(A.prognose)??0)} km</div><div class="km-sub">≈ ${fmt(num(A.prognose_per_jaar)??0)} km per jaar</div></div></div>
                 ${row('prive','Privé','mdi:car-side')}
                 ${row('zakelijk','Zakelijk','mdi:briefcase-variant')}
-                <div class="km-note">Limieten naar rato: limiet ÷ 365 × ${A.dagen_periode??'?'} dagen · zakelijk = kantoordagen × ${Math.round(retour)} km${extraZ>0?` + ${fmt(extraZ)} km extra`:''}</div>
+                ${pay}
+                <div class="km-note">Limieten naar rato: limiet ÷ 365 × ${A.dagen_periode??'?'} dagen · zakelijk = kantoordagen × ${Math.round(retour)} km${extraZ>0?` + ${fmt(extraZ)} km extra`:''}${B?` · meer-km × ${eur(B.attributes?.tarief).replace('€ ','€ ')} per km`:''}</div>
                 </div>`;
                 ]]]
             styles:
@@ -5491,6 +5581,10 @@ views:
               .km-note{font-size:11px;color:#a6c5b9;text-align:center;}
               .km-empty{color:#a6c5b9;text-align:center;width:100%;}
               @media (max-width:600px){.km-prog{text-align:left;}}
+              .km-pay{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+              .km-paybox{border:1px solid #174c3f;border-radius:12px;background:#061914;padding:10px 12px;display:flex;flex-direction:column;gap:3px;}
+              .km-payv{font-size:18px;font-weight:700;}
+              @media (max-width:600px){.km-pay{grid-template-columns:1fr;}}
       - type: custom:mod-card
         card_mod:
           style: 'ha-card { display:block !important; background:transparent !important; border:0 !important; box-shadow:none !important; padding:0 !important; width:100% !important; } @media (max-width: 700px) { ha-card { display:none !important; } }'
@@ -7001,6 +7095,64 @@ views:
                   const value=ok?`${Math.round(p).toLocaleString('nl-NL')} km`:'Onbekend';
                   const color=ok?'#50df90':'#a6c5b9';
                   return `<div style="flex:1 1 100%;align-self:stretch;width:100%;box-sizing:border-box;padding:4px 16px;display:flex;flex-direction:column;justify-content:center;gap:8px;"><div style="display:flex;align-items:center;width:100%;"><ha-icon icon="mdi:office-building-marker" style="position:absolute;top:14px;left:16px;width:30px;height:30px;color:${color};"></ha-icon><div style="flex:1;min-width:0;padding:0 34px;font-size:14px;font-weight:600;color:#eafff2;text-align:center;line-height:1.2;">Kantoor retour</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;"><div style="font-size:14px;font-weight:600;color:${color};text-align:center;line-height:1.25;">${value}</div><div style="font-size:10px;color:#a6c5b9;text-align:center;line-height:1.2;">Tik om te wijzigen</div></div></div>`;
+                  ]]]
+              extra_styles: 'ha-card {background:linear-gradient(145deg,#071e19,#061310)!important;border:1px solid #174c3f!important;border-radius:17px!important;box-shadow:0 3px 14px #0004!important;color:#eafff2!important;} #container {width:100%!important;height:112px!important;min-height:112px!important;display:grid!important;grid-template-areas:"content"!important;grid-template-rows:112px!important;align-items:center!important;justify-items:center!important;} #custom_fields {grid-area:content!important;width:100%!important;height:112px!important;display:flex!important;align-items:center!important;justify-content:center!important;} ha-card {height:112px!important;min-height:112px!important;max-height:112px!important;box-sizing:border-box!important;}'
+            - type: custom:button-card
+              entity: input_number.ennie_km_tarief_meerkm
+              show_icon: false
+              show_name: false
+              show_label: false
+              show_state: false
+              tap_action:
+                action: more-info
+              triggers_update:
+              - input_number.ennie_km_tarief_meerkm
+              styles:
+                card:
+                - 'height: 112px'
+                - 'padding: 0'
+                - 'background: linear-gradient(145deg,#071e19,#061310)'
+                - 'border: 1px solid #174c3f'
+                - 'border-radius: 17px'
+                - 'box-shadow: 0 3px 14px #0004'
+                - 'color: #eafff2'
+                - 'overflow: hidden'
+                - 'display: block'
+                - 'position: relative'
+                grid:
+                - 'grid-template-areas: "content"'
+                - 'grid-template-columns: minmax(0, 1fr)'
+                - 'grid-template-rows: 112px'
+                - 'align-items: center'
+                - 'justify-items: center'
+                custom_fields:
+                  content:
+                  - 'grid-area: content'
+                  - 'justify-self: stretch'
+                  - 'align-self: stretch'
+                  - 'width: 100%'
+                  - 'min-width: 0'
+                  - 'text-align: left'
+                  - 'pointer-events: none'
+                  - 'box-sizing: border-box'
+                  - 'margin: 0'
+                  - 'padding: 0'
+                  - 'position: static'
+                  - 'display: flex'
+                  - 'align-items: center'
+                  - 'justify-content: center'
+                  - 'height: 112px'
+                  - 'width: 100%'
+                  - 'justify-content: stretch'
+                  - 'align-items: stretch'
+              custom_fields:
+                content: |-
+                  [[[
+                  const p=Number(entity?.state);
+                  const ok=entity && Number.isFinite(p);
+                  const value=ok?`€ ${p.toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2})} per km`:'Onbekend';
+                  const color=ok?'#50df90':'#a6c5b9';
+                  return `<div style="flex:1 1 100%;align-self:stretch;width:100%;box-sizing:border-box;padding:4px 16px;display:flex;flex-direction:column;justify-content:center;gap:8px;"><div style="display:flex;align-items:center;width:100%;"><ha-icon icon="mdi:cash-plus" style="position:absolute;top:14px;left:16px;width:30px;height:30px;color:${color};"></ha-icon><div style="flex:1;min-width:0;padding:0 34px;font-size:14px;font-weight:600;color:#eafff2;text-align:center;line-height:1.2;">Tarief meerkilometers</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;"><div style="font-size:14px;font-weight:600;color:${color};text-align:center;line-height:1.25;">${value}</div><div style="font-size:10px;color:#a6c5b9;text-align:center;line-height:1.2;">Tik om te wijzigen</div></div></div>`;
                   ]]]
               extra_styles: 'ha-card {background:linear-gradient(145deg,#071e19,#061310)!important;border:1px solid #174c3f!important;border-radius:17px!important;box-shadow:0 3px 14px #0004!important;color:#eafff2!important;} #container {width:100%!important;height:112px!important;min-height:112px!important;display:grid!important;grid-template-areas:"content"!important;grid-template-rows:112px!important;align-items:center!important;justify-items:center!important;} #custom_fields {grid-area:content!important;width:100%!important;height:112px!important;display:flex!important;align-items:center!important;justify-content:center!important;} ha-card {height:112px!important;min-height:112px!important;max-height:112px!important;box-sizing:border-box!important;}'
             - type: custom:button-card
