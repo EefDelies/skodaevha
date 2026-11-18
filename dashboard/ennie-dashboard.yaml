@@ -3506,85 +3506,99 @@ views:
                 /* Pijltje centreren op de hoogte van de groene titelbalk. */
                 .expand-button, .expand-icon, .expand-toggle, #expand-button, #expand-icon, .chevron, .arrow, .toggle { align-self: center !important; margin-top: 0 !important; margin-bottom: 0 !important; }
             cards:
-            - type: markdown
-              content: |-
-                {%- set tot = states('sensor.ennie_km_dit_jaar') -%}
-                {%- set ready = is_number(tot) and is_number(states('sensor.ennie_km_prive')) -%}
-                {%- macro n(v) -%}{{ '{:,}'.format(v | float(0) | round(0) | int) | replace(',', '.') }}{%- endmacro -%}
-                {%- if not ready -%}
-                <div style="color:#a6c5b9;text-align:center;width:100%">Kilometergegevens nog niet beschikbaar…</div>
-                {%- else -%}
-                {%- set start = state_attr('sensor.ennie_km_dit_jaar', 'startdatum') -%}
-                {%- set maanden = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'] -%}
-                {%- set sd = as_datetime(start) -%}
-                <div style="width:100%;display:flex;flex-direction:column;gap:14px;text-align:left">
-                <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap">
-                <div>
-                <div style="font-size:13px;color:#a6e2c7;display:flex;align-items:center;gap:6px"><ha-icon icon="mdi:road-variant" style="--mdc-icon-size:18px;color:#50df90"></ha-icon> Gereden in {{ sd.year }}{{ ' (vanaf ' ~ sd.day ~ ' ' ~ maanden[sd.month - 1] ~ ')' if sd.month > 1 or sd.day > 1 else '' }}</div>
-                <div style="font-size:clamp(22px,2.2vw,28px);font-weight:750;color:#fff;line-height:1.2">{{ n(tot) }} km</div>
-                </div>
-                <div style="text-align:right">
-                <div style="font-size:12px;color:#a6c5b9">Prognose 31 december</div>
-                <div style="font-size:16px;font-weight:650;color:#eafff2">~{{ n(state_attr('sensor.ennie_km_dit_jaar', 'prognose')) }} km</div>
-                <div style="font-size:11px;color:#a6c5b9">≈ {{ n(state_attr('sensor.ennie_km_dit_jaar', 'prognose_per_jaar')) }} km per jaar</div>
-                </div>
-                </div>
-                {%- for key, label, icon in [('prive', 'Privé', 'mdi:car-side'), ('zakelijk', 'Zakelijk', 'mdi:briefcase-variant')] -%}
-                {%- set e = 'sensor.ennie_km_' ~ key -%}
-                {%- set km = states(e) | float(0) -%}
-                {%- set max = state_attr(e, 'toegestaan') | float(0) -%}
-                {%- set schema = state_attr(e, 'op_schema') | float(0) -%}
-                {%- set prog = state_attr(e, 'prognose') | float(0) -%}
-                {%- set ruimte = state_attr(e, 'ruimte_per_week') | float(0) -%}
-                {%- set ratio = (km / schema) if schema > 0 else 0 -%}
-                {%- set kleur = '#50df90' if ratio <= 1 else ('#ffbf47' if ratio <= 1.1 else '#ff6975') -%}
-                {%- set vul = [km / max * 100, 100] | min if max > 0 else 0 -%}
-                {%- set mark = [schema / max * 100, 100] | min if max > 0 else 0 -%}
-                <div style="display:flex;flex-direction:column;gap:6px">
-                <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
-                <div style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:#eafff2"><ha-icon icon="{{ icon }}" style="--mdc-icon-size:19px;color:{{ kleur }}"></ha-icon> {{ label }}{% if key == 'zakelijk' %} <span style="font-size:11px;font-weight:400;color:#a6c5b9">· {{ state_attr(e, 'kantoordagen') }} kantoordagen</span>{% endif %}</div>
-                <div style="font-size:14px;font-weight:650;color:{{ kleur }};white-space:nowrap">{{ n(km) }} <span style="color:#a6c5b9;font-weight:400">/ {{ n(max) }} km</span></div>
-                </div>
-                <div style="position:relative;height:10px;border-radius:6px;background:#173c31;overflow:visible">
-                <div style="width:{{ vul | round(1) }}%;height:100%;border-radius:6px;background:{{ kleur }}"></div>
-                <div title="Op schema" style="position:absolute;top:-4px;left:calc({{ mark | round(1) }}% - 1px);width:2px;height:18px;background:#eafff2;border-radius:1px"></div>
-                </div>
-                <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:11px;color:#a6c5b9">
-                <span>Op schema: {{ n(schema) }} km · prognose ~{{ n(prog) }} km</span>
-                <span style="color:{{ kleur }}">{% if ruimte >= 0 %}Nog ~{{ n(ruimte) }} km per week{% else %}Limiet overschreden{% endif %}</span>
-                </div>
-                </div>
-                {%- endfor -%}
-                <div style="font-size:11px;color:#a6c5b9;text-align:center">Limieten naar rato: limiet ÷ 365 × {{ state_attr('sensor.ennie_km_dit_jaar', 'dagen_periode') }} dagen · zakelijk = kantoordagen × {{ states('input_number.ennie_km_kantoor_retour') | float(0) | int }} km{{ ' + ' ~ n(states('input_number.ennie_km_extra_zakelijk')) ~ ' km extra' if states('input_number.ennie_km_extra_zakelijk') | float(0) > 0 else '' }}</div>
-                </div>
-                {%- endif -%}
-              card_mod:
-                style:
-                  .: |
-                    ha-card {
-                      background: linear-gradient(145deg,#09271f,#061b16) !important;
-                      border: 1px solid #175a47 !important;
-                      border-radius: 17px !important;
-                      box-shadow: none !important;
-                      min-height: 160px !important;
-                      height: 100% !important;
-                      display: flex !important;
-                      align-items: stretch !important;
-                      justify-content: center !important;
-                      overflow: hidden !important;
-                      color: white !important;
-                    }
-                    ha-card .card-content {
-                      width: 100% !important;
-                      box-sizing: border-box !important;
-                      padding: 15px !important;
-                      display: block !important;
-                      text-align: left !important;
-                    }
-                    ha-card ha-markdown { width: 100% !important; text-align: left !important; }
-                  ha-markdown$: |
-                    .markdown { width:100% !important; text-align:left !important; }
-                    .markdown > div { width:100% !important; }
+            - type: custom:button-card
+              show_icon: false
+              show_name: false
+              show_state: false
+              show_label: false
+              tap_action:
+                action: more-info
+                entity: sensor.ennie_km_dit_jaar
+              entity: sensor.ennie_km_dit_jaar
+              triggers_update:
+              - sensor.ennie_km_dit_jaar
+              - sensor.ennie_km_prive
+              - sensor.ennie_km_zakelijk
+              - input_number.ennie_km_kantoor_retour
+              - input_number.ennie_km_extra_zakelijk
+              custom_fields:
+                content: |-
+                  [[[
+                  const S=id=>states[id];
+                  const num=v=>{const n=Number(v);return Number.isFinite(n)?n:null;};
+                  const fmt=v=>Math.round(v).toLocaleString('nl-NL');
+                  const tot=S('sensor.ennie_km_dit_jaar');const totV=num(tot?.state);
+                  if(totV===null||num(S('sensor.ennie_km_prive')?.state)===null) return `<div class="km-empty">Kilometergegevens nog niet beschikbaar…</div>`;
+                  const A=tot.attributes||{};
+                  const mnd=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+                  const sd=new Date(A.startdatum);
+                  const sdOk=!isNaN(sd);
+                  const titel=sdOk?`Gereden in ${sd.getFullYear()}${(sd.getMonth()>0||sd.getDate()>1)?` (vanaf ${sd.getDate()} ${mnd[sd.getMonth()]})`:''}`:'Gereden dit jaar';
+                  const row=(key,label,icon)=>{
+                    const e=S('sensor.ennie_km_'+key);const a=e?.attributes||{};
+                    const km=num(e?.state)??0,max=num(a.toegestaan)??0,sch=num(a.op_schema)??0,prog=num(a.prognose)??0,ruimte=num(a.ruimte_per_week)??0;
+                    const ratio=sch>0?km/sch:0;
+                    const kleur=ratio<=1?'#50df90':ratio<=1.1?'#ffbf47':'#ff6975';
+                    const vul=max>0?Math.min(km/max*100,100):0, mark=max>0?Math.min(sch/max*100,100):0;
+                    const extra=key==='zakelijk'&&a.kantoordagen!==undefined?` <span class="km-sub">· ${a.kantoordagen} kantoordagen</span>`:'';
+                    return `<div class="km-row">
+                  <div class="km-head"><div class="km-label"><ha-icon icon="${icon}" style="color:${kleur}"></ha-icon>${label}${extra}</div><div class="km-val" style="color:${kleur}">${fmt(km)} <span class="km-max">/ ${fmt(max)} km</span></div></div>
+                  <div class="km-bar"><div class="km-fill" style="width:${vul.toFixed(1)}%;background:${kleur}"></div><div class="km-mark" title="Op schema" style="left:calc(${mark.toFixed(1)}% - 1px)"></div></div>
+                  <div class="km-foot"><span>Op schema: ${fmt(sch)} km · prognose ~${fmt(prog)} km</span><span style="color:${kleur}">${ruimte>=0?`Nog ~${fmt(ruimte)} km per week`:'Limiet overschreden'}</span></div>
+                  </div>`;
+                  };
+                  const retour=num(S('input_number.ennie_km_kantoor_retour')?.state)??0;
+                  const extraZ=num(S('input_number.ennie_km_extra_zakelijk')?.state)??0;
+                  return `<div class="km-wrap">
+                  <div class="km-top"><div><div class="km-title"><ha-icon icon="mdi:road-variant"></ha-icon>${titel}</div><div class="km-total">${fmt(totV)} km</div></div>
+                  <div class="km-prog"><div class="km-sub">Prognose 31 december</div><div class="km-progv">~${fmt(num(A.prognose)??0)} km</div><div class="km-sub">≈ ${fmt(num(A.prognose_per_jaar)??0)} km per jaar</div></div></div>
+                  ${row('prive','Privé','mdi:car-side')}
+                  ${row('zakelijk','Zakelijk','mdi:briefcase-variant')}
+                  <div class="km-note">Limieten naar rato: limiet ÷ 365 × ${A.dagen_periode??'?'} dagen · zakelijk = kantoordagen × ${Math.round(retour)} km${extraZ>0?` + ${fmt(extraZ)} km extra`:''}</div>
+                  </div>`;
+                  ]]]
+              styles:
+                card:
+                - 'padding: 16px 18px'
+                - 'background: linear-gradient(145deg,#071e19,#061310)'
+                - 'border: 1px solid #174c3f'
+                - 'border-radius: 17px'
+                - 'box-shadow: 0 3px 14px #0004'
+                - 'color: #eafff2'
+                - 'box-sizing: border-box'
+                - 'width: 100%'
+                grid:
+                - 'display: block'
+                - 'width: 100%'
+                custom_fields:
+                  content:
+                  - 'display: block'
+                  - 'width: 100%'
+                  - 'text-align: left'
+              extra_styles: |
+                #container { display:block !important; width:100% !important; }
+                #custom_fields { display:block !important; width:100% !important; }
+                .km-wrap{width:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:16px;text-align:left;color:#eafff2;}
+                .km-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;}
+                .km-title{display:flex;align-items:center;gap:6px;font-size:13px;color:#a6e2c7;}
+                .km-title ha-icon{--mdc-icon-size:18px;color:#50df90;}
+                .km-total{font-size:clamp(22px,2.2vw,28px);font-weight:750;color:#fff;line-height:1.2;}
+                .km-prog{text-align:right;}
+                .km-progv{font-size:16px;font-weight:650;}
+                .km-sub{font-size:11px;font-weight:400;color:#a6c5b9;}
+                .km-row{display:flex;flex-direction:column;gap:7px;}
+                .km-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+                .km-label{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;}
+                .km-label ha-icon{--mdc-icon-size:19px;}
+                .km-val{font-size:14px;font-weight:650;white-space:nowrap;}
+                .km-max{color:#a6c5b9;font-weight:400;}
+                .km-bar{position:relative;height:10px;border-radius:6px;background:#173c31;}
+                .km-fill{height:100%;border-radius:6px;}
+                .km-mark{position:absolute;top:-4px;width:2px;height:18px;background:#eafff2;border-radius:1px;}
+                .km-foot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:11px;color:#a6c5b9;}
+                .km-note{font-size:11px;color:#a6c5b9;text-align:center;}
+                .km-empty{color:#a6c5b9;text-align:center;width:100%;}
+                @media (max-width:600px){.km-prog{text-align:left;}}
           - type: custom:expander-card
             expanded: false
             clear: true
@@ -5384,85 +5398,99 @@ views:
 
                 :host { width:100% !important; max-width:100% !important; }
             heading_style: title
-          - type: markdown
-            content: |-
-              {%- set tot = states('sensor.ennie_km_dit_jaar') -%}
-              {%- set ready = is_number(tot) and is_number(states('sensor.ennie_km_prive')) -%}
-              {%- macro n(v) -%}{{ '{:,}'.format(v | float(0) | round(0) | int) | replace(',', '.') }}{%- endmacro -%}
-              {%- if not ready -%}
-              <div style="color:#a6c5b9;text-align:center;width:100%">Kilometergegevens nog niet beschikbaar…</div>
-              {%- else -%}
-              {%- set start = state_attr('sensor.ennie_km_dit_jaar', 'startdatum') -%}
-              {%- set maanden = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'] -%}
-              {%- set sd = as_datetime(start) -%}
-              <div style="width:100%;display:flex;flex-direction:column;gap:14px;text-align:left">
-              <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap">
-              <div>
-              <div style="font-size:13px;color:#a6e2c7;display:flex;align-items:center;gap:6px"><ha-icon icon="mdi:road-variant" style="--mdc-icon-size:18px;color:#50df90"></ha-icon> Gereden in {{ sd.year }}{{ ' (vanaf ' ~ sd.day ~ ' ' ~ maanden[sd.month - 1] ~ ')' if sd.month > 1 or sd.day > 1 else '' }}</div>
-              <div style="font-size:clamp(22px,2.2vw,28px);font-weight:750;color:#fff;line-height:1.2">{{ n(tot) }} km</div>
-              </div>
-              <div style="text-align:right">
-              <div style="font-size:12px;color:#a6c5b9">Prognose 31 december</div>
-              <div style="font-size:16px;font-weight:650;color:#eafff2">~{{ n(state_attr('sensor.ennie_km_dit_jaar', 'prognose')) }} km</div>
-              <div style="font-size:11px;color:#a6c5b9">≈ {{ n(state_attr('sensor.ennie_km_dit_jaar', 'prognose_per_jaar')) }} km per jaar</div>
-              </div>
-              </div>
-              {%- for key, label, icon in [('prive', 'Privé', 'mdi:car-side'), ('zakelijk', 'Zakelijk', 'mdi:briefcase-variant')] -%}
-              {%- set e = 'sensor.ennie_km_' ~ key -%}
-              {%- set km = states(e) | float(0) -%}
-              {%- set max = state_attr(e, 'toegestaan') | float(0) -%}
-              {%- set schema = state_attr(e, 'op_schema') | float(0) -%}
-              {%- set prog = state_attr(e, 'prognose') | float(0) -%}
-              {%- set ruimte = state_attr(e, 'ruimte_per_week') | float(0) -%}
-              {%- set ratio = (km / schema) if schema > 0 else 0 -%}
-              {%- set kleur = '#50df90' if ratio <= 1 else ('#ffbf47' if ratio <= 1.1 else '#ff6975') -%}
-              {%- set vul = [km / max * 100, 100] | min if max > 0 else 0 -%}
-              {%- set mark = [schema / max * 100, 100] | min if max > 0 else 0 -%}
-              <div style="display:flex;flex-direction:column;gap:6px">
-              <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
-              <div style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:#eafff2"><ha-icon icon="{{ icon }}" style="--mdc-icon-size:19px;color:{{ kleur }}"></ha-icon> {{ label }}{% if key == 'zakelijk' %} <span style="font-size:11px;font-weight:400;color:#a6c5b9">· {{ state_attr(e, 'kantoordagen') }} kantoordagen</span>{% endif %}</div>
-              <div style="font-size:14px;font-weight:650;color:{{ kleur }};white-space:nowrap">{{ n(km) }} <span style="color:#a6c5b9;font-weight:400">/ {{ n(max) }} km</span></div>
-              </div>
-              <div style="position:relative;height:10px;border-radius:6px;background:#173c31;overflow:visible">
-              <div style="width:{{ vul | round(1) }}%;height:100%;border-radius:6px;background:{{ kleur }}"></div>
-              <div title="Op schema" style="position:absolute;top:-4px;left:calc({{ mark | round(1) }}% - 1px);width:2px;height:18px;background:#eafff2;border-radius:1px"></div>
-              </div>
-              <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:11px;color:#a6c5b9">
-              <span>Op schema: {{ n(schema) }} km · prognose ~{{ n(prog) }} km</span>
-              <span style="color:{{ kleur }}">{% if ruimte >= 0 %}Nog ~{{ n(ruimte) }} km per week{% else %}Limiet overschreden{% endif %}</span>
-              </div>
-              </div>
-              {%- endfor -%}
-              <div style="font-size:11px;color:#a6c5b9;text-align:center">Limieten naar rato: limiet ÷ 365 × {{ state_attr('sensor.ennie_km_dit_jaar', 'dagen_periode') }} dagen · zakelijk = kantoordagen × {{ states('input_number.ennie_km_kantoor_retour') | float(0) | int }} km{{ ' + ' ~ n(states('input_number.ennie_km_extra_zakelijk')) ~ ' km extra' if states('input_number.ennie_km_extra_zakelijk') | float(0) > 0 else '' }}</div>
-              </div>
-              {%- endif -%}
-            card_mod:
-              style:
-                .: |
-                  ha-card {
-                    background: linear-gradient(145deg,#09271f,#061b16) !important;
-                    border: 1px solid #175a47 !important;
-                    border-radius: 17px !important;
-                    box-shadow: none !important;
-                    min-height: 160px !important;
-                    height: 100% !important;
-                    display: flex !important;
-                    align-items: stretch !important;
-                    justify-content: center !important;
-                    overflow: hidden !important;
-                    color: white !important;
-                  }
-                  ha-card .card-content {
-                    width: 100% !important;
-                    box-sizing: border-box !important;
-                    padding: 15px !important;
-                    display: block !important;
-                    text-align: left !important;
-                  }
-                  ha-card ha-markdown { width: 100% !important; text-align: left !important; }
-                ha-markdown$: |
-                  .markdown { width:100% !important; text-align:left !important; }
-                  .markdown > div { width:100% !important; }
+          - type: custom:button-card
+            show_icon: false
+            show_name: false
+            show_state: false
+            show_label: false
+            tap_action:
+              action: more-info
+              entity: sensor.ennie_km_dit_jaar
+            entity: sensor.ennie_km_dit_jaar
+            triggers_update:
+            - sensor.ennie_km_dit_jaar
+            - sensor.ennie_km_prive
+            - sensor.ennie_km_zakelijk
+            - input_number.ennie_km_kantoor_retour
+            - input_number.ennie_km_extra_zakelijk
+            custom_fields:
+              content: |-
+                [[[
+                const S=id=>states[id];
+                const num=v=>{const n=Number(v);return Number.isFinite(n)?n:null;};
+                const fmt=v=>Math.round(v).toLocaleString('nl-NL');
+                const tot=S('sensor.ennie_km_dit_jaar');const totV=num(tot?.state);
+                if(totV===null||num(S('sensor.ennie_km_prive')?.state)===null) return `<div class="km-empty">Kilometergegevens nog niet beschikbaar…</div>`;
+                const A=tot.attributes||{};
+                const mnd=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+                const sd=new Date(A.startdatum);
+                const sdOk=!isNaN(sd);
+                const titel=sdOk?`Gereden in ${sd.getFullYear()}${(sd.getMonth()>0||sd.getDate()>1)?` (vanaf ${sd.getDate()} ${mnd[sd.getMonth()]})`:''}`:'Gereden dit jaar';
+                const row=(key,label,icon)=>{
+                  const e=S('sensor.ennie_km_'+key);const a=e?.attributes||{};
+                  const km=num(e?.state)??0,max=num(a.toegestaan)??0,sch=num(a.op_schema)??0,prog=num(a.prognose)??0,ruimte=num(a.ruimte_per_week)??0;
+                  const ratio=sch>0?km/sch:0;
+                  const kleur=ratio<=1?'#50df90':ratio<=1.1?'#ffbf47':'#ff6975';
+                  const vul=max>0?Math.min(km/max*100,100):0, mark=max>0?Math.min(sch/max*100,100):0;
+                  const extra=key==='zakelijk'&&a.kantoordagen!==undefined?` <span class="km-sub">· ${a.kantoordagen} kantoordagen</span>`:'';
+                  return `<div class="km-row">
+                <div class="km-head"><div class="km-label"><ha-icon icon="${icon}" style="color:${kleur}"></ha-icon>${label}${extra}</div><div class="km-val" style="color:${kleur}">${fmt(km)} <span class="km-max">/ ${fmt(max)} km</span></div></div>
+                <div class="km-bar"><div class="km-fill" style="width:${vul.toFixed(1)}%;background:${kleur}"></div><div class="km-mark" title="Op schema" style="left:calc(${mark.toFixed(1)}% - 1px)"></div></div>
+                <div class="km-foot"><span>Op schema: ${fmt(sch)} km · prognose ~${fmt(prog)} km</span><span style="color:${kleur}">${ruimte>=0?`Nog ~${fmt(ruimte)} km per week`:'Limiet overschreden'}</span></div>
+                </div>`;
+                };
+                const retour=num(S('input_number.ennie_km_kantoor_retour')?.state)??0;
+                const extraZ=num(S('input_number.ennie_km_extra_zakelijk')?.state)??0;
+                return `<div class="km-wrap">
+                <div class="km-top"><div><div class="km-title"><ha-icon icon="mdi:road-variant"></ha-icon>${titel}</div><div class="km-total">${fmt(totV)} km</div></div>
+                <div class="km-prog"><div class="km-sub">Prognose 31 december</div><div class="km-progv">~${fmt(num(A.prognose)??0)} km</div><div class="km-sub">≈ ${fmt(num(A.prognose_per_jaar)??0)} km per jaar</div></div></div>
+                ${row('prive','Privé','mdi:car-side')}
+                ${row('zakelijk','Zakelijk','mdi:briefcase-variant')}
+                <div class="km-note">Limieten naar rato: limiet ÷ 365 × ${A.dagen_periode??'?'} dagen · zakelijk = kantoordagen × ${Math.round(retour)} km${extraZ>0?` + ${fmt(extraZ)} km extra`:''}</div>
+                </div>`;
+                ]]]
+            styles:
+              card:
+              - 'padding: 16px 18px'
+              - 'background: linear-gradient(145deg,#071e19,#061310)'
+              - 'border: 1px solid #174c3f'
+              - 'border-radius: 17px'
+              - 'box-shadow: 0 3px 14px #0004'
+              - 'color: #eafff2'
+              - 'box-sizing: border-box'
+              - 'width: 100%'
+              grid:
+              - 'display: block'
+              - 'width: 100%'
+              custom_fields:
+                content:
+                - 'display: block'
+                - 'width: 100%'
+                - 'text-align: left'
+            extra_styles: |
+              #container { display:block !important; width:100% !important; }
+              #custom_fields { display:block !important; width:100% !important; }
+              .km-wrap{width:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:16px;text-align:left;color:#eafff2;}
+              .km-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;}
+              .km-title{display:flex;align-items:center;gap:6px;font-size:13px;color:#a6e2c7;}
+              .km-title ha-icon{--mdc-icon-size:18px;color:#50df90;}
+              .km-total{font-size:clamp(22px,2.2vw,28px);font-weight:750;color:#fff;line-height:1.2;}
+              .km-prog{text-align:right;}
+              .km-progv{font-size:16px;font-weight:650;}
+              .km-sub{font-size:11px;font-weight:400;color:#a6c5b9;}
+              .km-row{display:flex;flex-direction:column;gap:7px;}
+              .km-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+              .km-label{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;}
+              .km-label ha-icon{--mdc-icon-size:19px;}
+              .km-val{font-size:14px;font-weight:650;white-space:nowrap;}
+              .km-max{color:#a6c5b9;font-weight:400;}
+              .km-bar{position:relative;height:10px;border-radius:6px;background:#173c31;}
+              .km-fill{height:100%;border-radius:6px;}
+              .km-mark{position:absolute;top:-4px;width:2px;height:18px;background:#eafff2;border-radius:1px;}
+              .km-foot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:11px;color:#a6c5b9;}
+              .km-note{font-size:11px;color:#a6c5b9;text-align:center;}
+              .km-empty{color:#a6c5b9;text-align:center;width:100%;}
+              @media (max-width:600px){.km-prog{text-align:left;}}
       - type: custom:mod-card
         card_mod:
           style: 'ha-card { display:block !important; background:transparent !important; border:0 !important; box-shadow:none !important; padding:0 !important; width:100% !important; } @media (max-width: 700px) { ha-card { display:none !important; } }'
