@@ -1,5 +1,5 @@
 # ============================================================
-# ENNIE - KILOMETERS LEASEJAAR V1.2
+# ENNIE - KILOMETERS LEASEJAAR V1.2.1
 # Houdt per kalenderjaar de gereden kilometers bij, verdeeld in
 # zakelijk (kantoordagen x retourafstand + extra zakelijke km) en
 # privé (totaal - zakelijk), en vergelijkt ze met de leaselimieten.
@@ -221,12 +221,18 @@ automation:
       zakelijke km en zet het invoerveld terug op 0.
     mode: queued
     triggers:
-      - trigger: numeric_state
+      - trigger: state
+        entity_id: input_number.ennie_km_zakelijk_toevoegen
+        not_to:
+          - unknown
+          - unavailable
+    conditions:
+      - condition: numeric_state
         entity_id: input_number.ennie_km_zakelijk_toevoegen
         above: 0
     actions:
       - variables:
-          rit: "{{ states('input_number.ennie_km_zakelijk_toevoegen') | float(0) }}"
+          rit: "{{ trigger.to_state.state | float(0) }}"
       - action: input_number.set_value
         target:
           entity_id: input_number.ennie_km_extra_zakelijk
