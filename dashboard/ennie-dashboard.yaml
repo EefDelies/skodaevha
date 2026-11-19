@@ -988,6 +988,7 @@ views:
                   triggers_update:
                   - sensor.ennie_benodigd_zonne_overschot
                   - sensor.ennie_zonne_overschot_gemiddeld
+                  - sensor.ennie_laadvermogen_aanname
                   styles:
                     card:
                     - 'height: 112px'
@@ -1028,8 +1029,8 @@ views:
                       [[[
                       const num=(id)=>{const r=states[id]?.state;const n=Number(r);return (r===undefined||['unknown','unavailable','none',''].includes(String(r).toLowerCase())||!Number.isFinite(n))?null:n;};
                       const kw=(n)=>`${n.toLocaleString('nl-NL',{minimumFractionDigits:1,maximumFractionDigits:1})} kW`;
-                      const nodig=num('sensor.ennie_benodigd_zonne_overschot');const gem=num('sensor.ennie_zonne_overschot_gemiddeld');
-                      const value=nodig===null?'Onbekend':nodig<=0?'Niet nodig, prijs gunstig':`${kw(nodig)} bij 11 kW laden`;
+                      const nodig=num('sensor.ennie_benodigd_zonne_overschot');const pLaad=num('sensor.ennie_laadvermogen_aanname');const gem=num('sensor.ennie_zonne_overschot_gemiddeld');
+                      const value=nodig===null?'Onbekend':nodig<=0?'Niet nodig, prijs gunstig':`${kw(nodig)}${pLaad?` bij ${kw(pLaad)} laden`:''}`;
                       const color=nodig===null?'var(--ec-a6c5b9)':(nodig<=0||(gem!==null&&gem>=nodig))?'var(--ec-50df90)':'var(--ec-ffc857)';
                       return `<div style="width:100%;height:100%;box-sizing:border-box;padding:10px 12px;display:flex;align-items:center;justify-content:center;text-align:center;gap:12px;overflow:hidden;"><ha-icon icon="mdi:solar-power" style="width:30px;height:30px;color:${color};flex:0 0 30px;"></ha-icon><div style="min-width:0;display:flex;flex-direction:column;gap:4px;"><div style="font-size:14px;font-weight:600;color:var(--ec-eafff2);text-align:center;line-height:1.2;width:100%;">Benodigd overschot</div><div style="font-size:12px;font-weight:600;color:${color};text-align:center;line-height:1.25;width:100%;white-space:normal;">${value}</div></div></div>`;
                       ]]]
@@ -2699,6 +2700,7 @@ views:
                     triggers_update:
                     - sensor.ennie_benodigd_zonne_overschot
                     - sensor.ennie_zonne_overschot_gemiddeld
+                    - sensor.ennie_laadvermogen_aanname
                     styles:
                       card:
                       - 'height: 112px'
@@ -2739,8 +2741,8 @@ views:
                         [[[
                         const num=(id)=>{const r=states[id]?.state;const n=Number(r);return (r===undefined||['unknown','unavailable','none',''].includes(String(r).toLowerCase())||!Number.isFinite(n))?null:n;};
                         const kw=(n)=>`${n.toLocaleString('nl-NL',{minimumFractionDigits:1,maximumFractionDigits:1})} kW`;
-                        const nodig=num('sensor.ennie_benodigd_zonne_overschot');const gem=num('sensor.ennie_zonne_overschot_gemiddeld');
-                        const value=nodig===null?'Onbekend':nodig<=0?'Niet nodig, prijs gunstig':`${kw(nodig)} bij 11 kW laden`;
+                        const nodig=num('sensor.ennie_benodigd_zonne_overschot');const pLaad=num('sensor.ennie_laadvermogen_aanname');const gem=num('sensor.ennie_zonne_overschot_gemiddeld');
+                        const value=nodig===null?'Onbekend':nodig<=0?'Niet nodig, prijs gunstig':`${kw(nodig)}${pLaad?` bij ${kw(pLaad)} laden`:''}`;
                         const color=nodig===null?'var(--ec-a6c5b9)':(nodig<=0||(gem!==null&&gem>=nodig))?'var(--ec-50df90)':'var(--ec-ffc857)';
                         return `<div style="width:100%;height:100%;box-sizing:border-box;padding:10px 12px;display:flex;align-items:center;justify-content:center;text-align:center;gap:12px;overflow:hidden;"><ha-icon icon="mdi:solar-power" style="width:30px;height:30px;color:${color};flex:0 0 30px;"></ha-icon><div style="min-width:0;display:flex;flex-direction:column;gap:4px;"><div style="font-size:14px;font-weight:600;color:var(--ec-eafff2);text-align:center;line-height:1.2;width:100%;">Benodigd overschot</div><div style="font-size:12px;font-weight:600;color:${color};text-align:center;line-height:1.25;width:100%;white-space:normal;">${value}</div></div></div>`;
                         ]]]

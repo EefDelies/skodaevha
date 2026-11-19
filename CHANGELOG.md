@@ -24,6 +24,10 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 - Dashboard follows the Home Assistant light/dark mode: all colours on the main view are CSS variables (`--ec-*`) that keep the original dark palette in dark mode and switch to a light palette when the theme background is light (CSS relative colour syntax; older browsers keep the dark palette). The hero image card is unchanged; white text and the PDF button (`www/ennie-pdf-button.js`) follow the palette too.
 - Settings: the employer compensation ("Vergoeding werkgever") tile now matches the other settings tiles instead of using a tile card with +/- buttons.
 
+### Fixed
+
+- "Benodigd overschot" tile shows the actual assumed charging power (`sensor.ennie_laadvermogen_aanname`: measured power while charging, otherwise 3 × 230 V × the Zaptec max current) instead of a fixed "11 kW".
+
 ## [2.2.0] - 2026-11-15
 
 ### Changed
