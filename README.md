@@ -74,7 +74,7 @@ tests/test_calc.py                    tests for the cost calculation and the PDF
 
    Every `declaratie` field is optional. Fields you leave empty are left out of the PDF. Keep personal data in `secrets.yaml`, never in the repository.
 
-3. **Frontend files** – copy `www/ennie/` to `/config/www/ennie/` and `www/ennie-pdf-button.js` to `/config/www/`. Register the button as a dashboard resource (Settings → Dashboards → ⋮ → Resources): URL `/local/ennie-pdf-button.js?v=3`, type *JavaScript module*. Raise the `?v=` number whenever you update the file, otherwise browsers keep the old version.
+3. **Frontend files** – copy `www/ennie/` to `/config/www/ennie/` and `www/ennie-pdf-button.js` to `/config/www/`. Register the button as a dashboard resource (Settings → Dashboards → ⋮ → Resources): URL `/local/ennie-pdf-button.js?v=4`, type *JavaScript module*. Raise the `?v=` number whenever you update the file, otherwise browsers keep the old version.
 
 4. **Dashboard** – create a new dashboard, open the raw configuration editor and paste the contents of `dashboard/ennie-dashboard.yaml`.
 
