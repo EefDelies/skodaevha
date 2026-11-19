@@ -90,7 +90,6 @@ The entity IDs come from the author's installation. Replace them with your own (
 | `sensor.skoda_enyaq_*`, `binary_sensor.skoda_enyaq_*`, `lock.…`, `climate.…`, `device_tracker.skoda_enyaq_skoda_enyaq` | MySkoda entities |
 | `sensor.electricity_meter_energieverbruik` / `…_energieproductie` | P1 meter import/export power |
 | `sensor.nord_pool_nl_huidige_prijs` | Nord Pool current price (also used to find the Nord Pool config entry) |
-| `zone.kantoor` | Your office zone; each first entry per day counts as an office day (kilometers package) |
 
 Zaptec actions target the charger with `device_id: "{{ device_id('sensor.oprit_zaptec_go2_opladermodus') }}"`, so renaming that sensor is enough.
 

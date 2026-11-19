@@ -1,5 +1,5 @@
 # ============================================================
-# ENNIE - KILOMETERS LEASEJAAR V1.2.1
+# ENNIE - KILOMETERS LEASEJAAR V1.3
 # Houdt per kalenderjaar de gereden kilometers bij, verdeeld in
 # zakelijk (kantoordagen x retourafstand + extra zakelijke km) en
 # privé (totaal - zakelijk), en vergelijkt ze met de leaselimieten.
@@ -9,7 +9,8 @@
 # vanaf de contractdatum t/m 31 december.
 #
 # Kantoordag: de eerste keer per dag dat de auto de kantoorzone
-# binnenrijdt. Pas de zone aan naar jouw kantoorzone.
+# binnenrijdt. Kies de kantoorzone op het dashboard (tegel 'Kantoor
+# locatie'); de keuzelijst wordt automatisch gevuld met alle zones.
 #
 # Meerkilometers: alleen privé-km boven het (naar rato) toegestane
 # aantal worden verrekend tegen het tarief per km; zakelijke km niet.
@@ -86,6 +87,20 @@ input_number:
     mode: box
     unit_of_measurement: km
     icon: mdi:counter
+
+input_select:
+  # Keuzelijst met alle zones; wordt bij start en elk uur bijgewerkt.
+  ennie_kantoor_zone:
+    name: Ennie kantoor locatie
+    options:
+      - Geen
+    icon: mdi:map-marker-radius
+
+input_text:
+  # Bewaart de gekozen kantoorzone over herstarts heen (automatisch).
+  ennie_kantoor_zone_keuze:
+    name: Ennie kantoor locatie (opgeslagen)
+    max: 100
 
 input_datetime:
   ennie_lease_start:
@@ -244,16 +259,70 @@ automation:
         data:
           value: 0
 
+  - id: ennie_kantoorzones_bijwerken
+    alias: Ennie - Kantoorzones bijwerken
+    description: >-
+      Vult de keuzelijst 'Ennie kantoor locatie' met alle zones en zet de
+      eerder gekozen zone terug.
+    mode: queued
+    triggers:
+      - trigger: homeassistant
+        event: start
+      - trigger: time_pattern
+        minutes: 7
+    actions:
+      - variables:
+          bewaard: "{{ states('input_text.ennie_kantoor_zone_keuze') }}"
+          zones: "{{ states.zone | map(attribute='name') | unique | sort | list }}"
+      - action: input_select.set_options
+        target:
+          entity_id: input_select.ennie_kantoor_zone
+        data:
+          options: "{{ ['Geen'] + zones }}"
+      - if:
+          - condition: template
+            value_template: "{{ bewaard in zones }}"
+        then:
+          - action: input_select.select_option
+            target:
+              entity_id: input_select.ennie_kantoor_zone
+            data:
+              option: "{{ bewaard }}"
+
+  - id: ennie_kantoorzone_opslaan
+    alias: Ennie - Kantoorzone opslaan
+    description: Bewaart de gekozen kantoorzone zodat die een herstart overleeft.
+    mode: queued
+    triggers:
+      - trigger: state
+        entity_id: input_select.ennie_kantoor_zone
+    conditions:
+      - condition: template
+        value_template: >
+          {{ trigger.from_state is not none
+             and trigger.from_state.state not in ['unknown', 'unavailable']
+             and trigger.to_state.state not in ['unknown', 'unavailable'] }}
+    actions:
+      - action: input_text.set_value
+        target:
+          entity_id: input_text.ennie_kantoor_zone_keuze
+        data:
+          value: "{{ trigger.to_state.state }}"
+
   - id: ennie_kantoordag_tellen
     alias: Ennie - Kantoordag tellen
     description: Telt één kantoordag per dag zodra Ennie de kantoorzone binnenrijdt.
     mode: queued
     triggers:
-      - trigger: zone
+      - trigger: state
         entity_id: device_tracker.skoda_enyaq_skoda_enyaq
-        zone: zone.kantoor
-        event: enter
     conditions:
+      - condition: template
+        value_template: >
+          {{ trigger.to_state is not none
+             and states('input_select.ennie_kantoor_zone') not in ['Geen', 'unknown', 'unavailable', '']
+             and trigger.to_state.state == states('input_select.ennie_kantoor_zone')
+             and (trigger.from_state is none or trigger.from_state.state != trigger.to_state.state) }}
       - condition: template
         value_template: >
           {{ states('input_datetime.ennie_laatste_kantoordag')[:10] != now().strftime('%Y-%m-%d') }}
