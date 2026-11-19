@@ -852,6 +852,9 @@ views:
                   - sensor.oprit_zaptec_go2_opladermodus
                   - switch.oprit_zaptec_go2_opladen
                   - sensor.ennie_laadlocatie
+                  - sensor.skoda_enyaq_laadlimiet_in_procenten
+                  - input_number.ennie_max_laadpercentage
+                  - sensor.skoda_enyaq_accupercentage
                   styles:
                     card:
                     - 'height: 112px'
@@ -905,8 +908,16 @@ views:
                       if (!missing) {
                         const n=Number(raw);
                         if (Number.isFinite(n) && n>=0) {
-                          const minutes=unit==='h' || unit==='uur' || unit==='hours' ? Math.round(n*60) : unit==='s' || unit==='sec' || unit==='seconds' ? Math.round(n/60) : Math.round(n);
-                          value=minutes>=60 ? `${Math.floor(minutes/60)} u ${String(minutes%60).padStart(2,'0')} min` : `${minutes} min`;
+                          let minutes=unit==='h' || unit==='uur' || unit==='hours' ? Math.round(n*60) : unit==='s' || unit==='sec' || unit==='seconds' ? Math.round(n/60) : Math.round(n);
+                          const lim=Number(hass.states['sensor.skoda_enyaq_laadlimiet_in_procenten']?.state);
+                          const maxP=Number(hass.states['input_number.ennie_max_laadpercentage']?.state);
+                          const soc=Number(hass.states['sensor.skoda_enyaq_accupercentage']?.state);
+                          let tot='';
+                          if (Number.isFinite(lim) && Number.isFinite(maxP) && Number.isFinite(soc) && maxP>0 && maxP<lim && soc<lim) {
+                            minutes = soc>=maxP ? 0 : Math.round(minutes*(maxP-soc)/(lim-soc));
+                            tot=` tot ${Math.round(maxP)}%`;
+                          }
+                          value=(minutes>=60 ? `${Math.floor(minutes/60)} u ${String(minutes%60).padStart(2,'0')} min` : `${minutes} min`)+tot;
                         } else {
                           value=String(raw);
                         }
@@ -2572,6 +2583,9 @@ views:
                     - sensor.oprit_zaptec_go2_opladermodus
                     - switch.oprit_zaptec_go2_opladen
                     - sensor.ennie_laadlocatie
+                    - sensor.skoda_enyaq_laadlimiet_in_procenten
+                    - input_number.ennie_max_laadpercentage
+                    - sensor.skoda_enyaq_accupercentage
                     styles:
                       card:
                       - 'height: 112px'
@@ -2625,8 +2639,16 @@ views:
                         if (!missing) {
                           const n=Number(raw);
                           if (Number.isFinite(n) && n>=0) {
-                            const minutes=unit==='h' || unit==='uur' || unit==='hours' ? Math.round(n*60) : unit==='s' || unit==='sec' || unit==='seconds' ? Math.round(n/60) : Math.round(n);
-                            value=minutes>=60 ? `${Math.floor(minutes/60)} u ${String(minutes%60).padStart(2,'0')} min` : `${minutes} min`;
+                            let minutes=unit==='h' || unit==='uur' || unit==='hours' ? Math.round(n*60) : unit==='s' || unit==='sec' || unit==='seconds' ? Math.round(n/60) : Math.round(n);
+                            const lim=Number(hass.states['sensor.skoda_enyaq_laadlimiet_in_procenten']?.state);
+                            const maxP=Number(hass.states['input_number.ennie_max_laadpercentage']?.state);
+                            const soc=Number(hass.states['sensor.skoda_enyaq_accupercentage']?.state);
+                            let tot='';
+                            if (Number.isFinite(lim) && Number.isFinite(maxP) && Number.isFinite(soc) && maxP>0 && maxP<lim && soc<lim) {
+                              minutes = soc>=maxP ? 0 : Math.round(minutes*(maxP-soc)/(lim-soc));
+                              tot=` tot ${Math.round(maxP)}%`;
+                            }
+                            value=(minutes>=60 ? `${Math.floor(minutes/60)} u ${String(minutes%60).padStart(2,'0')} min` : `${minutes} min`)+tot;
                           } else {
                             value=String(raw);
                           }
