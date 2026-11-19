@@ -10,6 +10,7 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 
 ### Added
 
+- Charger watchdog (`ennie_lader_bewaking`): when the car is home with the cable plugged in but the Zaptec reports "disconnected" for 5 minutes, send a notification and restart the Zaptec (at most once per 30 minutes; a second occurrence only notifies). Set `notify.mijn_telefoon` to your own phone.
 - "Kantoor locatie" settings tile (`input_select.ennie_kantoor_zone`): pick the office zone from a list that is filled automatically with all zones; office days are counted when the car enters that zone. The choice survives restarts.
 - `window.enniePopup(title, text)` in `www/ennie-pdf-button.js`: a theme-aware info pop-up for short instructions behind an i-icon on dashboard tiles (on "Automatisch laden", "Handmatig laden", "Maximaal laadpercentage", "Maximale all-in prijs", "Effectieve laadprijs", "Zonne-overschot", "Benodigd overschot", "Laden met zon" and the Kilometers card). Raise the resource to `?v=4`.
 - Kilometers card (desktop and mobile): kilometres driven this lease year split into private and business, each against the limit prorated over the days since the lease start, with schedule marker, year-end forecast and remaining km per week.
@@ -20,6 +21,8 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 
 ### Changed
 
+- Smart charging uses the Zaptec stop/resume button entities instead of the deprecated `zaptec.stop_charging` / `zaptec.resume_charging` actions.
+- Hero card: at home, a plugged-in cable that the Zaptec does not see now shows "Lader ziet Ennie niet" instead of "Extern aangesloten".
 - Settings: tiles renamed to "Inkoopvergoeding stroom" , "kWh-vergoeding werkgever" and "Tarief overschrijding privékilometers".
 - Dashboard follows the Home Assistant light/dark mode: all colours on the main view are CSS variables (`--ec-*`) that keep the original dark palette in dark mode and switch to a light palette when the theme background is light (CSS relative colour syntax; older browsers keep the dark palette). The hero image card is unchanged; white text and the PDF button (`www/ennie-pdf-button.js`) follow the palette too.
 - Settings: the employer compensation ("Vergoeding werkgever") tile now matches the other settings tiles instead of using a tile card with +/- buttons.

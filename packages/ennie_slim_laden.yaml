@@ -1,5 +1,5 @@
 # ============================================================
-# ENNIE - DYNAMISCH LADEN V7.5
+# ENNIE - DYNAMISCH LADEN V7.6
 # Nord Pool uurgemiddelde + NextEnergy + Zaptec Go 2 + MySkoda
 # V7: zonne-overschot telt mee in de laadprijs (overschot = gratis)
 # V7.1: geen spookoverschot bij insteken; stoppen zonder wachten op Skoda-laadkabel
@@ -7,6 +7,8 @@
 # V7.3: tarief-sensoren zodat de laadkosten historisch het juiste tarief gebruiken
 # V7.4: vergoeding werkgever als instelbaar veld (met historie)
 # V7.5: laadlocatie (thuis/extern) en teller voor extern geladen kWh
+# V7.6: Zaptec-knoppen i.p.v. verouderde acties; lader-bewaking (kabel in auto,
+#       maar Zaptec ziet de auto niet): melding + automatische herstart
 # ============================================================
 
 input_boolean:
@@ -464,9 +466,9 @@ automation:
                 entity_id: sensor.oprit_zaptec_go2_opladermodus
                 state: connected_charging
             sequence:
-              - action: zaptec.stop_charging
+              - action: button.press
                 target:
-                  device_id: "{{ device_id('sensor.oprit_zaptec_go2_opladermodus') }}"
+                  entity_id: button.oprit_zaptec_go2_stop_het_opladen
               - wait_template: >
                   {{ is_state('sensor.oprit_zaptec_go2_opladermodus', 'connected_finished')
                      or is_state('sensor.oprit_zaptec_go2_opladermodus', 'connected_requesting') }}
@@ -479,7 +481,7 @@ automation:
                   - action: persistent_notification.create
                     data:
                       title: "Ennie: stoppen niet bevestigd"
-                      message: "Zaptec heeft na stop_charging geen bevestigde stopstatus gemeld. Controleer de lader."
+                      message: "Zaptec heeft na de stopopdracht geen bevestigde stopstatus gemeld. Controleer de lader."
 
           - conditions:
               - condition: state
@@ -520,9 +522,9 @@ automation:
                                   >= states('input_number.ennie_max_laadpercentage') | float(0) }}
                       then:
                         - stop: "Laden actief of voorwaarden gewijzigd"
-                    - action: zaptec.resume_charging
+                    - action: button.press
                       target:
-                        device_id: "{{ device_id('sensor.oprit_zaptec_go2_opladermodus') }}"
+                        entity_id: button.oprit_zaptec_go2_hervat_het_opladen
                     - wait_template: >
                         {{ is_state('sensor.oprit_zaptec_go2_opladermodus', 'connected_charging') }}
                       timeout: "00:01:00"
@@ -544,7 +546,7 @@ automation:
                     data:
                       title: "Ennie: laden start niet"
                       message: >
-                        Zaptec is na drie resume_charging-pogingen niet naar
+                        Zaptec is na drie hervat-pogingen niet naar
                         connected_charging gegaan. Controleer MySkoda en Zaptec.
 
   - id: ennie_laadlimiet_bewaken_v4
@@ -578,6 +580,70 @@ automation:
                )
              ) }}
     actions:
-      - action: zaptec.stop_charging
+      - action: button.press
         target:
-          device_id: "{{ device_id('sensor.oprit_zaptec_go2_opladermodus') }}"
+          entity_id: button.oprit_zaptec_go2_stop_het_opladen
+
+  # Lader-bewaking: Ennie staat thuis met de laadkabel in de auto, maar de
+  # Zaptec meldt al 5 minuten 'niet aangesloten'. Stuur een melding en herstart
+  # de Zaptec (hooguit eens per 30 minuten). Werkt het daarna nog niet, dan
+  # volgt alleen een melding om de stekker te controleren.
+  # Pas notify.mijn_telefoon aan naar de notify-entiteit van je eigen telefoon.
+  - id: ennie_lader_bewaking
+    alias: Ennie - Lader ziet Ennie niet
+    description: >-
+      Kabel in de auto terwijl de Zaptec de auto niet ziet: melding sturen en
+      de Zaptec eenmalig herstarten.
+    mode: single
+    max_exceeded: silent
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.skoda_enyaq_laadkabel
+        to: "on"
+        for: "00:05:00"
+      - trigger: state
+        entity_id: sensor.oprit_zaptec_go2_opladermodus
+        to: disconnected
+        for: "00:05:00"
+    conditions:
+      - condition: state
+        entity_id: binary_sensor.skoda_enyaq_laadkabel
+        state: "on"
+      - condition: state
+        entity_id: sensor.oprit_zaptec_go2_opladermodus
+        state: disconnected
+      - condition: state
+        entity_id: device_tracker.skoda_enyaq_skoda_enyaq
+        state: home
+      - condition: state
+        entity_id: binary_sensor.oprit_zaptec_go2_online
+        state: "on"
+    variables:
+      vorige: "{{ this.attributes.last_triggered }}"
+      herstart: >
+        {{ vorige is none or (now() - as_datetime(vorige | string)).total_seconds() > 1800 }}
+    actions:
+      - if:
+          - condition: template
+            value_template: "{{ herstart }}"
+        then:
+          - action: notify.send_message
+            target:
+              entity_id: notify.mijn_telefoon
+            data:
+              title: "Ennie: lader ziet de auto niet"
+              message: >-
+                De laadkabel zit in Ennie, maar de Zaptec meldt al 5 minuten
+                'niet aangesloten'. De Zaptec wordt nu herstart.
+          - action: button.press
+            target:
+              entity_id: button.oprit_zaptec_go2_herstart_het_laadstation
+        else:
+          - action: notify.send_message
+            target:
+              entity_id: notify.mijn_telefoon
+            data:
+              title: "Ennie: lader ziet de auto nog steeds niet"
+              message: >-
+                Ook na de herstart ziet de Zaptec Ennie niet. Controleer of de
+                stekker goed in de auto en de lader zit.

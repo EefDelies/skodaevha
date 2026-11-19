@@ -184,8 +184,9 @@ views:
              const extern=!charging && s('sensor.ennie_laadlocatie')==='extern';
              const extKw=Number(locA.vermogen_kw);
              const extPlug=!charging && !extern && zaptecMode==='disconnected' && cable;
+             const atHome=s('device_tracker.skoda_enyaq_skoda_enyaq')==='home';
              const extPlugDetail=`${locA.plaats && locA.plaats!=='Thuis' ? locA.plaats+' · ' : ''}${validPct && pct>=100 ? 'Accu vol' : status==='conserving' ? 'Accu op peil' : status==='charging_interrupted' ? 'Laden onderbroken' : 'Niet aan het laden'}`;
-             const chargeText=extern?`Laadt extern<span class="ennie-ext-sep"> · </span><span class="ennie-ext-detail">${locA.plaats||'Onderweg'}${Number.isFinite(extKw)&&extKw>0?' · '+extKw.toLocaleString('nl-NL',{maximumFractionDigits:1})+' kW':''}</span>`:extPlug?`Extern aangesloten<span class="ennie-ext-sep"> · </span><span class="ennie-ext-detail">${extPlugDetail}</span>`:charging?'Aan het laden':zaptecMode==='connected_finished'?(limitReached?'Laadlimiet bereikt':'Laden onderbroken'):zaptecMode==='connected_requesting'?'Wachten op laden':zaptecMode==='disconnected'?'Niet aangesloten':zaptecMode==='unknown'||zaptecMode==='unavailable'?'Laadstatus onbekend':status==='charging_interrupted'?'Laden onderbroken':'Niet aan het laden';
+             const chargeText=extern?`Laadt extern<span class="ennie-ext-sep"> · </span><span class="ennie-ext-detail">${locA.plaats||'Onderweg'}${Number.isFinite(extKw)&&extKw>0?' · '+extKw.toLocaleString('nl-NL',{maximumFractionDigits:1})+' kW':''}</span>`:extPlug&&atHome?`Lader ziet Ennie niet<span class="ennie-ext-sep"> · </span><span class="ennie-ext-detail">Controleer de stekker of herstart de Zaptec</span>`:extPlug?`Extern aangesloten<span class="ennie-ext-sep"> · </span><span class="ennie-ext-detail">${extPlugDetail}</span>`:charging?'Aan het laden':zaptecMode==='connected_finished'?(limitReached?'Laadlimiet bereikt':'Laden onderbroken'):zaptecMode==='connected_requesting'?'Wachten op laden':zaptecMode==='disconnected'?'Niet aangesloten':zaptecMode==='unknown'||zaptecMode==='unavailable'?'Laadstatus onbekend':status==='charging_interrupted'?'Laden onderbroken':'Niet aan het laden';
              const cableText=cable?'Laadkabel aangesloten':'Laadkabel losgekoppeld';
              const updatedRaw=s('sensor.skoda_enyaq_laatst_bijgewerkt');
              const updatedDate=new Date(updatedRaw);
@@ -312,6 +313,7 @@ views:
         - sensor.oprit_zaptec_go2_opladermodus
         - input_number.ennie_max_laadpercentage
         - sensor.ennie_laadlocatie
+        - device_tracker.skoda_enyaq_skoda_enyaq
         update_timer: 60000
         extra_styles: |2-
 
