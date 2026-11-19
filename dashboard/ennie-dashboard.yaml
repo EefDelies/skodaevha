@@ -520,40 +520,79 @@ views:
                   - value: 'on'
                     custom_fields:
                       content: <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 8px;box-sizing:border-box;"><ha-icon icon="mdi:ev-station" style="width:22px;height:22px;color:var(--ec-50df90);"></ha-icon><span style="font-size:13px;font-weight:600;color:var(--ec-eafff2);">Handmatig laden</span><span style="width:42px;height:24px;flex-shrink:0;border-radius:14px;background:var(--ec-187a53);padding:3px;box-sizing:border-box;display:flex;justify-content:flex-end;align-items:center;"><span style="width:18px;height:18px;background:var(--ec-5cf0a0);border-radius:50%;"></span></span></div>
-                - type: tile
-                  entity: input_number.ennie_max_laadpercentage
-                  name: Maximaal laadpercentage
-                  icon: mdi:battery-charging
-                  features:
-                  - type: numeric-input
-                    style: slider
-                  card_mod:
-                    style:
-                      .: |
-                        ha-card {
-                          background: linear-gradient(145deg,var(--ec-071e19),var(--ec-061310)) !important;
-                          border: 1px solid var(--ec-174c3f) !important;
-                          border-radius: 17px !important;
-                          color: var(--ec-eafff2) !important;
-                          min-height: 112px !important;
-                          --primary-color: var(--ec-50df90);
-                          --accent-color: var(--ec-50df90);
-                          --mdc-theme-primary: var(--ec-50df90);
-                          --state-icon-color: var(--ec-50df90);
-                          --tile-color: var(--ec-50df90);
-                          --md-sys-color-primary: var(--ec-50df90);
-                          --md-slider-active-track-color: var(--ec-50df90);
-                          --md-slider-handle-color: var(--ec-50df90);
-                          --md-slider-focus-handle-color: var(--ec-50df90);
-                          --md-slider-hover-handle-color: var(--ec-50df90);
-                          --md-slider-inactive-track-color: var(--ec-23483d);
-                          --md-slider-label-container-color: var(--ec-174c3f);
-                        }
-                        ha-state-icon { color: var(--ec-50df90) !important; }
-                      hui-card-features$: 'ha-card-features { --md-sys-color-primary: var(--ec-50df90); --md-slider-active-track-color: var(--ec-50df90); --md-slider-handle-color: var(--ec-50df90); }'
-                      hui-numeric-input-card-feature$: 'ha-slider { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; --md-slider-inactive-track-color: var(--ec-23483d) !important; }'
-                      hui-numeric-input-card-feature$ ha-slider$: ':host { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; }'
-                  color: green
+                - type: custom:button-card
+                  show_icon: false
+                  show_name: false
+                  show_state: false
+                  show_label: false
+                  tap_action:
+                    action: none
+                  hold_action:
+                    action: none
+                  styles:
+                    card:
+                    - 'padding: 0'
+                    - 'background: transparent'
+                    - 'border: none'
+                    - 'box-shadow: none'
+                    - 'overflow: visible'
+                    grid:
+                    - 'grid-template-areas: "tile"'
+                    - 'grid-template-columns: minmax(0,1fr)'
+                    - 'grid-template-rows: auto'
+                    custom_fields:
+                      tile:
+                      - 'width: 100%'
+                      - 'min-width: 0'
+                      info:
+                      - 'position: absolute'
+                      - 'top: 2px'
+                      - 'right: 4px'
+                      - 'z-index: 3'
+                  extra_styles: |
+                    /* ennie-info-wrap */
+                    ha-card { position: relative !important; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+                    #container { display: block !important; }
+                    #tile { width: 100% !important; }
+                    #info { position: absolute !important; top: 2px !important; right: 4px !important; z-index: 3 !important; }
+                  custom_fields:
+                    tile:
+                      card:
+                        type: tile
+                        entity: input_number.ennie_max_laadpercentage
+                        name: Maximaal laadpercentage
+                        icon: mdi:battery-charging
+                        features:
+                        - type: numeric-input
+                          style: slider
+                        card_mod:
+                          style:
+                            .: |
+                              ha-card {
+                                background: linear-gradient(145deg,var(--ec-071e19),var(--ec-061310)) !important;
+                                border: 1px solid var(--ec-174c3f) !important;
+                                border-radius: 17px !important;
+                                color: var(--ec-eafff2) !important;
+                                min-height: 112px !important;
+                                --primary-color: var(--ec-50df90);
+                                --accent-color: var(--ec-50df90);
+                                --mdc-theme-primary: var(--ec-50df90);
+                                --state-icon-color: var(--ec-50df90);
+                                --tile-color: var(--ec-50df90);
+                                --md-sys-color-primary: var(--ec-50df90);
+                                --md-slider-active-track-color: var(--ec-50df90);
+                                --md-slider-handle-color: var(--ec-50df90);
+                                --md-slider-focus-handle-color: var(--ec-50df90);
+                                --md-slider-hover-handle-color: var(--ec-50df90);
+                                --md-slider-inactive-track-color: var(--ec-23483d);
+                                --md-slider-label-container-color: var(--ec-174c3f);
+                              }
+                              ha-state-icon { color: var(--ec-50df90) !important; }
+                            hui-card-features$: 'ha-card-features { --md-sys-color-primary: var(--ec-50df90); --md-slider-active-track-color: var(--ec-50df90); --md-slider-handle-color: var(--ec-50df90); }'
+                            hui-numeric-input-card-feature$: 'ha-slider { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; --md-slider-inactive-track-color: var(--ec-23483d) !important; }'
+                            hui-numeric-input-card-feature$ ha-slider$: ':host { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; }'
+                        color: green
+                    info: <ha-icon class="ennie-info" icon="mdi:information-outline" data-titel="Maximaal laadpercentage" data-tekst="Stel hier het maximale percentage in voor het laden, let op dat in de instellingen van de auto het percentage op 100% moet staan om homeassistant het maximum te laten bepalen." ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" onpointerdown="event.stopPropagation()" onpointerup="event.stopPropagation()" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()" onclick="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" style="display:block;padding:6px;z-index:3;--mdc-icon-size:18px;color:var(--ec-a6c5b9);cursor:pointer"></ha-icon>
                 - type: tile
                   entity: input_number.ennie_max_stroomprijs
                   name: Maximale all-in prijs
@@ -2141,40 +2180,79 @@ views:
                     - value: 'on'
                       custom_fields:
                         content: <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 8px;box-sizing:border-box;"><ha-icon icon="mdi:ev-station" style="width:22px;height:22px;color:var(--ec-50df90);"></ha-icon><span style="font-size:13px;font-weight:600;color:var(--ec-eafff2);">Handmatig laden</span><span style="width:42px;height:24px;flex-shrink:0;border-radius:14px;background:var(--ec-187a53);padding:3px;box-sizing:border-box;display:flex;justify-content:flex-end;align-items:center;"><span style="width:18px;height:18px;background:var(--ec-5cf0a0);border-radius:50%;"></span></span></div>
-                  - type: tile
-                    entity: input_number.ennie_max_laadpercentage
-                    name: Maximaal laadpercentage
-                    icon: mdi:battery-charging
-                    features:
-                    - type: numeric-input
-                      style: slider
-                    card_mod:
-                      style:
-                        .: |
-                          ha-card {
-                            background: linear-gradient(145deg,var(--ec-071e19),var(--ec-061310)) !important;
-                            border: 1px solid var(--ec-174c3f) !important;
-                            border-radius: 17px !important;
-                            color: var(--ec-eafff2) !important;
-                            min-height: 112px !important;
-                            --primary-color: var(--ec-50df90);
-                            --accent-color: var(--ec-50df90);
-                            --mdc-theme-primary: var(--ec-50df90);
-                            --state-icon-color: var(--ec-50df90);
-                            --tile-color: var(--ec-50df90);
-                            --md-sys-color-primary: var(--ec-50df90);
-                            --md-slider-active-track-color: var(--ec-50df90);
-                            --md-slider-handle-color: var(--ec-50df90);
-                            --md-slider-focus-handle-color: var(--ec-50df90);
-                            --md-slider-hover-handle-color: var(--ec-50df90);
-                            --md-slider-inactive-track-color: var(--ec-23483d);
-                            --md-slider-label-container-color: var(--ec-174c3f);
-                          }
-                          ha-state-icon { color: var(--ec-50df90) !important; }
-                        hui-card-features$: 'ha-card-features { --md-sys-color-primary: var(--ec-50df90); --md-slider-active-track-color: var(--ec-50df90); --md-slider-handle-color: var(--ec-50df90); }'
-                        hui-numeric-input-card-feature$: 'ha-slider { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; --md-slider-inactive-track-color: var(--ec-23483d) !important; }'
-                        hui-numeric-input-card-feature$ ha-slider$: ':host { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; }'
-                    color: green
+                  - type: custom:button-card
+                    show_icon: false
+                    show_name: false
+                    show_state: false
+                    show_label: false
+                    tap_action:
+                      action: none
+                    hold_action:
+                      action: none
+                    styles:
+                      card:
+                      - 'padding: 0'
+                      - 'background: transparent'
+                      - 'border: none'
+                      - 'box-shadow: none'
+                      - 'overflow: visible'
+                      grid:
+                      - 'grid-template-areas: "tile"'
+                      - 'grid-template-columns: minmax(0,1fr)'
+                      - 'grid-template-rows: auto'
+                      custom_fields:
+                        tile:
+                        - 'width: 100%'
+                        - 'min-width: 0'
+                        info:
+                        - 'position: absolute'
+                        - 'top: 2px'
+                        - 'right: 4px'
+                        - 'z-index: 3'
+                    extra_styles: |
+                      /* ennie-info-wrap */
+                      ha-card { position: relative !important; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+                      #container { display: block !important; }
+                      #tile { width: 100% !important; }
+                      #info { position: absolute !important; top: 2px !important; right: 4px !important; z-index: 3 !important; }
+                    custom_fields:
+                      tile:
+                        card:
+                          type: tile
+                          entity: input_number.ennie_max_laadpercentage
+                          name: Maximaal laadpercentage
+                          icon: mdi:battery-charging
+                          features:
+                          - type: numeric-input
+                            style: slider
+                          card_mod:
+                            style:
+                              .: |
+                                ha-card {
+                                  background: linear-gradient(145deg,var(--ec-071e19),var(--ec-061310)) !important;
+                                  border: 1px solid var(--ec-174c3f) !important;
+                                  border-radius: 17px !important;
+                                  color: var(--ec-eafff2) !important;
+                                  min-height: 112px !important;
+                                  --primary-color: var(--ec-50df90);
+                                  --accent-color: var(--ec-50df90);
+                                  --mdc-theme-primary: var(--ec-50df90);
+                                  --state-icon-color: var(--ec-50df90);
+                                  --tile-color: var(--ec-50df90);
+                                  --md-sys-color-primary: var(--ec-50df90);
+                                  --md-slider-active-track-color: var(--ec-50df90);
+                                  --md-slider-handle-color: var(--ec-50df90);
+                                  --md-slider-focus-handle-color: var(--ec-50df90);
+                                  --md-slider-hover-handle-color: var(--ec-50df90);
+                                  --md-slider-inactive-track-color: var(--ec-23483d);
+                                  --md-slider-label-container-color: var(--ec-174c3f);
+                                }
+                                ha-state-icon { color: var(--ec-50df90) !important; }
+                              hui-card-features$: 'ha-card-features { --md-sys-color-primary: var(--ec-50df90); --md-slider-active-track-color: var(--ec-50df90); --md-slider-handle-color: var(--ec-50df90); }'
+                              hui-numeric-input-card-feature$: 'ha-slider { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; --md-slider-inactive-track-color: var(--ec-23483d) !important; }'
+                              hui-numeric-input-card-feature$ ha-slider$: ':host { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; }'
+                          color: green
+                      info: <ha-icon class="ennie-info" icon="mdi:information-outline" data-titel="Maximaal laadpercentage" data-tekst="Stel hier het maximale percentage in voor het laden, let op dat in de instellingen van de auto het percentage op 100% moet staan om homeassistant het maximum te laten bepalen." ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" onpointerdown="event.stopPropagation()" onpointerup="event.stopPropagation()" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()" onclick="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" style="display:block;padding:6px;z-index:3;--mdc-icon-size:18px;color:var(--ec-a6c5b9);cursor:pointer"></ha-icon>
                   - type: tile
                     entity: input_number.ennie_max_stroomprijs
                     name: Maximale all-in prijs
