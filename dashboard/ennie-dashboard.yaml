@@ -3880,7 +3880,7 @@ views:
                   })();
                   const retour=num(S('input_number.ennie_km_kantoor_retour')?.state)??0;
                   const extraZ=num(S('input_number.ennie_km_extra_zakelijk')?.state)??0;
-                  return `<div class="km-wrap">
+                  return `<div class="km-wrap"><ha-icon class="ennie-info" icon="mdi:information-outline" data-titel="Kilometer registratie" data-tekst="Indien de werkgever een maximaal aantal kilometers (verdeeld over privé en zakelijk) heeft ingesteld worden deze hier automatisch geregistreerd op kalender jaar. Bij start van het leasecontract wordt relatief voor de resterende dagen in het startjaar gerekend.&#10;&#10;In de sectie instellingen kunnen de maximale privé en zakelijke kilometers worden ingesteld. Ook de km-boete voor meer gereden kilometers kan worden opgegeven.&#10;&#10;Woon-werkverkeer kan automatisch worden geregistreerd door je kantoorlocatie in HomeAssistant vast te leggen en deze te koppelen via de tegel &#x27;Kantoor locatie&#x27; in de instellingen sectie. De totale reisafstand (heen én terug) naar kantoor kan daar ook worden ingesteld.&#10;&#10;Via de tegel &#x27;toevoegen zakelijke rit&#x27; kun je losse zakelijke ritten die niet naar het vaste kantoor zijn registreren." ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" onpointerdown="event.stopPropagation()" onpointerup="event.stopPropagation()" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()" onclick="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" style="position:absolute;top:4px;right:6px;padding:6px;z-index:3;--mdc-icon-size:18px;color:var(--ec-a6c5b9);cursor:pointer"></ha-icon>
                   <div class="km-top"><div><div class="km-title"><ha-icon icon="mdi:road-variant"></ha-icon>${titel}</div><div class="km-total">${fmt(totV)} km</div></div>
                   <div class="km-prog"><div class="km-sub">Prognose 31 december</div><div class="km-progv">~${fmt(num(A.prognose)??0)} km</div><div class="km-sub">≈ ${fmt(num(A.prognose_per_jaar)??0)} km per jaar</div></div></div>
                   ${row('prive','Privé','mdi:car-side')}
@@ -3943,6 +3943,11 @@ views:
                 #custom_fields, #custom_fields > div, .km-wrap { min-width: 0 !important; max-width: 100% !important; overflow: hidden !important; }
                 .km-wrap, .km-wrap * { white-space: normal !important; overflow-wrap: anywhere; }
                 .km-val { white-space: nowrap !important; }
+
+                /* ennie-info-pos */
+                ha-card { position: relative !important; }
+                #container, #custom_fields, #content, #custom_fields > div { position: static !important; }
+                .km-top { padding-right: 26px !important; }
           - type: custom:expander-card
             expanded: false
             clear: true
@@ -6042,7 +6047,7 @@ views:
                 })();
                 const retour=num(S('input_number.ennie_km_kantoor_retour')?.state)??0;
                 const extraZ=num(S('input_number.ennie_km_extra_zakelijk')?.state)??0;
-                return `<div class="km-wrap">
+                return `<div class="km-wrap"><ha-icon class="ennie-info" icon="mdi:information-outline" data-titel="Kilometer registratie" data-tekst="Indien de werkgever een maximaal aantal kilometers (verdeeld over privé en zakelijk) heeft ingesteld worden deze hier automatisch geregistreerd op kalender jaar. Bij start van het leasecontract wordt relatief voor de resterende dagen in het startjaar gerekend.&#10;&#10;In de sectie instellingen kunnen de maximale privé en zakelijke kilometers worden ingesteld. Ook de km-boete voor meer gereden kilometers kan worden opgegeven.&#10;&#10;Woon-werkverkeer kan automatisch worden geregistreerd door je kantoorlocatie in HomeAssistant vast te leggen en deze te koppelen via de tegel &#x27;Kantoor locatie&#x27; in de instellingen sectie. De totale reisafstand (heen én terug) naar kantoor kan daar ook worden ingesteld.&#10;&#10;Via de tegel &#x27;toevoegen zakelijke rit&#x27; kun je losse zakelijke ritten die niet naar het vaste kantoor zijn registreren." ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" onpointerdown="event.stopPropagation()" onpointerup="event.stopPropagation()" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()" onclick="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" style="position:absolute;top:4px;right:6px;padding:6px;z-index:3;--mdc-icon-size:18px;color:var(--ec-a6c5b9);cursor:pointer"></ha-icon>
                 <div class="km-top"><div><div class="km-title"><ha-icon icon="mdi:road-variant"></ha-icon>${titel}</div><div class="km-total">${fmt(totV)} km</div></div>
                 <div class="km-prog"><div class="km-sub">Prognose 31 december</div><div class="km-progv">~${fmt(num(A.prognose)??0)} km</div><div class="km-sub">≈ ${fmt(num(A.prognose_per_jaar)??0)} km per jaar</div></div></div>
                 ${row('prive','Privé','mdi:car-side')}
@@ -6105,6 +6110,11 @@ views:
               #custom_fields, #custom_fields > div, .km-wrap { min-width: 0 !important; max-width: 100% !important; overflow: hidden !important; }
               .km-wrap, .km-wrap * { white-space: normal !important; overflow-wrap: anywhere; }
               .km-val { white-space: nowrap !important; }
+
+              /* ennie-info-pos */
+              ha-card { position: relative !important; }
+              #container, #custom_fields, #content, #custom_fields > div { position: static !important; }
+              .km-top { padding-right: 26px !important; }
       - type: custom:mod-card
         card_mod:
           style: 'ha-card { display:block !important; background:transparent !important; border:0 !important; box-shadow:none !important; padding:0 !important; width:100% !important; } @media (max-width: 700px) { ha-card { display:none !important; } }'

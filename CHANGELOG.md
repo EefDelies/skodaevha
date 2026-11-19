@@ -10,7 +10,7 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 
 ### Added
 
-- `window.enniePopup(title, text)` in `www/ennie-pdf-button.js`: a theme-aware info pop-up for short instructions behind an i-icon on dashboard tiles (on "Automatisch laden", "Handmatig laden", "Maximaal laadpercentage", "Maximale all-in prijs", "Effectieve laadprijs" and "Zonne-overschot"). Raise the resource to `?v=4`.
+- `window.enniePopup(title, text)` in `www/ennie-pdf-button.js`: a theme-aware info pop-up for short instructions behind an i-icon on dashboard tiles (on "Automatisch laden", "Handmatig laden", "Maximaal laadpercentage", "Maximale all-in prijs", "Effectieve laadprijs", "Zonne-overschot" and the Kilometers card). Raise the resource to `?v=4`.
 - Kilometers card (desktop and mobile): kilometres driven this lease year split into private and business, each against the limit prorated over the days since the lease start, with schedule marker, year-end forecast and remaining km per week.
 - `packages/ennie_kilometers.yaml`: helpers for limits, office round-trip distance, extra business km and lease start date; office-day counter driven by entering `zone.kantoor`; automatic reset on 1 January.
 - Settings tiles for the kilometer limits, office round trip, extra business km, office-day counter and lease start date.
