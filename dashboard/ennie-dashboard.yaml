@@ -593,32 +593,71 @@ views:
                             hui-numeric-input-card-feature$ ha-slider$: ':host { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; }'
                         color: green
                     info: <ha-icon class="ennie-info" icon="mdi:information-outline" data-titel="Maximaal laadpercentage" data-tekst="Stel hier het maximale percentage in voor het laden, let op dat in de instellingen van de auto het percentage op 100% moet staan om homeassistant het maximum te laten bepalen." ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" onpointerdown="event.stopPropagation()" onpointerup="event.stopPropagation()" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()" onclick="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" style="display:block;padding:6px;z-index:3;--mdc-icon-size:18px;color:var(--ec-a6c5b9);cursor:pointer"></ha-icon>
-                - type: tile
-                  entity: input_number.ennie_max_stroomprijs
-                  name: Maximale all-in prijs
-                  icon: mdi:currency-eur
-                  color: green
-                  features:
-                  - type: numeric-input
-                    style: buttons
-                  card_mod:
-                    style:
-                      .: |
-                        ha-card { background:linear-gradient(145deg,var(--ec-071e19),var(--ec-061310))!important; border:1px solid var(--ec-174c3f)!important; border-radius:17px!important; color:var(--ec-eafff2)!important; --tile-color:var(--ec-50df90)!important; --state-icon-color:var(--ec-50df90)!important; box-shadow:0 3px 14px #0004!important; }
-                        ha-card { min-height:112px!important; box-sizing:border-box!important; }
-                        ha-card {height:112px!important;max-height:112px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;box-sizing:border-box!important;}
-                        .tile {justify-content:center!important;}
-                        .content {justify-content:center!important;}
-                        ha-tile-info {text-align:center!important;}
+                - type: custom:button-card
+                  show_icon: false
+                  show_name: false
+                  show_state: false
+                  show_label: false
+                  tap_action:
+                    action: none
+                  hold_action:
+                    action: none
+                  styles:
+                    card:
+                    - 'padding: 0'
+                    - 'background: transparent'
+                    - 'border: none'
+                    - 'box-shadow: none'
+                    - 'overflow: visible'
+                    grid:
+                    - 'grid-template-areas: "tile"'
+                    - 'grid-template-columns: minmax(0,1fr)'
+                    - 'grid-template-rows: auto'
+                    custom_fields:
+                      tile:
+                      - 'width: 100%'
+                      - 'min-width: 0'
+                      info:
+                      - 'position: absolute'
+                      - 'top: 2px'
+                      - 'right: 4px'
+                      - 'z-index: 3'
+                  extra_styles: |
+                    /* ennie-info-wrap */
+                    ha-card { position: relative !important; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+                    #container { display: block !important; }
+                    #tile { width: 100% !important; }
+                    #info { position: absolute !important; top: 2px !important; right: 4px !important; z-index: 3 !important; }
+                  custom_fields:
+                    tile:
+                      card:
+                        type: tile
+                        entity: input_number.ennie_max_stroomprijs
+                        name: Maximale all-in prijs
+                        icon: mdi:currency-eur
+                        color: green
+                        features:
+                        - type: numeric-input
+                          style: buttons
+                        card_mod:
+                          style:
+                            .: |
+                              ha-card { background:linear-gradient(145deg,var(--ec-071e19),var(--ec-061310))!important; border:1px solid var(--ec-174c3f)!important; border-radius:17px!important; color:var(--ec-eafff2)!important; --tile-color:var(--ec-50df90)!important; --state-icon-color:var(--ec-50df90)!important; box-shadow:0 3px 14px #0004!important; }
+                              ha-card { min-height:112px!important; box-sizing:border-box!important; }
+                              ha-card {height:112px!important;max-height:112px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;box-sizing:border-box!important;}
+                              .tile {justify-content:center!important;}
+                              .content {justify-content:center!important;}
+                              ha-tile-info {text-align:center!important;}
 
-                        /* Breng titel en prijsbediening dichter bij elkaar zonder kaarthoogte te wijzigen. */
-                        ha-card { --tile-info-gap: 0px !important; --tile-feature-gap: 0px !important; }
-                        .tile { gap: 0px !important; row-gap: 0px !important; }
-                        .content { gap: 0px !important; row-gap: 0px !important; }
-                        ha-tile-info { margin-bottom: -7px !important; }
-                        .features, .feature { margin-top: 0px !important; }
-                      ha-tile-info$: |
-                        .secondary { display: none !important; }
+                              /* Breng titel en prijsbediening dichter bij elkaar zonder kaarthoogte te wijzigen. */
+                              ha-card { --tile-info-gap: 0px !important; --tile-feature-gap: 0px !important; }
+                              .tile { gap: 0px !important; row-gap: 0px !important; }
+                              .content { gap: 0px !important; row-gap: 0px !important; }
+                              ha-tile-info { margin-bottom: -7px !important; }
+                              .features, .feature { margin-top: 0px !important; }
+                            ha-tile-info$: |
+                              .secondary { display: none !important; }
+                    info: <ha-icon class="ennie-info" icon="mdi:information-outline" data-titel="Maximale all-in stroomprijs" data-tekst="Stel hier in wat de maximale all-in stroomprijs mag zijn voor het laden. Bij Solar overschot kan laden alsnog starten als de all-in prijs hoger is maar deze lager uitvalt door gebruik van stroomoverschot (in plaats van het terug te leveren aan het net)" ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" onpointerdown="event.stopPropagation()" onpointerup="event.stopPropagation()" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()" onclick="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" style="display:block;padding:6px;z-index:3;--mdc-icon-size:18px;color:var(--ec-a6c5b9);cursor:pointer"></ha-icon>
                 - type: custom:button-card
                   entity: sensor.ennie_stroomprijs_all_in
                   show_icon: false
@@ -2253,32 +2292,71 @@ views:
                               hui-numeric-input-card-feature$ ha-slider$: ':host { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; }'
                           color: green
                       info: <ha-icon class="ennie-info" icon="mdi:information-outline" data-titel="Maximaal laadpercentage" data-tekst="Stel hier het maximale percentage in voor het laden, let op dat in de instellingen van de auto het percentage op 100% moet staan om homeassistant het maximum te laten bepalen." ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" onpointerdown="event.stopPropagation()" onpointerup="event.stopPropagation()" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()" onclick="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" style="display:block;padding:6px;z-index:3;--mdc-icon-size:18px;color:var(--ec-a6c5b9);cursor:pointer"></ha-icon>
-                  - type: tile
-                    entity: input_number.ennie_max_stroomprijs
-                    name: Maximale all-in prijs
-                    icon: mdi:currency-eur
-                    color: green
-                    features:
-                    - type: numeric-input
-                      style: buttons
-                    card_mod:
-                      style:
-                        .: |
-                          ha-card { background:linear-gradient(145deg,var(--ec-071e19),var(--ec-061310))!important; border:1px solid var(--ec-174c3f)!important; border-radius:17px!important; color:var(--ec-eafff2)!important; --tile-color:var(--ec-50df90)!important; --state-icon-color:var(--ec-50df90)!important; box-shadow:0 3px 14px #0004!important; }
-                          ha-card { min-height:112px!important; box-sizing:border-box!important; }
-                          ha-card {height:112px!important;max-height:112px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;box-sizing:border-box!important;}
-                          .tile {justify-content:center!important;}
-                          .content {justify-content:center!important;}
-                          ha-tile-info {text-align:center!important;}
+                  - type: custom:button-card
+                    show_icon: false
+                    show_name: false
+                    show_state: false
+                    show_label: false
+                    tap_action:
+                      action: none
+                    hold_action:
+                      action: none
+                    styles:
+                      card:
+                      - 'padding: 0'
+                      - 'background: transparent'
+                      - 'border: none'
+                      - 'box-shadow: none'
+                      - 'overflow: visible'
+                      grid:
+                      - 'grid-template-areas: "tile"'
+                      - 'grid-template-columns: minmax(0,1fr)'
+                      - 'grid-template-rows: auto'
+                      custom_fields:
+                        tile:
+                        - 'width: 100%'
+                        - 'min-width: 0'
+                        info:
+                        - 'position: absolute'
+                        - 'top: 2px'
+                        - 'right: 4px'
+                        - 'z-index: 3'
+                    extra_styles: |
+                      /* ennie-info-wrap */
+                      ha-card { position: relative !important; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+                      #container { display: block !important; }
+                      #tile { width: 100% !important; }
+                      #info { position: absolute !important; top: 2px !important; right: 4px !important; z-index: 3 !important; }
+                    custom_fields:
+                      tile:
+                        card:
+                          type: tile
+                          entity: input_number.ennie_max_stroomprijs
+                          name: Maximale all-in prijs
+                          icon: mdi:currency-eur
+                          color: green
+                          features:
+                          - type: numeric-input
+                            style: buttons
+                          card_mod:
+                            style:
+                              .: |
+                                ha-card { background:linear-gradient(145deg,var(--ec-071e19),var(--ec-061310))!important; border:1px solid var(--ec-174c3f)!important; border-radius:17px!important; color:var(--ec-eafff2)!important; --tile-color:var(--ec-50df90)!important; --state-icon-color:var(--ec-50df90)!important; box-shadow:0 3px 14px #0004!important; }
+                                ha-card { min-height:112px!important; box-sizing:border-box!important; }
+                                ha-card {height:112px!important;max-height:112px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;box-sizing:border-box!important;}
+                                .tile {justify-content:center!important;}
+                                .content {justify-content:center!important;}
+                                ha-tile-info {text-align:center!important;}
 
-                          /* Breng titel en prijsbediening dichter bij elkaar zonder kaarthoogte te wijzigen. */
-                          ha-card { --tile-info-gap: 0px !important; --tile-feature-gap: 0px !important; }
-                          .tile { gap: 0px !important; row-gap: 0px !important; }
-                          .content { gap: 0px !important; row-gap: 0px !important; }
-                          ha-tile-info { margin-bottom: -7px !important; }
-                          .features, .feature { margin-top: 0px !important; }
-                        ha-tile-info$: |
-                          .secondary { display: none !important; }
+                                /* Breng titel en prijsbediening dichter bij elkaar zonder kaarthoogte te wijzigen. */
+                                ha-card { --tile-info-gap: 0px !important; --tile-feature-gap: 0px !important; }
+                                .tile { gap: 0px !important; row-gap: 0px !important; }
+                                .content { gap: 0px !important; row-gap: 0px !important; }
+                                ha-tile-info { margin-bottom: -7px !important; }
+                                .features, .feature { margin-top: 0px !important; }
+                              ha-tile-info$: |
+                                .secondary { display: none !important; }
+                      info: <ha-icon class="ennie-info" icon="mdi:information-outline" data-titel="Maximale all-in stroomprijs" data-tekst="Stel hier in wat de maximale all-in stroomprijs mag zijn voor het laden. Bij Solar overschot kan laden alsnog starten als de all-in prijs hoger is maar deze lager uitvalt door gebruik van stroomoverschot (in plaats van het terug te leveren aan het net)" ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" onpointerdown="event.stopPropagation()" onpointerup="event.stopPropagation()" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()" onclick="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" style="display:block;padding:6px;z-index:3;--mdc-icon-size:18px;color:var(--ec-a6c5b9);cursor:pointer"></ha-icon>
                   - type: custom:button-card
                     entity: sensor.ennie_stroomprijs_all_in
                     show_icon: false
