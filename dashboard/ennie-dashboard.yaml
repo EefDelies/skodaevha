@@ -3742,6 +3742,11 @@ views:
                 .km-paybox{border:1px solid var(--ec-174c3f);border-radius:12px;background:var(--ec-061914);padding:10px 12px;display:flex;flex-direction:column;gap:3px;}
                 .km-payv{font-size:18px;font-weight:700;}
                 @media (max-width:600px){.km-pay{grid-template-columns:1fr;}}
+
+                /* km-wrap-fix */
+                #custom_fields, #custom_fields > div, .km-wrap { min-width: 0 !important; max-width: 100% !important; overflow: hidden !important; }
+                .km-wrap, .km-wrap * { white-space: normal !important; overflow-wrap: anywhere; }
+                .km-val { white-space: nowrap !important; }
           - type: custom:expander-card
             expanded: false
             clear: true
@@ -5899,6 +5904,11 @@ views:
               .km-paybox{border:1px solid var(--ec-174c3f);border-radius:12px;background:var(--ec-061914);padding:10px 12px;display:flex;flex-direction:column;gap:3px;}
               .km-payv{font-size:18px;font-weight:700;}
               @media (max-width:600px){.km-pay{grid-template-columns:1fr;}}
+
+              /* km-wrap-fix */
+              #custom_fields, #custom_fields > div, .km-wrap { min-width: 0 !important; max-width: 100% !important; overflow: hidden !important; }
+              .km-wrap, .km-wrap * { white-space: normal !important; overflow-wrap: anywhere; }
+              .km-val { white-space: nowrap !important; }
       - type: custom:mod-card
         card_mod:
           style: 'ha-card { display:block !important; background:transparent !important; border:0 !important; box-shadow:none !important; padding:0 !important; width:100% !important; } @media (max-width: 700px) { ha-card { display:none !important; } }'
