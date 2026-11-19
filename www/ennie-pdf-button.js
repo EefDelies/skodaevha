@@ -75,3 +75,43 @@ class EnniePdfButton extends HTMLElement {
 customElements.define('ennie-pdf-button', EnniePdfButton);
 window.customCards = window.customCards || [];
 window.customCards.push({type:'ennie-pdf-button', name:'Ennie PDF-knop', description:'Maak en open de Ennie-declaratie automatisch'});
+
+/* Ennie uitleg-pop-up: window.enniePopup(titel, tekst).
+ * Wordt gebruikt door de i-iconen op de tegels (data-titel / data-tekst).
+ * Tekst is platte tekst; een lege regel begint een nieuwe alinea.
+ */
+window.enniePopup = (title, text) => {
+  document.getElementById('ennie-popup')?.remove();
+  const esc = (v) => String(v ?? '').replace(/[&<>"]/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+  const body = String(text ?? '').split(/\n\s*\n/).map((p) => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('');
+  const overlay = document.createElement('div');
+  overlay.id = 'ennie-popup';
+  overlay.innerHTML = `
+    <style>
+      #ennie-popup { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center;
+        justify-content: center; padding: 16px; box-sizing: border-box; background: rgba(0, 0, 0, .45);
+        font-family: var(--primary-font-family, sans-serif); }
+      #ennie-popup .ep-panel { width: 100%; max-width: 440px; max-height: 80vh; overflow: auto; box-sizing: border-box;
+        background: var(--card-background-color, #fff); color: var(--primary-text-color, #13281f);
+        border: 1px solid color-mix(in srgb, #2fae74 45%, transparent); border-radius: 17px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, .35); padding: 18px 20px; }
+      #ennie-popup .ep-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+      #ennie-popup .ep-head ha-icon { --mdc-icon-size: 22px; color: #2fae74; flex: none; }
+      #ennie-popup .ep-title { flex: 1; font-size: 16px; font-weight: 700; }
+      #ennie-popup .ep-close { border: 0; background: transparent; color: var(--secondary-text-color, #555);
+        font-size: 22px; line-height: 1; cursor: pointer; padding: 4px 6px; }
+      #ennie-popup p { margin: 8px 0 0; font-size: 14px; line-height: 1.5; color: var(--primary-text-color, #13281f); }
+    </style>
+    <div class="ep-panel" role="dialog" aria-modal="true">
+      <div class="ep-head"><ha-icon icon="mdi:information-outline"></ha-icon>
+        <div class="ep-title">${esc(title)}</div>
+        <button class="ep-close" type="button" aria-label="Sluiten">&times;</button></div>
+      ${body}
+    </div>`;
+  const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
+  const onKey = (e) => { if (e.key === 'Escape') close(); };
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  overlay.querySelector('.ep-close').addEventListener('click', close);
+  document.addEventListener('keydown', onKey);
+  document.body.appendChild(overlay);
+};
