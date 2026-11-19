@@ -16,14 +16,14 @@ class EnniePdfButton extends HTMLElement {
       :host { display: block; width: 100%; }
       button { box-sizing: border-box; width: 100%; height: 44px; display: flex;
         align-items: center; justify-content: center; gap: 8px; padding: 6px 12px;
-        border-radius: 12px; border: 1px solid #175a47;
-        background: linear-gradient(145deg, #09271f, #0c3327);
-        color: #eafff2; font: 600 14px/1.3 var(--primary-font-family, sans-serif);
+        border-radius: 12px; border: 1px solid var(--ec-175a47, #175a47);
+        background: linear-gradient(145deg, var(--ec-09271f, #09271f), var(--ec-0c3327, #0c3327));
+        color: var(--ec-eafff2, #eafff2); font: 600 14px/1.3 var(--primary-font-family, sans-serif);
         cursor: pointer; text-align: center; }
-      button.laptop { background: #103c2c; border-color: #276b4c; }
+      button.laptop { background: var(--ec-103c2c, #103c2c); border-color: var(--ec-276b4c, #276b4c); }
       button:hover { filter: brightness(1.12); }
       button:disabled { opacity: .7; cursor: wait; }
-      ha-icon { --mdc-icon-size: 20px; color: #40e697; flex: none; }
+      ha-icon { --mdc-icon-size: 20px; color: var(--ec-40e697, #40e697); flex: none; }
     `;
     root.append(style, button);
   }

@@ -94,6 +94,7 @@ views:
           --ec-e3ede7: #e3ede7;
           --ec-d3d9d6: #d3d9d6;
           --ec-001c14: #001c14;
+          --ec-ffffff: #ffffff;
         }
         @supports (color: rgb(from red r g b)) {
           ha-card {
@@ -152,6 +153,7 @@ views:
             --ec-063023: rgb(from var(--primary-background-color, #111111) calc(6 + 249 * clamp(0, (r - 128) / 8, 1)) calc(48 + 207 * clamp(0, (r - 128) / 8, 1)) calc(35 + 220 * clamp(0, (r - 128) / 8, 1)));
             --ec-e3ede7: rgb(from var(--primary-background-color, #111111) calc(227 + 28 * clamp(0, (r - 128) / 8, 1)) calc(237 + 18 * clamp(0, (r - 128) / 8, 1)) calc(231 + 24 * clamp(0, (r - 128) / 8, 1)));
             --ec-d3d9d6: rgb(from var(--primary-background-color, #111111) calc(211 + 44 * clamp(0, (r - 128) / 8, 1)) calc(217 + 38 * clamp(0, (r - 128) / 8, 1)) calc(214 + 41 * clamp(0, (r - 128) / 8, 1)));
+            --ec-ffffff: rgb(from var(--primary-background-color, #111111) calc(255 + -236 * clamp(0, (r - 128) / 8, 1)) calc(255 + -215 * clamp(0, (r - 128) / 8, 1)) calc(255 + -224 * clamp(0, (r - 128) / 8, 1)));
             --ec-001c14: rgb(from var(--primary-background-color, #111111) calc(0 + 159 * clamp(0, (r - 128) / 8, 1)) calc(28 + 153 * clamp(0, (r - 128) / 8, 1)) calc(20 + 151 * clamp(0, (r - 128) / 8, 1)));
           }
         }
@@ -3716,7 +3718,7 @@ views:
                 .km-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;}
                 .km-title{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ec-a6e2c7);}
                 .km-title ha-icon{--mdc-icon-size:18px;color:var(--ec-50df90);}
-                .km-total{font-size:clamp(22px,2.2vw,28px);font-weight:750;color:#fff;line-height:1.2;}
+                .km-total{font-size:clamp(22px,2.2vw,28px);font-weight:750;color:var(--ec-ffffff);line-height:1.2;}
                 .km-prog{text-align:right;}
                 .km-progv{font-size:16px;font-weight:650;}
                 .km-sub{font-size:11px;font-weight:400;color:var(--ec-a6c5b9);}
@@ -4384,7 +4386,7 @@ views:
                   {% set priced = kwh - missing %}
                   <div align="center" class="ennie-metric" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%">
                     <div align="center" class="ennie-metric-label" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ec-a6e2c7);font-size:13px"><ha-icon style="color:var(--ec-a6e2c7)" icon="mdi:ev-station"></ha-icon> <font color="#a6e2c7">Geladen</font></div>
-                    <div align="center" class="ennie-metric-value" style="color:#fff;font-size:27px;font-weight:750;line-height:1.2">{{ ('%.1f' | format(kwh) | replace('.', ',')) ~ ' kWh' if ready else 'Bezig met bijwerken…' }}</div>
+                    <div align="center" class="ennie-metric-value" style="color:var(--ec-ffffff);font-size:27px;font-weight:750;line-height:1.2">{{ ('%.1f' | format(kwh) | replace('.', ',')) ~ ' kWh' if ready else 'Bezig met bijwerken…' }}</div>
                   </div>
                 card_mod:
                   style:
@@ -4401,7 +4403,7 @@ views:
                         align-items: center !important;
                         justify-content: center !important;
                         overflow: hidden !important;
-                        color: white !important;
+                        color: var(--ec-ffffff) !important;
                       }
                       ha-card .card-content {
                         width: 100% !important;
@@ -4424,7 +4426,7 @@ views:
                       .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                       .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                       .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                      .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                      .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                       .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -4432,6 +4434,10 @@ views:
                       font[color="#50df90"] { color: var(--ec-50df90) !important; }
                       font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                       font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                      ha-icon { color: var(--ec-a6e2c7) !important; }
+                      ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                      ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
               - type: markdown
                 content: |-
                   {% set s = states('sensor.ennie_laadkosten_periode') %}
@@ -4446,7 +4452,7 @@ views:
                   {% set priced = kwh - missing %}
                   <div align="center" class="ennie-metric" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%">
                     <div align="center" class="ennie-metric-label" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ec-a6e2c7);font-size:13px"><ha-icon style="color:var(--ec-a6e2c7)" icon="mdi:currency-eur"></ha-icon> <font color="#a6e2c7">Laadkosten</font></div>
-                    <div align="center" class="ennie-metric-value" style="color:#fff;font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(cost) | replace('.', ',')) if ready else 'Bezig met bijwerken…' }}</div>
+                    <div align="center" class="ennie-metric-value" style="color:var(--ec-ffffff);font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(cost) | replace('.', ',')) if ready else 'Bezig met bijwerken…' }}</div>
                   </div>
                 card_mod:
                   style:
@@ -4463,7 +4469,7 @@ views:
                         align-items: center !important;
                         justify-content: center !important;
                         overflow: hidden !important;
-                        color: white !important;
+                        color: var(--ec-ffffff) !important;
                       }
                       ha-card .card-content {
                         width: 100% !important;
@@ -4486,7 +4492,7 @@ views:
                       .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                       .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                       .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                      .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                      .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                       .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -4494,6 +4500,10 @@ views:
                       font[color="#50df90"] { color: var(--ec-50df90) !important; }
                       font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                       font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                      ha-icon { color: var(--ec-a6e2c7) !important; }
+                      ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                      ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
               - type: markdown
                 content: |-
                   {% set s = states('sensor.ennie_laadkosten_periode') %}
@@ -4508,7 +4518,7 @@ views:
                   {% set priced = kwh - missing %}
                   <div align="center" class="ennie-metric" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%">
                     <div align="center" class="ennie-metric-label" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ec-a6e2c7);font-size:13px"><ha-icon style="color:var(--ec-a6e2c7)" icon="mdi:cash-plus"></ha-icon> <font color="#a6e2c7">Vergoeding werkgever</font></div>
-                    <div align="center" class="ennie-metric-value" style="color:#fff;font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(employer) | replace('.', ',')) if ready else 'Bezig met bijwerken…' }}</div>
+                    <div align="center" class="ennie-metric-value" style="color:var(--ec-ffffff);font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(employer) | replace('.', ',')) if ready else 'Bezig met bijwerken…' }}</div>
                   </div>
                 card_mod:
                   style:
@@ -4525,7 +4535,7 @@ views:
                         align-items: center !important;
                         justify-content: center !important;
                         overflow: hidden !important;
-                        color: white !important;
+                        color: var(--ec-ffffff) !important;
                       }
                       ha-card .card-content {
                         width: 100% !important;
@@ -4548,7 +4558,7 @@ views:
                       .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                       .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                       .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                      .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                      .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                       .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -4556,6 +4566,10 @@ views:
                       font[color="#50df90"] { color: var(--ec-50df90) !important; }
                       font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                       font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                      ha-icon { color: var(--ec-a6e2c7) !important; }
+                      ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                      ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
               - type: markdown
                 content: |-
                   {% set s = states('sensor.ennie_laadkosten_periode') %}
@@ -4570,7 +4584,7 @@ views:
                   {% set priced = kwh - missing %}
                   <div align="center" class="ennie-metric" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%">
                     <div align="center" class="ennie-metric-label" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ec-a6e2c7);font-size:13px"><ha-icon style="color:var(--ec-a6e2c7)" icon="mdi:chart-line"></ha-icon> <font color="#a6e2c7">Verschil</font></div>
-                    <div align="center" class="ennie-metric-value" style="color:#fff;font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(employer - cost) | replace('.', ',')) if ready else 'Bezig met bijwerken…' }}</div>
+                    <div align="center" class="ennie-metric-value" style="color:var(--ec-ffffff);font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(employer - cost) | replace('.', ',')) if ready else 'Bezig met bijwerken…' }}</div>
                   </div>
                 card_mod:
                   style:
@@ -4587,7 +4601,7 @@ views:
                         align-items: center !important;
                         justify-content: center !important;
                         overflow: hidden !important;
-                        color: white !important;
+                        color: var(--ec-ffffff) !important;
                       }
                       ha-card .card-content {
                         width: 100% !important;
@@ -4607,7 +4621,7 @@ views:
                       .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                       .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                       .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                      .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                      .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                       .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -4615,6 +4629,10 @@ views:
                       font[color="#50df90"] { color: var(--ec-50df90) !important; }
                       font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                       font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                      ha-icon { color: var(--ec-a6e2c7) !important; }
+                      ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                      ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
               - type: markdown
                 content: |-
                   {% set s = states('sensor.ennie_laadkosten_periode') %}
@@ -4629,7 +4647,7 @@ views:
                   {% set priced = kwh - missing %}
                   <div align="center" class="ennie-metric" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%">
                     <div align="center" class="ennie-metric-label" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ec-a6e2c7);font-size:13px"><ha-icon style="color:var(--ec-a6e2c7)" icon="mdi:flash"></ha-icon> <font color="#a6e2c7">Gemiddelde stroomprijs</font></div>
-                    <div align="center" class="ennie-metric-value" style="color:#fff;font-size:27px;font-weight:750;line-height:1.2">{{ ('%.3f' | format((cost / priced) if priced > 0 else 0) | replace('.', ',')) ~ ' €/kWh' if ready else 'Bezig met bijwerken…' }}</div>
+                    <div align="center" class="ennie-metric-value" style="color:var(--ec-ffffff);font-size:27px;font-weight:750;line-height:1.2">{{ ('%.3f' | format((cost / priced) if priced > 0 else 0) | replace('.', ',')) ~ ' €/kWh' if ready else 'Bezig met bijwerken…' }}</div>
                   </div>
                 card_mod:
                   style:
@@ -4646,7 +4664,7 @@ views:
                         align-items: center !important;
                         justify-content: center !important;
                         overflow: hidden !important;
-                        color: white !important;
+                        color: var(--ec-ffffff) !important;
                       }
                       ha-card .card-content {
                         width: 100% !important;
@@ -4666,7 +4684,7 @@ views:
                       .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                       .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                       .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                      .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                      .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                       .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -4674,6 +4692,10 @@ views:
                       font[color="#50df90"] { color: var(--ec-50df90) !important; }
                       font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                       font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                      ha-icon { color: var(--ec-a6e2c7) !important; }
+                      ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                      ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
               - type: markdown
                 content: |-
                   {% set s = states('sensor.ennie_laadkosten_periode') %}
@@ -4688,7 +4710,7 @@ views:
                   {% set priced = kwh - missing %}
                   <div align="center" class="ennie-metric" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%">
                     <div align="center" class="ennie-metric-label" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ec-a6e2c7);font-size:13px"><ha-icon style="color:var(--ec-a6e2c7)" icon="mdi:alert-circle-outline"></ha-icon> <font color="#a6e2c7">Zonder historische prijs</font></div>
-                    <div align="center" class="ennie-metric-value" style="color:#fff;font-size:27px;font-weight:750;line-height:1.2">{{ ('%.1f' | format(missing) | replace('.', ',')) ~ ' kWh' if ready else 'Bezig met bijwerken…' }}</div>
+                    <div align="center" class="ennie-metric-value" style="color:var(--ec-ffffff);font-size:27px;font-weight:750;line-height:1.2">{{ ('%.1f' | format(missing) | replace('.', ',')) ~ ' kWh' if ready else 'Bezig met bijwerken…' }}</div>
                   </div>
                 card_mod:
                   style:
@@ -4705,7 +4727,7 @@ views:
                         align-items: center !important;
                         justify-content: center !important;
                         overflow: hidden !important;
-                        color: white !important;
+                        color: var(--ec-ffffff) !important;
                       }
                       ha-card .card-content {
                         width: 100% !important;
@@ -4725,7 +4747,7 @@ views:
                       .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                       .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                       .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                      .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                      .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                       .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -4733,6 +4755,10 @@ views:
                       font[color="#50df90"] { color: var(--ec-50df90) !important; }
                       font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                       font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                      ha-icon { color: var(--ec-a6e2c7) !important; }
+                      ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                      ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
               card_mod:
                 style:
                   hui-grid-card$: ':host { --grid-card-gap: 8px !important; } #root { gap: 8px !important; row-gap: 8px !important; column-gap: 8px !important; }'
@@ -4751,12 +4777,12 @@ views:
                   <div style="display:flex;justify-content:space-around;align-items:center;gap:12px;width:100%">
                     <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
                       <div style="display:flex;align-items:center;gap:7px;color:var(--ec-50df90);font-size:14px"><ha-icon icon="mdi:home-lightning-bolt" style="color:var(--ec-50df90)"></ha-icon> <font color="#50df90">Geladen thuis</font></div>
-                      <div style="color:#fff;font-size:clamp(20px,2.2vw,27px);font-weight:750;line-height:1.2">{{ ('%.1f' | format(thuis) | replace('.', ',')) ~ ' kWh' if ready else 'Bezig met bijwerken…' }}</div>
+                      <div style="color:var(--ec-ffffff);font-size:clamp(20px,2.2vw,27px);font-weight:750;line-height:1.2">{{ ('%.1f' | format(thuis) | replace('.', ',')) ~ ' kWh' if ready else 'Bezig met bijwerken…' }}</div>
                     </div>
                     <div style="width:1px;align-self:stretch;background:var(--ec-175a47)"></div>
                     <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
                       <div style="display:flex;align-items:center;gap:7px;color:var(--ec-559bd5);font-size:14px"><ha-icon icon="mdi:map-marker-radius" style="color:var(--ec-559bd5)"></ha-icon> <font color="#559bd5">Geladen extern</font></div>
-                      <div style="color:#fff;font-size:clamp(20px,2.2vw,27px);font-weight:750;line-height:1.2">{{ ('%.1f' | format(ext) | replace('.', ',')) ~ ' kWh' if ready else 'Bezig met bijwerken…' }}</div>
+                      <div style="color:var(--ec-ffffff);font-size:clamp(20px,2.2vw,27px);font-weight:750;line-height:1.2">{{ ('%.1f' | format(ext) | replace('.', ',')) ~ ' kWh' if ready else 'Bezig met bijwerken…' }}</div>
                     </div>
                   </div>
                   {% if ready and tot > 0 %}
@@ -4781,7 +4807,7 @@ views:
                       align-items: center !important;
                       justify-content: center !important;
                       overflow: hidden !important;
-                      color: white !important;
+                      color: var(--ec-ffffff) !important;
                     }
                     ha-card .card-content {
                       width: 100% !important;
@@ -4799,7 +4825,7 @@ views:
                     .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                     .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                     .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                    .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                    .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                     .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -4807,6 +4833,10 @@ views:
                     font[color="#50df90"] { color: var(--ec-50df90) !important; }
                     font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                     font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                    ha-icon { color: var(--ec-a6e2c7) !important; }
+                    ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                    ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
             - type: grid
               columns: 2
               square: false
@@ -4819,7 +4849,7 @@ views:
                   {% set v = states('sensor.ere_opbrengst_tot_nu_toe') %}
                   <div align="center" class="ennie-metric" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%">
                     <div align="center" class="ennie-metric-label" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ec-a6e2c7);font-size:13px"><ha-icon style="color:var(--ec-a6e2c7)" icon="mdi:certificate"></ha-icon> <font color="#a6e2c7">ERE opbrengst tot nu toe</font></div>
-                    <div align="center" class="ennie-metric-value" style="color:#fff;font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(v | float) | replace('.', ',')) if is_number(v) else '—' }}</div>
+                    <div align="center" class="ennie-metric-value" style="color:var(--ec-ffffff);font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(v | float) | replace('.', ',')) if is_number(v) else '—' }}</div>
                   </div>
                 card_mod:
                   style:
@@ -4836,7 +4866,7 @@ views:
                         align-items: center !important;
                         justify-content: center !important;
                         overflow: hidden !important;
-                        color: white !important;
+                        color: var(--ec-ffffff) !important;
                       }
                       ha-card .card-content {
                         width: 100% !important;
@@ -4859,7 +4889,7 @@ views:
                       .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                       .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                       .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                      .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                      .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                       .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -4867,12 +4897,16 @@ views:
                       font[color="#50df90"] { color: var(--ec-50df90) !important; }
                       font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                       font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                      ha-icon { color: var(--ec-a6e2c7) !important; }
+                      ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                      ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
               - type: markdown
                 content: |-
                   {% set v = states('sensor.ere_verwachte_opbrengst_dit_jaar') %}
                   <div align="center" class="ennie-metric" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%">
                     <div align="center" class="ennie-metric-label" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ec-a6e2c7);font-size:13px"><ha-icon style="color:var(--ec-a6e2c7)" icon="mdi:cash-clock"></ha-icon> <font color="#a6e2c7">ERE verwacht {{ now().year }}</font></div>
-                    <div align="center" class="ennie-metric-value" style="color:#fff;font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(v | float) | replace('.', ',')) if is_number(v) else '—' }}</div>
+                    <div align="center" class="ennie-metric-value" style="color:var(--ec-ffffff);font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(v | float) | replace('.', ',')) if is_number(v) else '—' }}</div>
                   </div>
                 card_mod:
                   style:
@@ -4889,7 +4923,7 @@ views:
                         align-items: center !important;
                         justify-content: center !important;
                         overflow: hidden !important;
-                        color: white !important;
+                        color: var(--ec-ffffff) !important;
                       }
                       ha-card .card-content {
                         width: 100% !important;
@@ -4912,7 +4946,7 @@ views:
                       .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                       .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                       .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                      .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                      .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                       .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -4920,6 +4954,10 @@ views:
                       font[color="#50df90"] { color: var(--ec-50df90) !important; }
                       font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                       font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                      ha-icon { color: var(--ec-a6e2c7) !important; }
+                      ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                      ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
             - type: markdown
               content: |-
                 {% set s = states('sensor.ennie_laadkosten_periode') %}
@@ -4932,7 +4970,7 @@ views:
                 {% set employer = a | sum(attribute='vergoeding') %}
                 {% set missing = state_attr('sensor.ennie_laadkosten_periode', 'kwh_zonder_prijs') | float(0) %}
                 {% set priced = kwh - missing %}
-                <div class="ennie-table-title" style="display:flex;align-items:center;justify-content:flex-start;gap:10px;color:#fff;font-size:19px;font-weight:700;margin-bottom:28px"><ha-icon icon="mdi:table-large"; margin-bottom:28px></ha-icon> Kosten per dag</div>
+                <div class="ennie-table-title" style="display:flex;align-items:center;justify-content:flex-start;gap:10px;color:var(--ec-ffffff);font-size:19px;font-weight:700;margin-bottom:28px"><ha-icon icon="mdi:table-large"; margin-bottom:28px></ha-icon> Kosten per dag</div>
 
                 {% if not ready %}
                 *Gegevens worden bijgewerkt…*
@@ -4977,7 +5015,7 @@ views:
                     ha-card .card-content { padding: 18px 18px !important; text-align: left !important; overflow-x: auto !important; }
                   ha-markdown$: |
                     .markdown { text-align: left !important; width: 100% !important; }
-                    .ennie-table-title { display: flex !important; align-items: center !important; justify-content: flex-start !important; gap: 10px !important; font-size: 19px !important; font-weight: 700 !important; margin-bottom: 12px !important; color: #fff !important; }
+                    .ennie-table-title { display: flex !important; align-items: center !important; justify-content: flex-start !important; gap: 10px !important; font-size: 19px !important; font-weight: 700 !important; margin-bottom: 12px !important; color: var(--ec-ffffff) !important; }
                     .ennie-table-title ha-icon { color: var(--ec-40e697) !important; --mdc-icon-size: 23px; }
                     table { width: 100% !important; min-width: 650px !important; margin: 0 !important; border-collapse: collapse !important; font-size: 13px !important; color: var(--ec-f1fff8) !important; }
                     thead, thead tr, th { background: var(--ec-103d30) !important; }
@@ -4999,6 +5037,10 @@ views:
                     font[color="#50df90"] { color: var(--ec-50df90) !important; }
                     font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                     font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                    ha-icon { color: var(--ec-a6e2c7) !important; }
+                    ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                    ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
             - type: markdown
               content: '**Let op:** historische kosten zijn een benadering. Voor uren zonder stroomprijs tellen de kWh en werkgeversvergoeding wel mee, maar de kosten niet. Controleer daarom **Zonder historische prijs** voordat je bedragen gebruikt. De periodeknoppen selecteren afgesloten kalenderperioden (maandag–zondag, vorige kalendermaand of vorig kalenderjaar).'
               card_mod:
@@ -5830,7 +5872,7 @@ views:
               .km-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;}
               .km-title{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ec-a6e2c7);}
               .km-title ha-icon{--mdc-icon-size:18px;color:var(--ec-50df90);}
-              .km-total{font-size:clamp(22px,2.2vw,28px);font-weight:750;color:#fff;line-height:1.2;}
+              .km-total{font-size:clamp(22px,2.2vw,28px);font-weight:750;color:var(--ec-ffffff);line-height:1.2;}
               .km-prog{text-align:right;}
               .km-progv{font-size:16px;font-weight:650;}
               .km-sub{font-size:11px;font-weight:400;color:var(--ec-a6c5b9);}
@@ -6489,7 +6531,7 @@ views:
                 {% set priced = kwh - missing %}
                 <div align="center" class="ennie-metric" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%">
                   <div align="center" class="ennie-metric-label" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ec-a6e2c7);font-size:13px"><ha-icon style="color:var(--ec-a6e2c7)" icon="mdi:ev-station"></ha-icon> <font color="#a6e2c7">Geladen</font></div>
-                  <div align="center" class="ennie-metric-value" style="color:#fff;font-size:27px;font-weight:750;line-height:1.2">{{ ('%.1f' | format(kwh) | replace('.', ',')) ~ ' kWh' if ready else 'Bezig met bijwerken…' }}</div>
+                  <div align="center" class="ennie-metric-value" style="color:var(--ec-ffffff);font-size:27px;font-weight:750;line-height:1.2">{{ ('%.1f' | format(kwh) | replace('.', ',')) ~ ' kWh' if ready else 'Bezig met bijwerken…' }}</div>
                 </div>
               card_mod:
                 style:
@@ -6505,7 +6547,7 @@ views:
                       align-items: center !important;
                       justify-content: center !important;
                       overflow: hidden !important;
-                      color: white !important;
+                      color: var(--ec-ffffff) !important;
                     }
                     ha-card .card-content {
                       width: 100% !important;
@@ -6523,7 +6565,7 @@ views:
                     .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                     .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                     .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                    .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                    .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                     .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -6531,6 +6573,10 @@ views:
                     font[color="#50df90"] { color: var(--ec-50df90) !important; }
                     font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                     font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                    ha-icon { color: var(--ec-a6e2c7) !important; }
+                    ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                    ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
             - type: markdown
               content: |-
                 {% set s = states('sensor.ennie_laadkosten_periode') %}
@@ -6545,7 +6591,7 @@ views:
                 {% set priced = kwh - missing %}
                 <div align="center" class="ennie-metric" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%">
                   <div align="center" class="ennie-metric-label" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ec-a6e2c7);font-size:13px"><ha-icon style="color:var(--ec-a6e2c7)" icon="mdi:currency-eur"></ha-icon> <font color="#a6e2c7">Laadkosten</font></div>
-                  <div align="center" class="ennie-metric-value" style="color:#fff;font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(cost) | replace('.', ',')) if ready else 'Bezig met bijwerken…' }}</div>
+                  <div align="center" class="ennie-metric-value" style="color:var(--ec-ffffff);font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(cost) | replace('.', ',')) if ready else 'Bezig met bijwerken…' }}</div>
                 </div>
               card_mod:
                 style:
@@ -6561,7 +6607,7 @@ views:
                       align-items: center !important;
                       justify-content: center !important;
                       overflow: hidden !important;
-                      color: white !important;
+                      color: var(--ec-ffffff) !important;
                     }
                     ha-card .card-content {
                       width: 100% !important;
@@ -6579,7 +6625,7 @@ views:
                     .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                     .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                     .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                    .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                    .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                     .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -6587,6 +6633,10 @@ views:
                     font[color="#50df90"] { color: var(--ec-50df90) !important; }
                     font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                     font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                    ha-icon { color: var(--ec-a6e2c7) !important; }
+                    ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                    ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
             - type: markdown
               content: |-
                 {% set s = states('sensor.ennie_laadkosten_periode') %}
@@ -6601,7 +6651,7 @@ views:
                 {% set priced = kwh - missing %}
                 <div align="center" class="ennie-metric" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%">
                   <div align="center" class="ennie-metric-label" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ec-a6e2c7);font-size:13px"><ha-icon style="color:var(--ec-a6e2c7)" icon="mdi:cash-plus"></ha-icon> <font color="#a6e2c7">Vergoeding werkgever</font></div>
-                  <div align="center" class="ennie-metric-value" style="color:#fff;font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(employer) | replace('.', ',')) if ready else 'Bezig met bijwerken…' }}</div>
+                  <div align="center" class="ennie-metric-value" style="color:var(--ec-ffffff);font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(employer) | replace('.', ',')) if ready else 'Bezig met bijwerken…' }}</div>
                 </div>
               card_mod:
                 style:
@@ -6617,7 +6667,7 @@ views:
                       align-items: center !important;
                       justify-content: center !important;
                       overflow: hidden !important;
-                      color: white !important;
+                      color: var(--ec-ffffff) !important;
                     }
                     ha-card .card-content {
                       width: 100% !important;
@@ -6635,7 +6685,7 @@ views:
                     .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                     .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                     .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                    .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                    .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                     .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -6643,12 +6693,16 @@ views:
                     font[color="#50df90"] { color: var(--ec-50df90) !important; }
                     font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                     font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                    ha-icon { color: var(--ec-a6e2c7) !important; }
+                    ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                    ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
             - type: markdown
               content: |-
                 {% set v = states('sensor.ere_opbrengst_tot_nu_toe') %}
                 <div align="center" class="ennie-metric" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%">
                   <div align="center" class="ennie-metric-label" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ec-a6e2c7);font-size:13px"><ha-icon style="color:var(--ec-a6e2c7)" icon="mdi:certificate"></ha-icon> <font color="#a6e2c7">ERE opbrengst tot nu toe</font></div>
-                  <div align="center" class="ennie-metric-value" style="color:#fff;font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(v | float) | replace('.', ',')) if is_number(v) else '—' }}</div>
+                  <div align="center" class="ennie-metric-value" style="color:var(--ec-ffffff);font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(v | float) | replace('.', ',')) if is_number(v) else '—' }}</div>
                 </div>
               card_mod:
                 style:
@@ -6664,7 +6718,7 @@ views:
                       align-items: center !important;
                       justify-content: center !important;
                       overflow: hidden !important;
-                      color: white !important;
+                      color: var(--ec-ffffff) !important;
                     }
                     ha-card .card-content {
                       width: 100% !important;
@@ -6682,7 +6736,7 @@ views:
                     .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                     .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                     .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                    .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                    .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                     .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -6690,6 +6744,10 @@ views:
                     font[color="#50df90"] { color: var(--ec-50df90) !important; }
                     font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                     font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                    ha-icon { color: var(--ec-a6e2c7) !important; }
+                    ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                    ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
             - type: markdown
               content: |-
                 {% set s = states('sensor.ennie_laadkosten_periode') %}
@@ -6704,7 +6762,7 @@ views:
                 {% set priced = kwh - missing %}
                 <div align="center" class="ennie-metric" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%">
                   <div align="center" class="ennie-metric-label" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ec-a6e2c7);font-size:13px"><ha-icon style="color:var(--ec-a6e2c7)" icon="mdi:chart-line"></ha-icon> <font color="#a6e2c7">Verschil</font></div>
-                  <div align="center" class="ennie-metric-value" style="color:#fff;font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(employer - cost) | replace('.', ',')) if ready else 'Bezig met bijwerken…' }}</div>
+                  <div align="center" class="ennie-metric-value" style="color:var(--ec-ffffff);font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(employer - cost) | replace('.', ',')) if ready else 'Bezig met bijwerken…' }}</div>
                 </div>
               card_mod:
                 style:
@@ -6720,7 +6778,7 @@ views:
                       align-items: center !important;
                       justify-content: center !important;
                       overflow: hidden !important;
-                      color: white !important;
+                      color: var(--ec-ffffff) !important;
                     }
                     ha-card .card-content {
                       width: 100% !important;
@@ -6738,7 +6796,7 @@ views:
                     .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                     .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                     .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                    .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                    .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                     .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -6746,6 +6804,10 @@ views:
                     font[color="#50df90"] { color: var(--ec-50df90) !important; }
                     font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                     font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                    ha-icon { color: var(--ec-a6e2c7) !important; }
+                    ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                    ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
             - type: markdown
               content: |-
                 {% set s = states('sensor.ennie_laadkosten_periode') %}
@@ -6760,7 +6822,7 @@ views:
                 {% set priced = kwh - missing %}
                 <div align="center" class="ennie-metric" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%">
                   <div align="center" class="ennie-metric-label" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ec-a6e2c7);font-size:13px"><ha-icon style="color:var(--ec-a6e2c7)" icon="mdi:flash"></ha-icon> <font color="#a6e2c7">Gemiddelde stroomprijs</font></div>
-                  <div align="center" class="ennie-metric-value" style="color:#fff;font-size:27px;font-weight:750;line-height:1.2">{{ ('%.3f' | format((cost / priced) if priced > 0 else 0) | replace('.', ',')) ~ ' €/kWh' if ready else 'Bezig met bijwerken…' }}</div>
+                  <div align="center" class="ennie-metric-value" style="color:var(--ec-ffffff);font-size:27px;font-weight:750;line-height:1.2">{{ ('%.3f' | format((cost / priced) if priced > 0 else 0) | replace('.', ',')) ~ ' €/kWh' if ready else 'Bezig met bijwerken…' }}</div>
                 </div>
               card_mod:
                 style:
@@ -6776,7 +6838,7 @@ views:
                       align-items: center !important;
                       justify-content: center !important;
                       overflow: hidden !important;
-                      color: white !important;
+                      color: var(--ec-ffffff) !important;
                     }
                     ha-card .card-content {
                       width: 100% !important;
@@ -6794,7 +6856,7 @@ views:
                     .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                     .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                     .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                    .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                    .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                     .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -6802,6 +6864,10 @@ views:
                     font[color="#50df90"] { color: var(--ec-50df90) !important; }
                     font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                     font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                    ha-icon { color: var(--ec-a6e2c7) !important; }
+                    ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                    ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
             - type: markdown
               content: |-
                 {% set s = states('sensor.ennie_laadkosten_periode') %}
@@ -6816,7 +6882,7 @@ views:
                 {% set priced = kwh - missing %}
                 <div align="center" class="ennie-metric" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%">
                   <div align="center" class="ennie-metric-label" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ec-a6e2c7);font-size:13px"><ha-icon style="color:var(--ec-a6e2c7)" icon="mdi:alert-circle-outline"></ha-icon> <font color="#a6e2c7">Zonder historische prijs</font></div>
-                  <div align="center" class="ennie-metric-value" style="color:#fff;font-size:27px;font-weight:750;line-height:1.2">{{ ('%.1f' | format(missing) | replace('.', ',')) ~ ' kWh' if ready else 'Bezig met bijwerken…' }}</div>
+                  <div align="center" class="ennie-metric-value" style="color:var(--ec-ffffff);font-size:27px;font-weight:750;line-height:1.2">{{ ('%.1f' | format(missing) | replace('.', ',')) ~ ' kWh' if ready else 'Bezig met bijwerken…' }}</div>
                 </div>
               card_mod:
                 style:
@@ -6832,7 +6898,7 @@ views:
                       align-items: center !important;
                       justify-content: center !important;
                       overflow: hidden !important;
-                      color: white !important;
+                      color: var(--ec-ffffff) !important;
                     }
                     ha-card .card-content {
                       width: 100% !important;
@@ -6850,7 +6916,7 @@ views:
                     .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                     .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                     .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                    .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                    .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                     .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -6858,12 +6924,16 @@ views:
                     font[color="#50df90"] { color: var(--ec-50df90) !important; }
                     font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                     font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                    ha-icon { color: var(--ec-a6e2c7) !important; }
+                    ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                    ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
             - type: markdown
               content: |-
                 {% set v = states('sensor.ere_verwachte_opbrengst_dit_jaar') %}
                 <div align="center" class="ennie-metric" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%">
                   <div align="center" class="ennie-metric-label" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ec-a6e2c7);font-size:13px"><ha-icon style="color:var(--ec-a6e2c7)" icon="mdi:cash-clock"></ha-icon> <font color="#a6e2c7">ERE verwacht {{ now().year }}</font></div>
-                  <div align="center" class="ennie-metric-value" style="color:#fff;font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(v | float) | replace('.', ',')) if is_number(v) else '—' }}</div>
+                  <div align="center" class="ennie-metric-value" style="color:var(--ec-ffffff);font-size:27px;font-weight:750;line-height:1.2">{{ '€ ' ~ ('%.2f' | format(v | float) | replace('.', ',')) if is_number(v) else '—' }}</div>
                 </div>
               card_mod:
                 style:
@@ -6879,7 +6949,7 @@ views:
                       align-items: center !important;
                       justify-content: center !important;
                       overflow: hidden !important;
-                      color: white !important;
+                      color: var(--ec-ffffff) !important;
                     }
                     ha-card .card-content {
                       width: 100% !important;
@@ -6897,7 +6967,7 @@ views:
                     .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                     .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                     .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                    .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                    .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                     .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -6905,6 +6975,10 @@ views:
                     font[color="#50df90"] { color: var(--ec-50df90) !important; }
                     font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                     font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                    ha-icon { color: var(--ec-a6e2c7) !important; }
+                    ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                    ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
           - type: markdown
             content: |-
               {% set s = states('sensor.ennie_laadkosten_periode') %}
@@ -6920,12 +6994,12 @@ views:
                 <div style="display:flex;justify-content:space-around;align-items:center;gap:12px;width:100%">
                   <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
                     <div style="display:flex;align-items:center;gap:7px;color:var(--ec-50df90);font-size:14px"><ha-icon icon="mdi:home-lightning-bolt" style="color:var(--ec-50df90)"></ha-icon> <font color="#50df90">Geladen thuis</font></div>
-                    <div style="color:#fff;font-size:clamp(20px,2.2vw,27px);font-weight:750;line-height:1.2">{{ ('%.1f' | format(thuis) | replace('.', ',')) ~ ' kWh' if ready else 'Bezig met bijwerken…' }}</div>
+                    <div style="color:var(--ec-ffffff);font-size:clamp(20px,2.2vw,27px);font-weight:750;line-height:1.2">{{ ('%.1f' | format(thuis) | replace('.', ',')) ~ ' kWh' if ready else 'Bezig met bijwerken…' }}</div>
                   </div>
                   <div style="width:1px;align-self:stretch;background:var(--ec-175a47)"></div>
                   <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
                     <div style="display:flex;align-items:center;gap:7px;color:var(--ec-559bd5);font-size:14px"><ha-icon icon="mdi:map-marker-radius" style="color:var(--ec-559bd5)"></ha-icon> <font color="#559bd5">Geladen extern</font></div>
-                    <div style="color:#fff;font-size:clamp(20px,2.2vw,27px);font-weight:750;line-height:1.2">{{ ('%.1f' | format(ext) | replace('.', ',')) ~ ' kWh' if ready else 'Bezig met bijwerken…' }}</div>
+                    <div style="color:var(--ec-ffffff);font-size:clamp(20px,2.2vw,27px);font-weight:750;line-height:1.2">{{ ('%.1f' | format(ext) | replace('.', ',')) ~ ' kWh' if ready else 'Bezig met bijwerken…' }}</div>
                   </div>
                 </div>
                 {% if ready and tot > 0 %}
@@ -6950,7 +7024,7 @@ views:
                     align-items: center !important;
                     justify-content: center !important;
                     overflow: hidden !important;
-                    color: white !important;
+                    color: var(--ec-ffffff) !important;
                   }
                   ha-card .card-content {
                     width: 100% !important;
@@ -6968,7 +7042,7 @@ views:
                   .ennie-metric { width:100% !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; }
                   .ennie-metric-label { display:flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; text-align:center !important; color:var(--ec-40e697) !important; font-size:14px !important; }
                   .ennie-metric-label ha-icon { color:var(--ec-40e697) !important; --mdc-icon-size:19px; }
-                  .ennie-metric-value { text-align:center !important; color:#fff !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
+                  .ennie-metric-value { text-align:center !important; color:var(--ec-ffffff) !important; font-size:27px !important; font-weight:750 !important; line-height:1.2 !important; }
 
                   .ennie-metric-label, .ennie-metric-label font, .ennie-metric-label ha-icon { color:var(--ec-a6e2c7) !important; }
 
@@ -6976,6 +7050,10 @@ views:
                   font[color="#50df90"] { color: var(--ec-50df90) !important; }
                   font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                   font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                  ha-icon { color: var(--ec-a6e2c7) !important; }
+                  ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                  ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
           - type: markdown
             content: |-
               {% set s = states('sensor.ennie_laadkosten_periode') %}
@@ -6988,7 +7066,7 @@ views:
               {% set employer = a | sum(attribute='vergoeding') %}
               {% set missing = state_attr('sensor.ennie_laadkosten_periode', 'kwh_zonder_prijs') | float(0) %}
               {% set priced = kwh - missing %}
-              <div class="ennie-table-title" style="display:flex;align-items:center;justify-content:flex-start;gap:10px;color:#fff;font-size:19px;font-weight:700;margin-bottom:28px"><ha-icon icon="mdi:table-large"; margin-bottom:28px></ha-icon> Kosten per dag</div>
+              <div class="ennie-table-title" style="display:flex;align-items:center;justify-content:flex-start;gap:10px;color:var(--ec-ffffff);font-size:19px;font-weight:700;margin-bottom:28px"><ha-icon icon="mdi:table-large"; margin-bottom:28px></ha-icon> Kosten per dag</div>
 
               {% if not ready %}
               *Gegevens worden bijgewerkt…*
@@ -7033,7 +7111,7 @@ views:
                   ha-card .card-content { padding: 18px 18px !important; text-align: left !important; overflow-x: auto !important; }
                 ha-markdown$: |
                   .markdown { text-align: left !important; width: 100% !important; }
-                  .ennie-table-title { display: flex !important; align-items: center !important; justify-content: flex-start !important; gap: 10px !important; font-size: 19px !important; font-weight: 700 !important; margin-bottom: 12px !important; color: #fff !important; }
+                  .ennie-table-title { display: flex !important; align-items: center !important; justify-content: flex-start !important; gap: 10px !important; font-size: 19px !important; font-weight: 700 !important; margin-bottom: 12px !important; color: var(--ec-ffffff) !important; }
                   .ennie-table-title ha-icon { color: var(--ec-40e697) !important; --mdc-icon-size: 23px; }
                   table { width: 100% !important; min-width: 650px !important; margin: 0 !important; border-collapse: collapse !important; font-size: 13px !important; color: var(--ec-f1fff8) !important; }
                   thead, thead tr, th { background: var(--ec-103d30) !important; }
@@ -7055,6 +7133,10 @@ views:
                   font[color="#50df90"] { color: var(--ec-50df90) !important; }
                   font[color="#559bd5"] { color: var(--ec-559bd5) !important; }
                   font[color="#ff6b75"] { color: var(--ec-ff6b75) !important; }
+
+                  ha-icon { color: var(--ec-a6e2c7) !important; }
+                  ha-icon[icon="mdi:home-lightning-bolt"] { color: var(--ec-50df90) !important; }
+                  ha-icon[icon="mdi:map-marker-radius"] { color: var(--ec-559bd5) !important; }
           - type: markdown
             content: '**Let op:** historische kosten zijn een benadering. Voor uren zonder stroomprijs tellen de kWh en werkgeversvergoeding wel mee, maar de kosten niet. Controleer daarom **Zonder historische prijs** voordat je bedragen gebruikt. De periodeknoppen selecteren afgesloten kalenderperioden (maandag–zondag, vorige kalendermaand of vorig kalenderjaar).'
             card_mod:
