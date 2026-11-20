@@ -29,6 +29,7 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 
 ### Fixed
 
+- Charging overshot the maximum charge level when MySkoda sent no battery update for a long time (e.g. 96% instead of 90%). While charging at home, `sensor.ennie_accupercentage` is now estimated from the Zaptec session energy since the last MySkoda report; each new report resets the estimate. New helper `input_number.ennie_accucapaciteit` (net battery capacity, default 77 kWh).
 - "Resterende laadtijd" tile now shows the time to the dashboard maximum charge level (e.g. "1 u 22 min tot 90%"), scaled from the car's own estimate, which runs to the car's charge limit (usually 100%).
 - "Benodigd overschot" tile shows the actual assumed charging power (`sensor.ennie_laadvermogen_aanname`: measured power while charging, otherwise 3 × 230 V × the Zaptec max current) instead of a fixed "11 kW".
 
