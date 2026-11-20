@@ -6053,6 +6053,8 @@ views:
                   action: more-info
                 triggers_update:
                 - input_number.ennie_km_extra_zakelijk
+                - script.ennie_zakelijke_rit_registreren
+                - todo.ennie_zakelijke_ritten
                 styles:
                   card:
                   - 'height: 112px'
@@ -6118,6 +6120,8 @@ views:
                   navigation_path: ennie-ritten
                 triggers_update:
                 - todo.ennie_zakelijke_ritten
+                - script.ennie_zakelijke_rit_registreren
+                - input_number.ennie_km_extra_zakelijk
                 styles:
                   card:
                   - 'height: 112px'
@@ -8440,6 +8444,8 @@ views:
                 action: more-info
               triggers_update:
               - input_number.ennie_km_extra_zakelijk
+              - script.ennie_zakelijke_rit_registreren
+              - todo.ennie_zakelijke_ritten
               styles:
                 card:
                 - 'height: 112px'
@@ -8505,6 +8511,8 @@ views:
                 navigation_path: ennie-ritten
               triggers_update:
               - todo.ennie_zakelijke_ritten
+              - script.ennie_zakelijke_rit_registreren
+              - input_number.ennie_km_extra_zakelijk
               styles:
                 card:
                 - 'height: 112px'
