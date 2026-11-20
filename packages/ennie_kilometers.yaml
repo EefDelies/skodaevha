@@ -23,7 +23,7 @@
 # datum, km en opmerking. Bestaat de lijst niet, dan werkt de telling gewoon.
 # V1.5 Een handmatige rit (km, datum en opmerking in één keer) gaat via
 # script.ennie_zakelijke_rit_registreren; het dashboard opent daarvoor een
-# invulvenster (www/ennie-pdf-button.js, window.ennieRitPopup).
+# invulvenster (www/ennie-dashboard.js, window.ennieRitPopup).
 # ============================================================
 
 input_number:

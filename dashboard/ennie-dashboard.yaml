@@ -2,7 +2,7 @@
 # Import: create a new dashboard, open it, ⋮ > Edit dashboard > ⋮ > Raw configuration editor,
 # replace everything with this file and save.
 # Requires: button-card, card-mod, expander-card, apexcharts-card, datetime-picker-card
-# and www/ennie-pdf-button.js (see README).
+# and www/ennie-dashboard.js (see README).
 views:
 - title: Ennie
   path: ennie
