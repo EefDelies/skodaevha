@@ -53,15 +53,16 @@ input_number:
     mode: box
     unit_of_measurement: "EUR/kWh"
 
-  # V7.7: netto accucapaciteit, voor het bijschatten van het accupercentage.
-  # Andere auto? Pas "initial" aan (77 kWh = Enyaq 85).
+  # V7.7: netto (bruikbare) accucapaciteit, voor het bijschatten van het
+  # accupercentage tijdens het thuisladen. In te stellen op het dashboard
+  # (Instellingen); de waarde blijft bewaard na een herstart.
+  # Voorbeelden Skoda Enyaq: 60 = 59 kWh, 85/85x = 77 kWh. 0 = niet bijschatten.
   ennie_accucapaciteit:
     name: Ennie netto accucapaciteit
-    min: 20
+    min: 0
     max: 150
     step: 0.1
     mode: box
-    initial: 77
     unit_of_measurement: "kWh"
     icon: mdi:car-battery
 
@@ -107,14 +108,18 @@ template:
           sessie: "{{ states('sensor.oprit_zaptec_go2_totale_laadsessie') | float(0) }}"
           modus: "{{ states('sensor.oprit_zaptec_go2_opladermodus') }}"
           laden: "{{ modus == 'connected_charging' }}"
-          aangesloten: "{{ modus in ['connected_charging', 'connected_requesting', 'connected_finished'] }}"
+          # Geen capaciteit ingesteld (0)? Dan niet bijschatten: gewoon het Skoda-getal.
+          aangesloten: >
+            {{ states('input_number.ennie_accucapaciteit') | float(0) > 0
+               and modus in ['connected_charging', 'connected_requesting', 'connected_finished'] }}
           # "this" bestaat niet in de actions van een trigger-template: lees de
           # vorige basis daarom via state_attr
           vorige_basis_pct: "{{ state_attr('sensor.ennie_accupercentage', 'basis_percentage') }}"
           vorige_basis_kwh: "{{ state_attr('sensor.ennie_accupercentage', 'basis_sessie_kwh') }}"
           # 10% laadverlies: aan de lader ~0,86 kWh per procent bij 77 kWh netto
           # (gemeten op 20-11-2026: 0,84-0,88 kWh per procent)
-          kwh_per_procent: "{{ [states('input_number.ennie_accucapaciteit') | float(77), 20] | max / 0.90 / 100 }}"
+          capaciteit: "{{ states('input_number.ennie_accucapaciteit') | float(0) }}"
+          kwh_per_procent: "{{ [capaciteit, 10] | max / 0.90 / 100 }}"
           heeft_basis: >
             {{ is_number(vorige_basis_pct) and is_number(vorige_basis_kwh)
                and sessie >= vorige_basis_kwh | float(0) }}

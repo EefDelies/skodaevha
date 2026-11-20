@@ -166,6 +166,7 @@ All tariffs are set on the dashboard (section *Instellingen*) and kept as histor
 - **Vergoeding werkgever** – reimbursement per kWh from your employer
 - **Maximale all-in prijs** – charge when the all-in price is at or below this
 - **Maximaal laadpercentage** – charge limit for home charging
+- **Netto accucapaciteit** – usable battery capacity in kWh (Škoda Enyaq 60: 59 kWh, 85/85x: 77 kWh). Set this once after installing: it starts at 0, which turns off the battery estimate below. While charging at home, `sensor.ennie_accupercentage` adds the energy measured by the Zaptec since the last MySkoda report (assuming 10 % charging loss), so charging still stops at the limit when the car does not report for a long time. Each new report from the car resets the estimate.
 
 ## Privacy and security
 

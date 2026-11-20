@@ -10,6 +10,7 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 
 ### Added
 
+- "Netto accucapaciteit" tile in the settings section (mobile and desktop), with an info popup, so the battery estimate works for other battery packs.
 - Charger watchdog (`ennie_lader_bewaking`): when the car is home with the cable plugged in but the Zaptec reports "disconnected" for 5 minutes, send a notification and restart the Zaptec (at most once per 30 minutes; a second occurrence only notifies). Set `notify.mijn_telefoon` to your own phone.
 - "Kantoor locatie" settings tile (`input_select.ennie_kantoor_zone`): pick the office zone from a list that is filled automatically with all zones; office days are counted when the car enters that zone. The choice survives restarts.
 - `window.enniePopup(title, text)` in `www/ennie-pdf-button.js`: a theme-aware info pop-up for short instructions behind an i-icon on dashboard tiles (on "Automatisch laden", "Handmatig laden", "Maximaal laadpercentage", "Maximale all-in prijs", "Effectieve laadprijs", "Zonne-overschot", "Benodigd overschot", "Laden met zon" and the Kilometers card). Raise the resource to `?v=4`.
@@ -29,7 +30,7 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 
 ### Fixed
 
-- Charging overshot the maximum charge level when MySkoda sent no battery update for a long time (e.g. 96% instead of 90%). While charging at home, `sensor.ennie_accupercentage` is now estimated from the Zaptec session energy since the last MySkoda report; each new report resets the estimate. New helper `input_number.ennie_accucapaciteit` (net battery capacity, default 77 kWh).
+- Charging overshot the maximum charge level when MySkoda sent no battery update for a long time (e.g. 96% instead of 90%). While charging at home, `sensor.ennie_accupercentage` is now estimated from the Zaptec session energy since the last MySkoda report; each new report resets the estimate. Set the net battery capacity with the new helper `input_number.ennie_accucapaciteit`; at 0 (the default after install) no estimate is made.
 - "Resterende laadtijd" tile now shows the time to the dashboard maximum charge level (e.g. "1 u 22 min tot 90%"), scaled from the car's own estimate, which runs to the car's charge limit (usually 100%).
 - "Benodigd overschot" tile shows the actual assumed charging power (`sensor.ennie_laadvermogen_aanname`: measured power while charging, otherwise 3 × 230 V × the Zaptec max current) instead of a fixed "11 kW".
 
