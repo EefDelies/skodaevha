@@ -23,6 +23,7 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 
 ### Changed
 
+- Settings section split into framed groups, like the Laadkosten period cards: "Kosten en vergoeding energie" (energy tax, purchase fee, employer kWh fee, private excess km rate), "Algemeen" (battery capacity, lease start) and "Kilometer registratie" (km limits, office location and return distance, add trip, extra business km, trip register, office days). On mobile the groups are stacked inside the Instellingen expander.
 - Laadkosten home/external split: the note "extern geladen telt niet mee in kosten, vergoeding en ERE" moved from the tile into its info popup; the tile only shows the percentage split.
 - Smart charging uses the Zaptec stop/resume button entities instead of the deprecated `zaptec.stop_charging` / `zaptec.resume_charging` actions.
 - Hero card: at home, a plugged-in cable that the Zaptec does not see now shows "Lader ziet Ennie niet" instead of "Extern aangesloten".
