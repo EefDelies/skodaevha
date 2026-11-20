@@ -78,7 +78,9 @@ tests/test_calc.py                    tests for the cost calculation and the PDF
 
 4. **Dashboard** – create a new dashboard, open the raw configuration editor and paste the contents of `dashboard/ennie-dashboard.yaml`.
 
-5. Check the configuration and restart Home Assistant.
+5. **Business trip register** (optional) – add the *Local To-do* integration (Settings → Devices & services → Add integration) with the name `Ennie zakelijke ritten`, so the list becomes `todo.ennie_zakelijke_ritten`. Every office day and every business trip you add is written to it with date, km and remark. Without the list the km totals still work.
+
+6. Check the configuration and restart Home Assistant.
 
 ## Adapting to your own installation
 

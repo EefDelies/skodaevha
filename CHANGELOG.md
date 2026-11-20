@@ -10,6 +10,7 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 
 ### Added
 
+- Business trip register (`todo.ennie_zakelijke_ritten`, a Local To-do list): each counted office day is added as "<km> km · Automatisch woon- werkverkeer", and each manually added business trip with the remark typed in the new "Opmerking zakelijke rit" tile (`input_text.ennie_zakelijke_rit_opmerking`, cleared after use). New "Ritregister zakelijk" settings tile opens the list on a separate page (`ennie-ritten`). Editing the list does not change the km totals.
 - "Netto accucapaciteit" tile in the settings section (mobile and desktop), with an info popup, so the battery estimate works for other battery packs.
 - Charger watchdog (`ennie_lader_bewaking`): when the car is home with the cable plugged in but the Zaptec reports "disconnected" for 5 minutes, send a notification and restart the Zaptec (at most once per 30 minutes; a second occurrence only notifies). Set `notify.mijn_telefoon` to your own phone.
 - "Kantoor locatie" settings tile (`input_select.ennie_kantoor_zone`): pick the office zone from a list that is filled automatically with all zones; office days are counted when the car enters that zone. The choice survives restarts.

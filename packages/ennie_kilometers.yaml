@@ -1,5 +1,5 @@
 # ============================================================
-# ENNIE - KILOMETERS LEASEJAAR V1.3
+# ENNIE - KILOMETERS LEASEJAAR V1.4
 # Houdt per kalenderjaar de gereden kilometers bij, verdeeld in
 # zakelijk (kantoordagen x retourafstand + extra zakelijke km) en
 # privé (totaal - zakelijk), en vergelijkt ze met de leaselimieten.
@@ -16,6 +16,12 @@
 # aantal worden verrekend tegen het tarief per km; zakelijke km niet.
 # Bijbetalen = (privé gereden - privé toegestaan) x tarief, nu en op
 # basis van de prognose voor 31 december.
+#
+# V1.4 Ritregister: elke kantoordag en elke handmatig toegevoegde
+# zakelijke rit komt als regel in de takenlijst todo.ennie_zakelijke_ritten
+# (integratie 'Lokale takenlijst', naam 'Ennie zakelijke ritten'), met
+# datum, km en opmerking. Vul bij een handmatige rit eerst de opmerking
+# in en daarna de km. Bestaat de lijst niet, dan werkt de telling gewoon.
 # ============================================================
 
 input_number:
@@ -97,6 +103,13 @@ input_select:
     icon: mdi:map-marker-radius
 
 input_text:
+  # V1.4: opmerking voor de volgende handmatige zakelijke rit (eerst
+  # invullen, daarna de km). Wordt na het toevoegen weer leeggemaakt.
+  ennie_zakelijke_rit_opmerking:
+    name: Ennie opmerking zakelijke rit
+    max: 255
+    icon: mdi:comment-text-outline
+
   # Bewaart de gekozen kantoorzone over herstarts heen (automatisch).
   ennie_kantoor_zone_keuze:
     name: Ennie kantoor locatie (opgeslagen)
@@ -248,6 +261,9 @@ automation:
     actions:
       - variables:
           rit: "{{ trigger.to_state.state | float(0) }}"
+          opmerking: >
+            {% set o = states('input_text.ennie_zakelijke_rit_opmerking') | trim %}
+            {{ o if o not in ['', 'unknown', 'unavailable'] else 'Zakelijke rit' }}
       - action: input_number.set_value
         target:
           entity_id: input_number.ennie_km_extra_zakelijk
@@ -258,6 +274,21 @@ automation:
           entity_id: input_number.ennie_km_zakelijk_toevoegen
         data:
           value: 0
+      # V1.4: in het ritregister zetten en de opmerking leegmaken
+      - action: todo.add_item
+        continue_on_error: true
+        target:
+          entity_id: todo.ennie_zakelijke_ritten
+        data:
+          item: "{{ rit | round(0) | int }} km · {{ opmerking }}"
+          due_date: "{{ now().strftime('%Y-%m-%d') }}"
+          description: "Handmatig toegevoegd op {{ now().strftime('%d-%m-%Y %H:%M') }}"
+      - action: input_text.set_value
+        continue_on_error: true
+        target:
+          entity_id: input_text.ennie_zakelijke_rit_opmerking
+        data:
+          value: ""
 
   - id: ennie_kantoorzones_bijwerken
     alias: Ennie - Kantoorzones bijwerken
@@ -335,6 +366,16 @@ automation:
       - action: counter.increment
         target:
           entity_id: counter.ennie_kantoordagen
+      # V1.4: in het ritregister zetten
+      - action: todo.add_item
+        continue_on_error: true
+        target:
+          entity_id: todo.ennie_zakelijke_ritten
+        data:
+          item: >-
+            {{ states('input_number.ennie_km_kantoor_retour') | float(0) | round(0) | int }} km · Automatisch woon- werkverkeer
+          due_date: "{{ now().strftime('%Y-%m-%d') }}"
+          description: "Kantoordag: aangekomen bij {{ states('input_select.ennie_kantoor_zone') }} om {{ now().strftime('%H:%M') }}"
 
   - id: ennie_km_nieuw_jaar
     alias: Ennie - Kilometers nieuw leasejaar
