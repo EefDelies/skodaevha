@@ -13,7 +13,7 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 - "Netto accucapaciteit" tile in the settings section (mobile and desktop), with an info popup, so the battery estimate works for other battery packs.
 - Charger watchdog (`ennie_lader_bewaking`): when the car is home with the cable plugged in but the Zaptec reports "disconnected" for 5 minutes, send a notification and restart the Zaptec (at most once per 30 minutes; a second occurrence only notifies). Set `notify.mijn_telefoon` to your own phone.
 - "Kantoor locatie" settings tile (`input_select.ennie_kantoor_zone`): pick the office zone from a list that is filled automatically with all zones; office days are counted when the car enters that zone. The choice survives restarts.
-- `window.enniePopup(title, text)` in `www/ennie-pdf-button.js`: a theme-aware info pop-up for short instructions behind an i-icon on dashboard tiles (on "Automatisch laden", "Handmatig laden", "Maximaal laadpercentage", "Maximale all-in prijs", "Effectieve laadprijs", "Zonne-overschot", "Benodigd overschot", "Laden met zon", the Kilometers card and every tile in the settings section). Raise the resource to `?v=4`.
+- `window.enniePopup(title, text)` in `www/ennie-pdf-button.js`: a theme-aware info pop-up for short instructions behind an i-icon on dashboard tiles (on "Automatisch laden", "Handmatig laden", "Maximaal laadpercentage", "Maximale all-in prijs", "Effectieve laadprijs", "Zonne-overschot", "Benodigd overschot", "Laden met zon", the Kilometers card, the home/external split in Laadkosten and every tile in the settings section). Raise the resource to `?v=4`.
 - Kilometers card (desktop and mobile): kilometres driven this lease year split into private and business, each against the limit prorated over the days since the lease start, with schedule marker, year-end forecast and remaining km per week.
 - `packages/ennie_kilometers.yaml`: helpers for limits, office round-trip distance, extra business km and lease start date; office-day counter driven by entering the chosen office zone; automatic reset on 1 January.
 - Settings tiles for the kilometer limits, office round trip, extra business km, office-day counter and lease start date.
@@ -22,6 +22,7 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 
 ### Changed
 
+- Laadkosten home/external split: the note "extern geladen telt niet mee in kosten, vergoeding en ERE" moved from the tile into its info popup; the tile only shows the percentage split.
 - Smart charging uses the Zaptec stop/resume button entities instead of the deprecated `zaptec.stop_charging` / `zaptec.resume_charging` actions.
 - Hero card: at home, a plugged-in cable that the Zaptec does not see now shows "Lader ziet Ennie niet" instead of "Extern aangesloten".
 - Settings: tiles renamed to "Inkoopvergoeding stroom" , "kWh-vergoeding werkgever" and "Tarief overschrijding privékilometers".
