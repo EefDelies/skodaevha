@@ -323,6 +323,35 @@ automation:
         data:
           km: "{{ rit }}"
 
+  # V1.5: het ritregister is een logboek, geen takenlijst. Een per ongeluk
+  # afgevinkte rit wordt meteen weer teruggezet, zodat hij zichtbaar blijft.
+  - id: ennie_ritregister_vinkje_terugzetten
+    alias: Ennie - Ritregister afgevinkte rit terugzetten
+    description: Zet afgevinkte ritten in het ritregister direct terug naar open.
+    mode: queued
+    triggers:
+      - trigger: state
+        entity_id: todo.ennie_zakelijke_ritten
+        not_to:
+          - unknown
+          - unavailable
+    actions:
+      - action: todo.get_items
+        target:
+          entity_id: todo.ennie_zakelijke_ritten
+        data:
+          status: completed
+        response_variable: lijst
+      - repeat:
+          for_each: "{{ lijst['todo.ennie_zakelijke_ritten']['items'] | map(attribute='uid') | list }}"
+          sequence:
+            - action: todo.update_item
+              target:
+                entity_id: todo.ennie_zakelijke_ritten
+              data:
+                item: "{{ repeat.item }}"
+                status: needs_action
+
   - id: ennie_kantoorzones_bijwerken
     alias: Ennie - Kantoorzones bijwerken
     description: >-
