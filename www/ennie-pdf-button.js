@@ -115,3 +115,99 @@ window.enniePopup = (title, text) => {
   document.addEventListener('keydown', onKey);
   document.body.appendChild(overlay);
 };
+
+/* Ennie zakelijke rit: window.ennieRitPopup(hass).
+ * Eén venster voor datum, kilometers en opmerking. Roept het script
+ * script.ennie_zakelijke_rit_registreren aan (pakket ennie_kilometers).
+ */
+window.ennieRitPopup = (hass) => {
+  document.getElementById('ennie-rit-popup')?.remove();
+  const pad = (n) => String(n).padStart(2, '0');
+  const d = new Date();
+  const vandaag = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const overlay = document.createElement('div');
+  overlay.id = 'ennie-rit-popup';
+  overlay.innerHTML = `
+    <style>
+      #ennie-rit-popup { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center;
+        justify-content: center; padding: 16px; box-sizing: border-box; background: rgba(0, 0, 0, .45);
+        font-family: var(--primary-font-family, sans-serif); }
+      #ennie-rit-popup .ep-panel { width: 100%; max-width: 440px; max-height: 90vh; overflow: auto; box-sizing: border-box;
+        background: var(--card-background-color, #fff); color: var(--primary-text-color, #13281f);
+        border: 1px solid color-mix(in srgb, #2fae74 45%, transparent); border-radius: 17px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, .35); padding: 18px 20px; }
+      #ennie-rit-popup .ep-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+      #ennie-rit-popup .ep-head ha-icon { --mdc-icon-size: 22px; color: #2fae74; flex: none; }
+      #ennie-rit-popup .ep-title { flex: 1; font-size: 16px; font-weight: 700; }
+      #ennie-rit-popup .ep-close { border: 0; background: transparent; color: var(--secondary-text-color, #555);
+        font-size: 22px; line-height: 1; cursor: pointer; padding: 4px 6px; }
+      #ennie-rit-popup label { display: block; margin: 10px 0 4px; font-size: 13px; font-weight: 600;
+        color: var(--secondary-text-color, #555); }
+      #ennie-rit-popup input { width: 100%; box-sizing: border-box; height: 42px; padding: 8px 12px;
+        border-radius: 10px; border: 1px solid color-mix(in srgb, var(--primary-text-color, #13281f) 25%, transparent);
+        background: var(--secondary-background-color, #f3f6f4); color: var(--primary-text-color, #13281f);
+        font: 16px var(--primary-font-family, sans-serif); color-scheme: light dark; }
+      #ennie-rit-popup input:focus { outline: 2px solid #2fae74; outline-offset: 0; }
+      #ennie-rit-popup .ep-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      #ennie-rit-popup .ep-msg { min-height: 18px; margin-top: 10px; font-size: 13px; }
+      #ennie-rit-popup .ep-msg.fout { color: #e5484d; }
+      #ennie-rit-popup .ep-msg.ok { color: #2fae74; }
+      #ennie-rit-popup .ep-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+      #ennie-rit-popup .ep-actions button { height: 40px; padding: 0 18px; border-radius: 12px; cursor: pointer;
+        font: 600 14px var(--primary-font-family, sans-serif); }
+      #ennie-rit-popup .ep-cancel { border: 1px solid color-mix(in srgb, var(--primary-text-color, #13281f) 25%, transparent);
+        background: transparent; color: var(--primary-text-color, #13281f); }
+      #ennie-rit-popup .ep-add { border: 0; background: #2fae74; color: #fff; }
+      #ennie-rit-popup .ep-add:disabled { opacity: .6; cursor: wait; }
+    </style>
+    <form class="ep-panel" role="dialog" aria-modal="true" novalidate>
+      <div class="ep-head"><ha-icon icon="mdi:briefcase-plus-outline"></ha-icon>
+        <div class="ep-title">Zakelijke rit toevoegen</div>
+        <button class="ep-close" type="button" aria-label="Sluiten">&times;</button></div>
+      <div class="ep-row">
+        <div><label for="ep-km">Kilometers</label>
+          <input id="ep-km" type="number" inputmode="numeric" min="1" max="5000" step="1" placeholder="bijv. 45"></div>
+        <div><label for="ep-datum">Datum</label>
+          <input id="ep-datum" type="date" value="${vandaag}" max="${vandaag}"></div>
+      </div>
+      <label for="ep-opm">Opmerking</label>
+      <input id="ep-opm" type="text" maxlength="200" placeholder="bijv. Klantbezoek Utrecht">
+      <div class="ep-msg"></div>
+      <div class="ep-actions">
+        <button class="ep-cancel" type="button">Annuleren</button>
+        <button class="ep-add" type="submit">Toevoegen</button>
+      </div>
+    </form>`;
+  const form = overlay.querySelector('form');
+  const km = overlay.querySelector('#ep-km');
+  const datum = overlay.querySelector('#ep-datum');
+  const opm = overlay.querySelector('#ep-opm');
+  const msg = overlay.querySelector('.ep-msg');
+  const add = overlay.querySelector('.ep-add');
+  const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
+  const onKey = (e) => { if (e.key === 'Escape') close(); };
+  const toon = (t, cls) => { msg.textContent = t; msg.className = `ep-msg ${cls}`; };
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  overlay.querySelector('.ep-close').addEventListener('click', close);
+  overlay.querySelector('.ep-cancel').addEventListener('click', close);
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const n = Math.round(Number(km.value));
+    if (!Number.isFinite(n) || n < 1 || n > 5000) { toon('Vul het aantal kilometers in (1 tot 5000).', 'fout'); km.focus(); return; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(datum.value) || datum.value > vandaag) { toon('Kies een datum tot en met vandaag.', 'fout'); datum.focus(); return; }
+    add.disabled = true;
+    toon('Bezig met toevoegen…', '');
+    try {
+      await hass.callService('script', 'ennie_zakelijke_rit_registreren',
+        { km: n, datum: datum.value, opmerking: opm.value.trim() });
+      toon(`${n} km toegevoegd.`, 'ok');
+      setTimeout(close, 900);
+    } catch (err) {
+      add.disabled = false;
+      toon(`Toevoegen mislukt: ${err?.message || err}`, 'fout');
+    }
+  });
+  document.addEventListener('keydown', onKey);
+  document.body.appendChild(overlay);
+  setTimeout(() => km.focus(), 50);
+};

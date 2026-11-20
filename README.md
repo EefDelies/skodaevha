@@ -74,11 +74,11 @@ tests/test_calc.py                    tests for the cost calculation and the PDF
 
    Every `declaratie` field is optional. Fields you leave empty are left out of the PDF. Keep personal data in `secrets.yaml`, never in the repository.
 
-3. **Frontend files** – copy `www/ennie/` to `/config/www/ennie/` and `www/ennie-pdf-button.js` to `/config/www/`. Register the button as a dashboard resource (Settings → Dashboards → ⋮ → Resources): URL `/local/ennie-pdf-button.js?v=4`, type *JavaScript module*. Raise the `?v=` number whenever you update the file, otherwise browsers keep the old version.
+3. **Frontend files** – copy `www/ennie/` to `/config/www/ennie/` and `www/ennie-pdf-button.js` to `/config/www/`. Register the button as a dashboard resource (Settings → Dashboards → ⋮ → Resources): URL `/local/ennie-pdf-button.js?v=5`, type *JavaScript module*. Raise the `?v=` number whenever you update the file, otherwise browsers keep the old version.
 
 4. **Dashboard** – create a new dashboard, open the raw configuration editor and paste the contents of `dashboard/ennie-dashboard.yaml`.
 
-5. **Business trip register** (optional) – add the *Local To-do* integration (Settings → Devices & services → Add integration) with the name `Ennie zakelijke ritten`, so the list becomes `todo.ennie_zakelijke_ritten`. Every office day and every business trip you add is written to it with date, km and remark. Without the list the km totals still work.
+5. **Business trip register** (optional) – add the *Local To-do* integration (Settings → Devices & services → Add integration) with the name `Ennie zakelijke ritten`, so the list becomes `todo.ennie_zakelijke_ritten`. Every office day and every business trip you add is written to it with date, km and remark. Business trips are added with the "Zakelijke rit toevoegen" tile, which opens one form for km, date and remark (`window.ennieRitPopup` in `www/ennie-pdf-button.js`, calling `script.ennie_zakelijke_rit_registreren`). Without the list the km totals still work.
 
 6. Check the configuration and restart Home Assistant.
 
