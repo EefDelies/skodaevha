@@ -34,6 +34,7 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 
 ### Fixed
 
+- Settings tiles: on laptop-width screens long titles ran through the tile icon; titles now wrap within the space next to the icon.
 - "Extra zakelijke km (totaal)" and "Ritregister zakelijk" tiles did not refresh after adding a trip until the page was reloaded; they now also update on `script.ennie_zakelijke_rit_registreren`.
 - Charging overshot the maximum charge level when MySkoda sent no battery update for a long time (e.g. 96% instead of 90%). While charging at home, `sensor.ennie_accupercentage` is now estimated from the Zaptec session energy since the last MySkoda report; each new report resets the estimate. Set the net battery capacity with the new helper `input_number.ennie_accucapaciteit`; at 0 (the default after install) no estimate is made.
 - "Resterende laadtijd" tile now shows the time to the dashboard maximum charge level (e.g. "1 u 22 min tot 90%"), scaled from the car's own estimate, which runs to the car's charge limit (usually 100%).
