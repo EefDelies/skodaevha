@@ -8,6 +8,8 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-11-22
+
 ### Added
 
 - Business trip register (`todo.ennie_zakelijke_ritten`, a Local To-do list): each counted office day is added as "<km> km · Automatisch woon- werkverkeer". The "Zakelijke rit toevoegen" tile now opens one form for km, date and remark (`window.ennieRitPopup` in `www/ennie-dashboard.js`), handled by the new `script.ennie_zakelijke_rit_registreren`; trips dated in an earlier year are registered but not added to this year's total. New "Ritregister zakelijk" settings tile opens the list on a separate page (`ennie-ritten`). Editing the list does not change the km totals. A trip that is ticked off by accident is set back to open right away (`ennie_ritregister_vinkje_terugzetten`), so the register works as a log, not a to-do list.
@@ -54,6 +56,7 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 ### Added
 - First public release: Ennie dashboard, smart-charging and manual-charging packages, Nord Pool chart prices, ERE certificates and the `ennie_laadkosten` custom component with PDF expense claims.
 
-[Unreleased]: https://github.com/EefDelies/skodaevha/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/EefDelies/skodaevha/compare/v2.3.0...HEAD
+[2.3.0]: https://github.com/EefDelies/skodaevha/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/EefDelies/skodaevha/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/EefDelies/skodaevha/releases/tag/v2.1.0
