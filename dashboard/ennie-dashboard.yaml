@@ -4,7 +4,7 @@
 # Requires: button-card, card-mod, expander-card, apexcharts-card, datetime-picker-card
 # and www/ennie-dashboard.js (see README).
 views:
-- title: Ennie
+- title: Annie
   path: ennie
   icon: mdi:car-electric
   type: panel
@@ -596,10 +596,14 @@ views:
                               ha-state-icon { color: var(--ec-50df90) !important; }
 
                               /* ennie-info-ruimte: titel niet onder het i-icoon */
-                              .content { padding-inline-end: 26px !important; box-sizing: border-box !important; }
+                              .content, ha-tile-info, [slot="info"] { padding-inline-end: 28px !important; box-sizing: border-box !important; min-width: 0 !important; }
                             hui-card-features$: 'ha-card-features { --md-sys-color-primary: var(--ec-50df90); --md-slider-active-track-color: var(--ec-50df90); --md-slider-handle-color: var(--ec-50df90); }'
                             hui-numeric-input-card-feature$: 'ha-slider { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; --md-slider-inactive-track-color: var(--ec-23483d) !important; }'
                             hui-numeric-input-card-feature$ ha-slider$: ':host { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; }'
+                            ha-tile-info$: |2
+
+                              /* ennie-info-ruimte */
+                              .primary, .info { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
                         color: green
                     info: <ha-icon class="ennie-info" icon="mdi:information-outline" data-titel="Maximaal laadpercentage" data-tekst="Stel hier het maximale percentage in voor het laden, let op dat in de instellingen van de auto het percentage op 100% moet staan om homeassistant het maximum te laten bepalen." ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" onpointerdown="event.stopPropagation()" onpointerup="event.stopPropagation()" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()" onclick="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" style="display:block;padding:6px;z-index:3;--mdc-icon-size:18px;color:var(--ec-a6c5b9);cursor:pointer"></ha-icon>
                 - type: custom:button-card
@@ -666,9 +670,12 @@ views:
                               .features, .feature { margin-top: 0px !important; }
 
                               /* ennie-info-ruimte: titel niet onder het i-icoon */
-                              .content { padding-inline-end: 26px !important; box-sizing: border-box !important; }
+                              .content, ha-tile-info, [slot="info"] { padding-inline-end: 28px !important; box-sizing: border-box !important; min-width: 0 !important; }
                             ha-tile-info$: |
                               .secondary { display: none !important; }
+
+                              /* ennie-info-ruimte */
+                              .primary, .info { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
                     info: <ha-icon class="ennie-info" icon="mdi:information-outline" data-titel="Maximale all-in stroomprijs" data-tekst="Stel hier in wat de maximale all-in stroomprijs mag zijn voor het laden. Bij Solar overschot kan laden alsnog starten als de all-in prijs hoger is maar deze lager uitvalt door gebruik van stroomoverschot (in plaats van het terug te leveren aan het net)" ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" onpointerdown="event.stopPropagation()" onpointerup="event.stopPropagation()" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()" onclick="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" style="display:block;padding:6px;z-index:3;--mdc-icon-size:18px;color:var(--ec-a6c5b9);cursor:pointer"></ha-icon>
                 - type: custom:button-card
                   entity: sensor.ennie_stroomprijs_all_in
@@ -2333,10 +2340,14 @@ views:
                                 ha-state-icon { color: var(--ec-50df90) !important; }
 
                                 /* ennie-info-ruimte: titel niet onder het i-icoon */
-                                .content { padding-inline-end: 26px !important; box-sizing: border-box !important; }
+                                .content, ha-tile-info, [slot="info"] { padding-inline-end: 28px !important; box-sizing: border-box !important; min-width: 0 !important; }
                               hui-card-features$: 'ha-card-features { --md-sys-color-primary: var(--ec-50df90); --md-slider-active-track-color: var(--ec-50df90); --md-slider-handle-color: var(--ec-50df90); }'
                               hui-numeric-input-card-feature$: 'ha-slider { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; --md-slider-inactive-track-color: var(--ec-23483d) !important; }'
                               hui-numeric-input-card-feature$ ha-slider$: ':host { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; }'
+                              ha-tile-info$: |2
+
+                                /* ennie-info-ruimte */
+                                .primary, .info { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
                           color: green
                       info: <ha-icon class="ennie-info" icon="mdi:information-outline" data-titel="Maximaal laadpercentage" data-tekst="Stel hier het maximale percentage in voor het laden, let op dat in de instellingen van de auto het percentage op 100% moet staan om homeassistant het maximum te laten bepalen." ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" onpointerdown="event.stopPropagation()" onpointerup="event.stopPropagation()" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()" onclick="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" style="display:block;padding:6px;z-index:3;--mdc-icon-size:18px;color:var(--ec-a6c5b9);cursor:pointer"></ha-icon>
                   - type: custom:button-card
@@ -2403,9 +2414,12 @@ views:
                                 .features, .feature { margin-top: 0px !important; }
 
                                 /* ennie-info-ruimte: titel niet onder het i-icoon */
-                                .content { padding-inline-end: 26px !important; box-sizing: border-box !important; }
+                                .content, ha-tile-info, [slot="info"] { padding-inline-end: 28px !important; box-sizing: border-box !important; min-width: 0 !important; }
                               ha-tile-info$: |
                                 .secondary { display: none !important; }
+
+                                /* ennie-info-ruimte */
+                                .primary, .info { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
                       info: <ha-icon class="ennie-info" icon="mdi:information-outline" data-titel="Maximale all-in stroomprijs" data-tekst="Stel hier in wat de maximale all-in stroomprijs mag zijn voor het laden. Bij Solar overschot kan laden alsnog starten als de all-in prijs hoger is maar deze lager uitvalt door gebruik van stroomoverschot (in plaats van het terug te leveren aan het net)" ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" onpointerdown="event.stopPropagation()" onpointerup="event.stopPropagation()" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()" onclick="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" style="display:block;padding:6px;z-index:3;--mdc-icon-size:18px;color:var(--ec-a6c5b9);cursor:pointer"></ha-icon>
                   - type: custom:button-card
                     entity: sensor.ennie_stroomprijs_all_in
