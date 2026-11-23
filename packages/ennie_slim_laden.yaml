@@ -1,5 +1,5 @@
 # ============================================================
-# ENNIE - DYNAMISCH LADEN V7.7
+# ENNIE - DYNAMISCH LADEN V7.8
 # Nord Pool uurgemiddelde + NextEnergy + Zaptec Go 2 + MySkoda
 # V7: zonne-overschot telt mee in de laadprijs (overschot = gratis)
 # V7.1: geen spookoverschot bij insteken; stoppen zonder wachten op Skoda-laadkabel
@@ -11,9 +11,18 @@
 #       maar Zaptec ziet de auto niet): melding + automatische herstart
 # V7.7: accupercentage wordt tijdens thuisladen bijgeschat met de Zaptec-sessie-
 #       energie, zodat het laden ook stopt als MySkoda lang geen update geeft
+# V7.8: reserve-stop via de auto: is de Zaptec offline (hij laadt dan op eigen
+#       houtje op zijn reservestroom) en laadt Ennie thuis terwijl dat niet mag,
+#       dan stopt HA het laden via MySkoda (switch.skoda_enyaq_opladen). Zodra
+#       de Zaptec weer online is, of Ennie wegrijdt, wordt de schakelaar hersteld.
 # ============================================================
 
 input_boolean:
+  # V7.8: staat aan zolang HA het laden via de auto heeft gestopt
+  ennie_reserve_stop_actief:
+    name: Ennie reserve-stop via auto actief
+    icon: mdi:car-electric-outline
+
   ennie_automatisch_laden:
     name: Ennie automatisch laden
     icon: mdi:car-electric
@@ -670,6 +679,118 @@ automation:
   # Zaptec meldt al 5 minuten 'niet aangesloten'. Stuur een melding en herstart
   # de Zaptec (hooguit eens per 30 minuten). Werkt het daarna nog niet, dan
   # volgt alleen een melding om de stekker te controleren.
+  # ---------- V7.8: reserve-stop via de auto ----------
+  - id: ennie_reserve_stop_via_auto
+    alias: Ennie - Laden stoppen via auto als Zaptec offline is
+    description: >-
+      De Zaptec is offline en laadt dan op zijn reservestroom, buiten HA om.
+      Laadt Ennie thuis terwijl het niet mag (maximum bereikt, of geen
+      gunstige prijs/zon en niet handmatig), dan wordt het laden via MySkoda
+      gestopt.
+    mode: single
+    max_exceeded: silent
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.oprit_zaptec_go2_online
+        to: "off"
+        for: "00:05:00"
+      - trigger: state
+        entity_id: sensor.skoda_enyaq_laadstatus
+        to: charging
+      - trigger: time_pattern
+        minutes: "/5"
+    conditions:
+      - condition: state
+        entity_id: binary_sensor.oprit_zaptec_go2_online
+        state: "off"
+        for: "00:05:00"
+      - condition: state
+        entity_id: device_tracker.skoda_enyaq_skoda_enyaq
+        state: home
+      - condition: state
+        entity_id: sensor.skoda_enyaq_laadstatus
+        state: charging
+      - condition: state
+        entity_id: switch.skoda_enyaq_opladen
+        state: "on"
+      - condition: template
+        value_template: >
+          {% set soc = states('sensor.ennie_accupercentage') | float(0) %}
+          {% set maxp = states('input_number.ennie_max_laadpercentage') | float(100) %}
+          {% set mag = is_state('input_boolean.ennie_handmatig_laden', 'on')
+             or (is_state('input_boolean.ennie_automatisch_laden', 'on')
+                 and (is_state('binary_sensor.ennie_prijs_gunstig', 'on')
+                      or is_state('binary_sensor.ennie_zon_maakt_laden_gunstig', 'on'))) %}
+          {{ soc >= maxp or not mag }}
+    actions:
+      - variables:
+          reden: >
+            {% set soc = states('sensor.ennie_accupercentage') | float(0) %}
+            {% set maxp = states('input_number.ennie_max_laadpercentage') | float(100) %}
+            {{ 'het maximum van ' ~ (maxp | int) ~ '% is bereikt (' ~ (soc | int) ~ '%)'
+               if soc >= maxp else 'de stroomprijs is nu te hoog (€ '
+               ~ (states('sensor.ennie_stroomprijs_all_in') | float(0) | round(3) | string | replace('.', ',')) ~ ')' }}
+      - action: switch.turn_off
+        target:
+          entity_id: switch.skoda_enyaq_opladen
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.ennie_reserve_stop_actief
+      - action: notify.send_message
+        target:
+          entity_id: notify.mijn_telefoon
+        data:
+          title: "Ennie: laden gestopt via de auto"
+          message: >-
+            De Zaptec is offline en laadde op eigen houtje, maar {{ reden }}.
+            Het laden is via de auto gestopt. Zodra de Zaptec weer online is,
+            neemt het slimme laden het weer over.
+
+  - id: ennie_reserve_stop_herstellen
+    alias: Ennie - Reserve-stop via auto opheffen
+    description: >-
+      Zet het laden in de auto weer aan zodra de Zaptec weer online is of
+      Ennie wegrijdt/de kabel eruit gaat, zodat thuis en extern laden weer werkt.
+    mode: single
+    max_exceeded: silent
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.oprit_zaptec_go2_online
+        to: "on"
+        for: "00:02:00"
+      - trigger: state
+        entity_id: binary_sensor.skoda_enyaq_laadkabel
+        to: "off"
+      - trigger: state
+        entity_id: device_tracker.skoda_enyaq_skoda_enyaq
+        from: home
+      - trigger: time_pattern
+        minutes: "/15"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.ennie_reserve_stop_actief
+        state: "on"
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: binary_sensor.oprit_zaptec_go2_online
+            state: "on"
+          - condition: state
+            entity_id: binary_sensor.skoda_enyaq_laadkabel
+            state: "off"
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: device_tracker.skoda_enyaq_skoda_enyaq
+                state: home
+    actions:
+      - action: switch.turn_on
+        target:
+          entity_id: switch.skoda_enyaq_opladen
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.ennie_reserve_stop_actief
+
   # Pas notify.mijn_telefoon aan naar de notify-entiteit van je eigen telefoon.
   - id: ennie_lader_bewaking
     alias: Ennie - Lader ziet Ennie niet
