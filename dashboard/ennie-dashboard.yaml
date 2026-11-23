@@ -594,6 +594,9 @@ views:
                                 --md-slider-label-container-color: var(--ec-174c3f);
                               }
                               ha-state-icon { color: var(--ec-50df90) !important; }
+
+                              /* ennie-info-ruimte: titel niet onder het i-icoon */
+                              .content { padding-inline-end: 26px !important; box-sizing: border-box !important; }
                             hui-card-features$: 'ha-card-features { --md-sys-color-primary: var(--ec-50df90); --md-slider-active-track-color: var(--ec-50df90); --md-slider-handle-color: var(--ec-50df90); }'
                             hui-numeric-input-card-feature$: 'ha-slider { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; --md-slider-inactive-track-color: var(--ec-23483d) !important; }'
                             hui-numeric-input-card-feature$ ha-slider$: ':host { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; }'
@@ -661,6 +664,9 @@ views:
                               .content { gap: 0px !important; row-gap: 0px !important; }
                               ha-tile-info { margin-bottom: -7px !important; }
                               .features, .feature { margin-top: 0px !important; }
+
+                              /* ennie-info-ruimte: titel niet onder het i-icoon */
+                              .content { padding-inline-end: 26px !important; box-sizing: border-box !important; }
                             ha-tile-info$: |
                               .secondary { display: none !important; }
                     info: <ha-icon class="ennie-info" icon="mdi:information-outline" data-titel="Maximale all-in stroomprijs" data-tekst="Stel hier in wat de maximale all-in stroomprijs mag zijn voor het laden. Bij Solar overschot kan laden alsnog starten als de all-in prijs hoger is maar deze lager uitvalt door gebruik van stroomoverschot (in plaats van het terug te leveren aan het net)" ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" onpointerdown="event.stopPropagation()" onpointerup="event.stopPropagation()" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()" onclick="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" style="display:block;padding:6px;z-index:3;--mdc-icon-size:18px;color:var(--ec-a6c5b9);cursor:pointer"></ha-icon>
@@ -2325,6 +2331,9 @@ views:
                                   --md-slider-label-container-color: var(--ec-174c3f);
                                 }
                                 ha-state-icon { color: var(--ec-50df90) !important; }
+
+                                /* ennie-info-ruimte: titel niet onder het i-icoon */
+                                .content { padding-inline-end: 26px !important; box-sizing: border-box !important; }
                               hui-card-features$: 'ha-card-features { --md-sys-color-primary: var(--ec-50df90); --md-slider-active-track-color: var(--ec-50df90); --md-slider-handle-color: var(--ec-50df90); }'
                               hui-numeric-input-card-feature$: 'ha-slider { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; --md-slider-inactive-track-color: var(--ec-23483d) !important; }'
                               hui-numeric-input-card-feature$ ha-slider$: ':host { --md-sys-color-primary: var(--ec-50df90) !important; --md-slider-active-track-color: var(--ec-50df90) !important; --md-slider-handle-color: var(--ec-50df90) !important; }'
@@ -2392,6 +2401,9 @@ views:
                                 .content { gap: 0px !important; row-gap: 0px !important; }
                                 ha-tile-info { margin-bottom: -7px !important; }
                                 .features, .feature { margin-top: 0px !important; }
+
+                                /* ennie-info-ruimte: titel niet onder het i-icoon */
+                                .content { padding-inline-end: 26px !important; box-sizing: border-box !important; }
                               ha-tile-info$: |
                                 .secondary { display: none !important; }
                       info: <ha-icon class="ennie-info" icon="mdi:information-outline" data-titel="Maximale all-in stroomprijs" data-tekst="Stel hier in wat de maximale all-in stroomprijs mag zijn voor het laden. Bij Solar overschot kan laden alsnog starten als de all-in prijs hoger is maar deze lager uitvalt door gebruik van stroomoverschot (in plaats van het terug te leveren aan het net)" ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" onpointerdown="event.stopPropagation()" onpointerup="event.stopPropagation()" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()" onclick="event.stopPropagation();event.preventDefault();window.enniePopup&&window.enniePopup(this.dataset.titel,this.dataset.tekst)" style="display:block;padding:6px;z-index:3;--mdc-icon-size:18px;color:var(--ec-a6c5b9);cursor:pointer"></ha-icon>
