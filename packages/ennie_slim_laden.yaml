@@ -850,3 +850,54 @@ automation:
               message: >-
                 Ook na de herstart ziet de Zaptec Ennie niet. Controleer of de
                 stekker goed in de auto en de lader zit.
+  - id: ennie_automatisch_wakker_maken
+    alias: Ennie - Automatisch wakker maken
+    description: >-
+      Maakt Ennie wakker om voertuiggegevens te verversen, maar spaarzaam omdat
+      Skoda het wakker maken beperkt (429 Too Many Requests). Eén keer bij het
+      insteken van de lader, en daarna elk heel uur alleen terwijl de Zaptec
+      laadt. Minimaal 55 minuten tussen twee pogingen. Gebruikt de Zaptec-status,
+      omdat de laadkabel-sensor van Skoda soms achterloopt. 27-11-2026: van elke
+      30 naar elke 60 min, na 429 bij de 4e wekpoging binnen 1,5 uur
+      (nachtladen 03:00-05:00).
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: sensor.oprit_zaptec_go2_opladermodus
+        from: disconnected
+        not_to:
+          - unavailable
+          - unknown
+        id: ingestoken
+      - trigger: time_pattern
+        minutes: 0
+        id: tijdens_laden
+    conditions:
+      - condition: state
+        entity_id: sensor.oprit_zaptec_go2_opladermodus
+        state:
+          - connected_requesting
+          - connected_charging
+          - connected_finished
+      - condition: or
+        conditions:
+          - condition: trigger
+            id: ingestoken
+          - condition: and
+            conditions:
+              - condition: trigger
+                id: tijdens_laden
+              - condition: state
+                entity_id: sensor.oprit_zaptec_go2_opladermodus
+                state: connected_charging
+      - alias: Minimaal 55 min sinds de vorige wekpoging
+        condition: template
+        value_template: >-
+          {{ this.attributes.last_triggered is none
+             or (now() - this.attributes.last_triggered).total_seconds() > 3300 }}
+    actions:
+      - delay: "00:00:10"
+      - action: button.press
+        continue_on_error: true
+        target:
+          entity_id: button.skoda_enyaq_activeer_auto

@@ -8,6 +8,10 @@ The version number follows the `ennie_laadkosten` component (`custom_components/
 
 ## [Unreleased]
 
+### Added
+
+- `Ennie - Automatisch wakker maken` (`ennie_automatisch_wakker_maken`) is now part of `packages/ennie_slim_laden.yaml` instead of a UI automation. It wakes the car via MySkoda (`button.skoda_enyaq_activeer_auto`) once when the cable is plugged into the Zaptec, and then at most once an hour while the Zaptec is charging (at least 55 minutes between attempts), to stay under Skoda's wake-up rate limit (HTTP 429).
+
 ## [2.3.0] - 2026-11-22
 
 ### Added
